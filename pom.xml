@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <groupId>com.hubspot</groupId>
+    <artifactId>Rosetta</artifactId>
+    <version>2.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <description>Tools for converting between objects and query results</description>
+
+    <properties>
+        <jackson.version>2.3.1</jackson.version>
+    </properties>
+
+    <repositories>
+        <repository>
+          <id>sonatype-nexus-snapshots</id>
+          <name>Sonatype Nexus Snapshots</name>
+          <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+    <developers>
+        <developer>
+          <name>Tom Davis</name>
+          <email>tdavis@hubspot.com</email>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>RosettaCore</module>
+        <module>RosettaJdbi</module>
+    </modules>
+</project>
