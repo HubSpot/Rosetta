@@ -3,6 +3,7 @@ package com.hubspot.rosetta.jdbi;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import org.skife.jdbi.v2.SQLStatement;
 
@@ -14,15 +15,18 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.jackson.RosettaView;
 
 public class RosettaSqlBinder {
+  private static final ServiceLoader<NodeToBindValue> loader = ServiceLoader.load(NodeToBindValue.class);
+
   private final ObjectMapper mapper;
   private final ImmutableList<NodeToBindValue> ntbvList;
 
-  RosettaSqlBinder(ObjectMapper mapper, ImmutableList<NodeToBindValue> ntbvList) {
-    this.mapper = mapper;
-    this.ntbvList = ntbvList;
+  public RosettaSqlBinder() {
+    this.mapper = Rosetta.getMapper();
+    this.ntbvList = ImmutableList.copyOf(loader);
   }
 
   public void bindAll(SQLStatement<?> q, Object obj) {
@@ -75,5 +79,4 @@ public class RosettaSqlBinder {
   protected void bindOne(SQLStatement<?> q, String fieldName, Object value) {
     q.bind(fieldName, value);
   }
-
 }
