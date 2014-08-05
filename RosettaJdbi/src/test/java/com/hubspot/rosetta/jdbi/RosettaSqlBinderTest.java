@@ -1,20 +1,15 @@
 package com.hubspot.rosetta.jdbi;
 
-import java.util.ServiceLoader;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Optional;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
-import com.hubspot.rosetta.Rosetta;
-import com.hubspot.rosetta.SnakeCase;
-import com.hubspot.rosetta.StoredAsJson;
-
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.skife.jdbi.v2.SQLStatement;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.hubspot.rosetta.SnakeCase;
+import com.hubspot.rosetta.StoredAsJson;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -24,7 +19,7 @@ public class RosettaSqlBinderTest {
 
   @Before
   public void setUp() {
-    binder = new MockedRosettaSqlBinder(Rosetta.getMapper(), ImmutableList.copyOf(ServiceLoader.load(NodeToBindValue.class)));
+    binder = new MockedRosettaSqlBinder();
   }
 
   @Test
@@ -184,8 +179,7 @@ public class RosettaSqlBinderTest {
   private static class MockedRosettaSqlBinder extends RosettaSqlBinder {
     private final Multimap<String, Object> bindings;
 
-    private MockedRosettaSqlBinder(ObjectMapper mapper, ImmutableList<NodeToBindValue> ntbvList) {
-      super(mapper, ntbvList);
+    private MockedRosettaSqlBinder() {
       bindings = ArrayListMultimap.create();
     }
 
