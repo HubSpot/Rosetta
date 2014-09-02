@@ -1,4 +1,4 @@
-# Rosetta
+# Rosetta [![Build Status](https://travis-ci.org/HubSpot/Rosetta.svg?branch=master)](https://travis-ci.org/HubSpot/Rosetta)
 
 A library that takes the pain out of data mapping and binding.
 
