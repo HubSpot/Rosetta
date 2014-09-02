@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.hubspot.rosetta.ColumnName;
 
 public class RosettaNamingStrategy extends PropertyNamingStrategy {
@@ -24,7 +25,12 @@ public class RosettaNamingStrategy extends PropertyNamingStrategy {
   @Override
   public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod setter, String defaultName) {
     return convert(setter, defaultName);
- }
+  }
+
+  @Override
+  public String nameForConstructorParameter(MapperConfig<?> config, AnnotatedParameter param, String defaultName) {
+    return convert(param, defaultName);
+  }
 
   private String convert(AnnotatedMember member, String defaultName) {
     ColumnName ann = member.getAnnotation(ColumnName.class);
