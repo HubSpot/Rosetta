@@ -1,19 +1,18 @@
 package com.hubspot.rosetta.beans;
 
-import com.hubspot.rosetta.ColumnName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PersonAlt {
 
+  @JsonProperty("nom")
   private String name;
   private int age;
   private GenderPojo gender;
 
-  @ColumnName("nom")
   public String getName() {
     return name;
   }
 
-  @ColumnName("nom")
   public void setName(String name) {
     this.name = name;
   }

@@ -1,8 +1,9 @@
 package com.hubspot.rosetta.beans;
 
-import com.hubspot.rosetta.SnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy;
+import com.hubspot.rosetta.annotations.RosettaNaming;
 
-@SnakeCase
+@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)
 public class Snake {
 
   private Boolean hasStripes;

@@ -1,13 +1,15 @@
 package com.hubspot.rosetta.beans;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.hubspot.rosetta.StoredAsJson;
+import com.hubspot.rosetta.annotations.StoredAsJson;
 
 public class Blob {
 
   String name;
-  @StoredAsJson Person blob;
-  @StoredAsJson ArrayNode anArray;
+  @StoredAsJson
+  Person blob;
+  @StoredAsJson(empty = "[]")
+  ArrayNode anArray;
 
   public Blob() {}
 
