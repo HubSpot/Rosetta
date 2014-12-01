@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.hubspot.rosetta.Rosetta;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,14 +28,21 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     JavaType javaType = ctxt.getTypeFactory().constructType(type);
     ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 
-    if (jp.getCurrentToken() == JsonToken.VALUE_NULL) {
-      return deserialize(mapper, null, javaType);
-    } else if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
+    if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
       return deserialize(mapper, jp.getText(), javaType);
     } else if(jp.getCurrentToken() == JsonToken.START_OBJECT || jp.getCurrentToken() == JsonToken.START_ARRAY) {
       return mapper.readValue(jp, javaType);
     } else {
       throw ctxt.mappingException("Expected JSON String");
+    }
+  }
+
+  @Override
+  public T getNullValue() {
+    try {
+      return deserialize(Rosetta.getMapper(), defaultValue, Rosetta.getMapper().constructType(type));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
