@@ -1,61 +1,59 @@
 package com.hubspot.rosetta;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.google.common.collect.Lists;
-import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
-import com.hubspot.rosetta.jackson.RosettaAnnotationIntrospector;
-import com.hubspot.rosetta.tablets.BeanTabletFactory;
+import com.hubspot.rosetta.internal.RosettaModule;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Static public APIs to get/set some Rosetta globals.
  */
-public final class Rosetta {
-  private Rosetta() {}
+public enum Rosetta {
+  INSTANCE;
 
-  private static final List<TabletFactory> tabletFactories = Lists.<TabletFactory>newArrayList(new BeanTabletFactory());
+  private final List<Module> modules = new CopyOnWriteArrayList<Module>();
+  private final AtomicReference<ObjectMapper> mapper = new AtomicReference<ObjectMapper>(cloneAndCustomize(new ObjectMapper()));
 
-  private static final ObjectMapper ourMapper = new ObjectMapper()
-      .setAnnotationIntrospector(new AnnotationIntrospectorPair(new RosettaAnnotationIntrospector(), new JacksonAnnotationIntrospector()))
-      .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
-      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-      .registerModule(new GuavaModule())
-      .registerModule(new JodaModule())
-      .registerModule(new ProtobufModule());
-
-  /**
-   * Register a new {@link TabletFactory}.
-   */
-  public static void registerTablet(TabletFactory tabletFactory) {
-    tabletFactories.add(0, tabletFactory);
-  }
-
-  /**
-   * Get the table for a given type, or null.
-   */
-  public static Tablet tabletForType(Class<?> klass) {
-    Tablet theTablet = null;
-
-    for (final TabletFactory t : tabletFactories) {
-      if (t.accepts(klass)) {
-        theTablet = t.getInstance(klass);
-        theTablet.setMapper(getMapper());
-        break;
-      }
-    }
-    return theTablet;
-  }
-
-  /**
-   * If you really just want an {@link ObjectMapper}, use this. Hint: you probably don't.
-   */
   public static ObjectMapper getMapper() {
-    return ourMapper;
+    return INSTANCE.get();
+  }
+
+  public static void addModule(Module module) {
+    INSTANCE.add(module);
+  }
+
+  public static void setMapper(ObjectMapper mapper) {
+    INSTANCE.set(mapper);
+  }
+
+  private ObjectMapper get() {
+    return mapper.get();
+  }
+
+  private void set(ObjectMapper mapper) {
+    this.mapper.set(cloneAndCustomize(mapper));
+  }
+
+  private void add(Module module) {
+    modules.add(module);
+    mapper.get().registerModule(module);
+  }
+
+  private ObjectMapper cloneAndCustomize(ObjectMapper mapper) {
+    mapper = mapper.copy()
+            .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(new RosettaModule());
+
+    // ObjectMapper#registerModules doesn't exist in 2.1.x
+    for (Module module : modules) {
+      mapper.registerModule(module);
+    }
+
+    return mapper;
   }
 }

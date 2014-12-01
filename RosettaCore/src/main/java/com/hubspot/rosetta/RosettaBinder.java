@@ -1,83 +1,35 @@
 package com.hubspot.rosetta;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BinaryNode;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.hubspot.rosetta.jackson.RosettaView;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
-/**
- * The compliment to {@link RosettaMapper}, it binds object fields to named parameters.
- *
- * @author tdavis
- */
-public class RosettaBinder {
+public enum RosettaBinder {
+  INSTANCE;
 
-  private final Tablet tablet;
-  private final Map<String, PropertyDefinition> availableFields;
-
-  public RosettaBinder(Class<?> type) {
-    this.tablet = Rosetta.tabletForType(type);
-    this.availableFields = tablet.getFields(type, false);
-
-    tablet.useView(RosettaView.class);
+  public interface Callback {
+    void bind(String key, Object value);
   }
 
-  /**
-   * Construct a generic mapping of parameter names to objects.
-   */
-  public Map<String, Object> makeBoundMap(final Object object) {
-    return makeBoundMap(object, false);
-  }
+  public void bind(String prefix, JsonNode node, Callback callback) {
+    for (Iterator<Entry<String, JsonNode>> iterator = node.fields(); iterator.hasNext(); ) {
+      Entry<String, JsonNode> field = iterator.next();
+      String key = prefix.isEmpty() ? field.getKey() : prefix + "." + field.getKey();
+      JsonNode value = field.getValue();
 
-
-  /**
-   * Construct a generic mapping of parameter names to objects.
-   */
-  public Map<String, Object> makeBoundMap(final Object object, boolean includeNulls) {
-    final Map<String, Object> propertyMap = new HashMap<String, Object>();
-    PropertyDefinition parent = null;
-    Object realObject;
-    Object value;
-    Optional<Object> customValue;
-    PropertyDefinition definition;
-
-    for (final Map.Entry<String, PropertyDefinition> entry : availableFields.entrySet()) {
-      customValue = Optional.absent();
-      realObject = object;
-      definition = entry.getValue();
-
-      if (!definition.couldBind()) {
-        continue;
-      }
-
-      final List<String> layers = Lists.newArrayList(Splitter.on(".").split(entry.getKey()));
-
-      if (definition.hasParent()) {  // We have a child field; need to inspect the right object
-        parent = definition.getParent();
-        realObject = parent.getValue(object);
-        Tablet childTablet = parent.getTablet();
-        definition = childTablet.getFields(parent.getType(), false).get(layers.get(1));
-      }
-      value = definition.getValue(realObject);
-      if (value != null) {
-        customValue = maybeCustomBoundValue(value);
-        propertyMap.put(entry.getKey(), customValue.or(value));
-      } else if (includeNulls) {
-        propertyMap.put(entry.getKey(), null);
+      if (value.isNull()) {
+        callback.bind(key, null);
+      } else if (value.isBoolean()) {
+        callback.bind(key, value.booleanValue());
+      } else if (value.isBinary()) {
+        callback.bind(key, ((BinaryNode) value).binaryValue());
+      } else if (value.isObject()) {
+        bind(key, value, callback);
+      } else {
+        callback.bind(key, value.asText());
       }
     }
-    return propertyMap;
-  }
-
-  private Optional<Object> maybeCustomBoundValue(Object fieldInstance) {
-    if (CustomBoundValue.class.isAssignableFrom(fieldInstance.getClass())) {
-      Object val = ((CustomBoundValue)fieldInstance).getBoundValue();
-      return Optional.of(val);
-    }
-    return Optional.absent();
   }
 }
