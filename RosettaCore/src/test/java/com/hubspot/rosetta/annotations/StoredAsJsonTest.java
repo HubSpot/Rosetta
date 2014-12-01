@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.hubspot.rosetta.Rosetta;
+import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
-import com.hubspot.rosetta.beans.StoredAsJsonBean.Inner;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,13 +15,13 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 public class StoredAsJsonTest {
   private StoredAsJsonBean bean;
-  private Inner inner;
+  private InnerBean inner;
   private final JsonNode expected = TextNode.valueOf("{\"stringProperty\":\"value\"}");
 
   @Before
   public void setup() {
     bean = new StoredAsJsonBean();
-    inner = new Inner();
+    inner = new InnerBean();
     inner.setStringProperty("value");
   }
 

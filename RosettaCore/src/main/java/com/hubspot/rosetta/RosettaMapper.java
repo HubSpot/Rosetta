@@ -42,9 +42,7 @@ public class RosettaMapper<T> {
         value = rs.getObject(i);
       }
 
-      if (value != null) {
-        add(map, label, value);
-      }
+      add(map, label, value);
     }
 
     return Rosetta.getMapper().convertValue(map, type);

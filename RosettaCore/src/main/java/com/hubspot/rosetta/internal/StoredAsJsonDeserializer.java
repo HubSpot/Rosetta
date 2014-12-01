@@ -40,7 +40,7 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   @Override
   public T getNullValue() {
     try {
-      return deserialize(Rosetta.getMapper(), defaultValue, Rosetta.getMapper().constructType(type));
+      return deserialize(Rosetta.getMapper(), null, Rosetta.getMapper().constructType(type));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
