@@ -1,6 +1,6 @@
 # RosettaJdbi
 
-This module provides implementations of common JDBI mapper/binder interfaces using Rosetta.
+This module provides thin adapters to make RosettaBinder and RosettaMapper easily pluggable as the mapping/binding implementation for users of JDBI.
 
 Tired of going from `@BindBean` to `@BindBeanWithEnums` to `@BindMyStupidClass`? Hate implementing a separate `ResultSetMapper` for every minor edge case that `BeanMapper` doesn't cover? Don't know what half that shit means? Then `RosettaJdbi` is for you.
 
@@ -9,16 +9,21 @@ Tired of going from `@BindBean` to `@BindBeanWithEnums` to `@BindMyStupidClass`?
     <dependency>
         <groupId>com.hubspot.rosetta</groupId>
         <artifactId>RosettaJdbi</artifactId>
-        <version>2.1-SNAPSHOT</version>
+        <version>3.0</version>
     </dependency>
 
 ## Mapping
 
-
-Yu can either register the Rosetta mapper on your DAO:
+You can either register the Rosetta mapper globally with your DBI instance:
 
 ```java
-@RegisterMapperFactory(RosettaResultSetMapperFactory.class)
+dbi.registerMapper(new RosettaMapperFactory());
+```
+
+Or on your DAO:
+
+```java
+@RegisterMapperFactory(RosettaMapperFactory.class)
 public interface MyDAO { /* ... */ }
 ```
 
@@ -26,15 +31,9 @@ Or use it to map `Handler` results:
 
 ```java
 handle.createQuery("select * from myTable")
-  .map(RosettaResultSetMapperFactory.<MyRow>mapperFor(MyRow.class))
+  .map(new RosettaMapper<MyRow>(MyRow.class))
   .list();
 ```
-
-### Extras
-
-Bonus mapping features included in your order:
-
-* Automatic "snake_case" handling by annotating a class with `SnakeCase`.
 
 
 ## Binding
@@ -45,10 +44,10 @@ public interface MyDAO {
   @SqlUpdate("UPDATE my_table "
             +"SET some_field=:some_file, another_field=:another_field "
             +"WHERE id=:id")
-  void update(@RosettaBinder MyRow obj);
+  void update(@BindWithRosetta MyRow obj);
 }
 ```
 
-This example assumes that `MyRow` contains properties `some_field`, `another_field` and `id` (most likely camel-cased in the Java class but annotated with `@SnakeCase`).
+This example assumes that `MyRow` contains properties `some_field`, `another_field` and `id` (most likely camel-cased in the Java class but annotated with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)`).
 
-`@RosettaBinder` behaves like JDBI's `@BindBean`, but it lets you customize mapped field names using Jackson annotations. It's also generally more robust - it supports the not-quite-standard naming conventions, fluent setters, getters without fields, etc.
+`@BindWithRosetta` behaves like JDBI's `@BindBean`, but it lets you customize mapped field names using Jackson annotations. It's also generally more robust - it supports the not-quite-standard naming conventions, fluent setters, nested objects (with dot-notation), getters without fields, etc.
