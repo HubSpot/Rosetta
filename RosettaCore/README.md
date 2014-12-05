@@ -29,8 +29,6 @@ enum LeadState {
   public final int getState() {
     return state;
   }
-
-
 }
 ```
 
@@ -38,55 +36,54 @@ Standard stuff. And finding all pending leads is as simple as `select * from lea
 
 ```java
 enum LeadState {
+  VISITED(0),
+  STARRED(1),
+  EMAILED(2),
+  BOUGHT(3)
+
+  final int state;
+
+  LeadState(int state) {
+    this.state = state;
+  }
 
   @RosettaValue
   public final int getState() {
     return state;
   }
-
-  @RosettaCreator
-  public static LeadState fromInt(int state) {
-    switch (approvalStatus) {
-      case 0: return VISITED;
-      case 1: return STARRED;
-      case 2: return EMAILED;
-      case 3: return BOUGHT;
-      default: VISITED;
-    }
-  }
 }
 ```
 
-### Mapping Joins/Unions
+### Nested objects
 
-What if leads could refer *other* leads?
+Nested objects are supported using dot-notation. If you have a `Lead` object with a `FullName` object inside, it might look like:
 
 ```java
-class Lead {
-  // Bunch of fields...
-
-  @Joinable(as="r")
-  Lead referrer;
+public class Lead {
+  private FullName fullName;
+  
+  // getter/setter
 }
 ```
+
+```java
+public class FullName {
+  private String firstName;
+  private String lastName;
+  
+  // getters/setters
+}
 
 Now a query like this will work as you might expect:
 
 ```sql
-SELECT lead.*, ref.name as `r.name`
-FROM `leads` lead
-LEFT JOIN `leads` ref
-ON lead.referrerId = ref.id;
+SELECT lead.firstName as `fullName.firstName`, last.lastName as `fullName.lastName`
+FROM lead
 ```
-
-(The alias prefix defaults to the name of the field, so `as="r"` is optional)
 
 ## Mapping API
 
-Although it's rare you'll use it independently, the primary API consists of these (documented) classes:
-
-* `RosettaMapperFactory`
-* `RosettaMapper`
+Although it's rare you'll use it independently, mapping from a `ResultSet` to an object is handled by `RosettaMapper`
 
 ## Binding Features
 
@@ -97,7 +94,7 @@ For example, consider the following classes (infer getters/setters):
 ```java
 public class Parent {
   String name;
-  @Joinable Person child;
+  Person child;
 }
 
 public class Person {
@@ -112,14 +109,14 @@ enum Gender {
 
   int digit;
 
-  @JsonValue
+  @RosettaValue
   public int forDb() {
     return digit;
   }
 }
 ```
 
-Calling `RosettaBinder#makeBoundMap(parentInstance)` would result in a Map with the structure:
+Would bind the following keys/values:
 
 ```json
 {
