@@ -15,6 +15,12 @@ public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
   public void bind(final SQLStatement<?> q, BindWithRosetta bind, Object arg) {
     JsonNode node = Rosetta.getMapper().valueToTree(arg);
     String prefix = bind.value();
+
+    if (node.isValueNode() || node.isArray()) {
+      prefix = prefix.isEmpty() ? "it" : prefix;
+      node = Rosetta.getMapper().createObjectNode().put(prefix, node);
+    }
+
     RosettaBinder.INSTANCE.bind(prefix, node, new Callback() {
 
       @Override
