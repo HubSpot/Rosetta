@@ -9,7 +9,7 @@ Tired of going from `@BindBean` to `@BindBeanWithEnums` to `@BindMyStupidClass`?
     <dependency>
         <groupId>com.hubspot.rosetta</groupId>
         <artifactId>RosettaJdbi</artifactId>
-        <version>3.0</version>
+        <version>3.1</version>
     </dependency>
 
 ## Mapping
