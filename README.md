@@ -17,6 +17,6 @@ It doesn't sound like much, and it's not. But sometimes Java makes the easiest t
 
 The package is split up into sub-modules to avoid the need to pull in unwanted dependencies. **Consult module READMEs for usage instructions**.
 
-[RosettaAnnotations](RosettaAnnotations/README.md)
-[RosettaCore](RosettaCore/README.md)
-[RosettaJdbi](RosettaJdbi/README.md)
+* [RosettaAnnotations](RosettaAnnotations/README.md)
+* [RosettaCore](RosettaCore/README.md)
+* [RosettaJdbi](RosettaJdbi/README.md)
