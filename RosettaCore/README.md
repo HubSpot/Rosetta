@@ -2,6 +2,20 @@
 
 This module contains the core mapping and binding logic used throughout.
 
+### Maven dependency
+
+To use module on Maven-based projects, use following dependency:
+
+```xml
+<dependency>
+  <groupId>com.hubspot.rosetta</groupId>
+  <artifactId>RosettaCore</artifactId>
+  <version>3.1</version>
+</dependency>
+```
+
+(or whatever version is most up-to-date at the moment)
+
 ## Mapping vs. Binding
 
 Mapping is used when mapping fields and values *to* an object.
