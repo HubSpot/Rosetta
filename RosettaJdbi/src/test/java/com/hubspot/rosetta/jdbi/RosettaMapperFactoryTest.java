@@ -27,11 +27,6 @@ public class RosettaMapperFactoryTest {
   }
 
   @Test
-  public void itRejectsAtomicInteger() {
-    assertThat(mapperFactory.accepts(AtomicInteger.class, null)).isFalse();
-  }
-
-  @Test
   public void itAcceptsRosettaCreatorConstructorBean() {
     assertThat(mapperFactory.accepts(RosettaCreatorConstructorBean.class, null)).isTrue();
   }
@@ -47,8 +42,8 @@ public class RosettaMapperFactoryTest {
   }
 
   @Test
-  public void itRejectsRosettaValueBean() {
-    assertThat(mapperFactory.accepts(RosettaValueBean.class, null)).isFalse();
+  public void itAcceptsRosettaValueBean() {
+    assertThat(mapperFactory.accepts(RosettaValueBean.class, null)).isTrue();
   }
 
   @Test
@@ -59,5 +54,10 @@ public class RosettaMapperFactoryTest {
   @Test
   public void itAcceptsNestedBean() {
     assertThat(mapperFactory.accepts(NestedBean.class, null)).isTrue();
+  }
+
+  @Test
+  public void itAcceptsCircularBean() {
+    assertThat(mapperFactory.accepts(CircularBean.class, null)).isTrue();
   }
 }
