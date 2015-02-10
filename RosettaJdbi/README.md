@@ -4,13 +4,19 @@ This module provides thin adapters to make RosettaBinder and RosettaMapper easil
 
 Tired of going from `@BindBean` to `@BindBeanWithEnums` to `@BindMyStupidClass`? Hate implementing a separate `ResultSetMapper` for every minor edge case that `BeanMapper` doesn't cover? Don't know what half that shit means? Then `RosettaJdbi` is for you.
 
-## Installation
+### Maven dependency
 
-    <dependency>
-        <groupId>com.hubspot.rosetta</groupId>
-        <artifactId>RosettaJdbi</artifactId>
-        <version>3.1</version>
-    </dependency>
+To use module on Maven-based projects, use following dependency:
+
+```xml
+<dependency>
+  <groupId>com.hubspot.rosetta</groupId>
+  <artifactId>RosettaAnnotations</artifactId>
+  <version>3.1</version>
+</dependency>
+```
+
+(or whatever version is most up-to-date at the moment)
 
 ## Mapping
 
