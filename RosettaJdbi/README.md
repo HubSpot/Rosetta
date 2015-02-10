@@ -12,7 +12,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.hubspot.rosetta</groupId>
   <artifactId>RosettaAnnotations</artifactId>
-  <version>3.1</version>
+  <version>3.4</version>
 </dependency>
 ```
 
