@@ -11,7 +11,7 @@ To use module on Maven-based projects, use following dependency:
 ```xml
 <dependency>
   <groupId>com.hubspot.rosetta</groupId>
-  <artifactId>RosettaAnnotations</artifactId>
+  <artifactId>RosettaJdbi</artifactId>
   <version>3.4</version>
 </dependency>
 ```
