@@ -1,22 +1,51 @@
 # Rosetta [![Build Status](https://travis-ci.org/HubSpot/Rosetta.svg?branch=master)](https://travis-ci.org/HubSpot/Rosetta)
 
-A library that takes the pain out of data mapping and binding.
-
 ## Overview
 
 Rosetta is a Java library that leverages [Jackson](https://github.com/FasterXML/jackson) to take the pain out of mapping objects to/from the DB, designed to integrate seamlessly with [jDBI](https://github.com/jdbi/jdbi). Jackson is extremely fast, endlessly configurable, and already used by many Java webapps. 
 
-Rosetta isn't an ORM. It doesn't silently read and write to your database, validate input, or manage connections. It does only two things:
+Rosetta isn't an ORM. It doesn't silently read and write to your database, validate input, or manage connections. It does two things:
 
-1. Maps query results (or any other un-typed, map-like result set) to Object fields, and
-2. Binds object fields to query parameters (or some non-SQL equivalent of that)
+1. Binds Java objects to SQL query parameters
+2. Maps SQL result sets to Java objects
 
-It doesn't sound like much, and it's not. But sometimes Java makes the easiest things the hardest to accomplish.
+## Usage
 
-## Package Structure
+To use with jDBI on Maven-based projects, add the following dependency:
 
-The package is split up into sub-modules to avoid the need to pull in unwanted dependencies. **Consult module READMEs for usage instructions**.
+```xml
+<dependency>
+  <groupId>com.hubspot.rosetta</groupId>
+  <artifactId>RosettaAnnotations</artifactId>
+  <version>3.4</version>
+</dependency>
+```
 
-* [RosettaAnnotations](RosettaAnnotations/README.md)
-* [RosettaCore](RosettaCore/README.md)
-* [RosettaJdbi](RosettaJdbi/README.md)
+## Binding
+
+You can [bind JDBI arguments](http://www.jdbi.org/sql_object_api_argument_binding) in your DAO using `@BindWithRosetta`.
+
+```java
+public interface MyDAO {
+  @SqlUpdate("UPDATE my_table "
+            +"SET some_field=:someField, another_field=:anotherField "
+            +"WHERE id=:id")
+  void update(@BindWithRosetta MyRow obj);
+}
+```
+
+`@BindWithRosetta` behaves like jDBI's `@BindBean`, but it converts the object to a tree using Jackson which lets
+you use all the Jackson annotations you know and love to customize the representation. It's also generally more robust - it supports the not-quite-standard naming conventions, fluent setters, nested objects (with dot-notation), getters without fields, etc.
+
+## Mapping
+
+To register Rosetta globally for mapping you can add it to your `DBI` like so:
+```java
+dbi.registerMapper(new RosettaMapperFactory());
+```
+
+Or to test it out on a single DAO you would do:
+```java
+@RegisterMapperFactory(RosettaMapperFactory.class)
+public interface MyDAO { /* ... */ }
+```
