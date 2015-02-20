@@ -28,7 +28,7 @@ You can [bind JDBI arguments](http://www.jdbi.org/sql_object_api_argument_bindin
 ```java
 public interface MyDAO {
   @SqlUpdate("UPDATE my_table "
-            +"SET some_field=:someField, another_field=:anotherField "
+            +"SET some_field=:some_field, another_field=:another_field "
             +"WHERE id=:id")
   void update(@BindWithRosetta MyRow obj);
 }
@@ -48,4 +48,18 @@ Or to test it out on a single DAO you would do:
 ```java
 @RegisterMapperFactory(RosettaMapperFactory.class)
 public interface MyDAO { /* ... */ }
+```
+
+## Configuration
+
+Assuming your Java field names are camel-case and your SQL column names are lower case with underscores (a pretty common scenario) you can make this work with Rosetta by annotating the Java objects with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations throughout your application are unaffected). Or to make this change globally for Rosetta you could do something like this during your app's startup:
+
+```java
+Rosetta.addModule(new SimpleModule() {
+
+  @Override
+  public void setupModule(SetupContext context) {
+    context.setNamingStrategy(new LowerCaseWithUnderscoresStrategy());
+  }
+});
 ```
