@@ -7,6 +7,7 @@ import com.hubspot.rosetta.beans.NestedBean;
 import com.hubspot.rosetta.beans.RosettaCreatorConstructorBean;
 import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
 import com.hubspot.rosetta.beans.RosettaNamingBean;
+import com.hubspot.rosetta.beans.ServiceLoaderBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import org.junit.Test;
 
@@ -109,6 +110,16 @@ public class RosettaBinderTest {
 
     assertThat(bind(bean)).isEqualTo(map("inner.stringProperty", "value"));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.inner.stringProperty", "value"));
+  }
+
+  @Test
+  public void itUsesServiceLoaderToDiscoverModules() {
+    ServiceLoaderBean bean = new ServiceLoaderBean();
+    bean.setId(50L);
+    bean.setName("test");
+
+    assertThat(bind(bean)).isEqualTo(map("id_value", "50", "name_value", "test"));
+    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.id_value", "50", "prefix.name_value", "test"));
   }
 
   private static Map<String, Object> map(String... strings) {
