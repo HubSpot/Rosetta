@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.internal.RosettaModule;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -15,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public enum Rosetta {
   INSTANCE;
 
-  private final List<Module> modules = new CopyOnWriteArrayList<Module>();
+  private final List<Module> modules = new CopyOnWriteArrayList<Module>(defaultModules());
   private final AtomicReference<ObjectMapper> mapper = new AtomicReference<ObjectMapper>(cloneAndCustomize(new ObjectMapper()));
 
   public static ObjectMapper getMapper() {
@@ -46,8 +48,7 @@ public enum Rosetta {
   private ObjectMapper cloneAndCustomize(ObjectMapper mapper) {
     mapper = mapper.copy()
             .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .registerModule(new RosettaModule());
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     // ObjectMapper#registerModules doesn't exist in 2.1.x
     for (Module module : modules) {
@@ -55,5 +56,16 @@ public enum Rosetta {
     }
 
     return mapper;
+  }
+
+  private static List<Module> defaultModules() {
+    List<Module> defaultModules = new ArrayList<Module>();
+    defaultModules.add(new RosettaModule());
+
+    for (Module module : ServiceLoader.load(Module.class)) {
+      defaultModules.add(module);
+    }
+
+    return defaultModules;
   }
 }
