@@ -52,14 +52,27 @@ public interface MyDAO { /* ... */ }
 
 ## Configuration
 
-Assuming your Java field names are camel-case and your SQL column names are lower case with underscores (a pretty common scenario) you can make this work with Rosetta by annotating the Java objects with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations throughout your application are unaffected). Or to make this change globally for Rosetta you could do something like this during your app's startup:
+Assuming your Java field names are camel-case and your SQL column names are lowercase with underscores (a pretty common scenario) you can make this work with Rosetta by annotating the Java objects with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations throughout your application are unaffected). 
+
+Or to make this change globally for Rosetta, you could make a Jackson `Module` that sets the default naming strategy to lowercase with underscores, something like this:
 
 ```java
-Rosetta.addModule(new SimpleModule() {
+public class LowerCaseWithUnderscoresModule extends SimpleModule {
 
   @Override
   public void setupModule(SetupContext context) {
     context.setNamingStrategy(new LowerCaseWithUnderscoresStrategy());
   }
-});
+}
 ```
+
+You can then register it with Rosetta programmatically during your app's startup with something like:
+
+```java
+Rosetta.addModule(new LowerCaseWithUnderscoresModule());
+```
+
+Or even better, you can create a file located at  
+`src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`
+containing a newline separated list of fully qualified class names for the modules you want to load, in this case it would contain something like  
+`your.package.LowerCaseWithUnderscoresModule`
