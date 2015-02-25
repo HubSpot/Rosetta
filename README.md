@@ -73,6 +73,6 @@ Rosetta.addModule(new LowerCaseWithUnderscoresModule());
 ```
 
 Or even better, you can create a file located at  
-`src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`
+`src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`  
 containing a newline separated list of fully qualified class names for the modules you want to load, in this case it would contain something like  
 `your.package.LowerCaseWithUnderscoresModule`
