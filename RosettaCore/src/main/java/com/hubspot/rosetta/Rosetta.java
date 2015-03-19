@@ -1,6 +1,5 @@
 package com.hubspot.rosetta;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.internal.RosettaModule;
@@ -46,9 +45,7 @@ public enum Rosetta {
   }
 
   private ObjectMapper cloneAndCustomize(ObjectMapper mapper) {
-    mapper = mapper.copy()
-            .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    mapper = mapper.copy();
 
     // ObjectMapper#registerModules doesn't exist in 2.1.x
     for (Module module : modules) {

@@ -2,6 +2,7 @@ package com.hubspot.rosetta.internal;
 
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
@@ -28,6 +29,8 @@ public class RosettaModule extends Module {
     if (codec instanceof ObjectMapper) {
       ObjectMapper mapper = (ObjectMapper) codec;
       mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
+      mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
   }
 }
