@@ -58,25 +58,33 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
   @Override
   public PropertyName findNameForSerialization(Annotated a) {
-    RosettaProperty ann = a.getAnnotation(RosettaProperty.class);
-    if (ann != null) {
-      return new PropertyName(ann.value());
+    PropertyName propertyName = findRosettaPropertyName(a);
+    if (propertyName == null) {
+      propertyName = super.findNameForSerialization(a);
     }
-    return super.findNameForSerialization(a);
+    return propertyName;
   }
 
   @Override
   public PropertyName findNameForDeserialization(Annotated a) {
-    RosettaProperty ann = a.getAnnotation(RosettaProperty.class);
-    if (ann != null) {
-      return new PropertyName(ann.value());
+    PropertyName propertyName = findRosettaPropertyName(a);
+    if (propertyName == null) {
+      propertyName = super.findNameForDeserialization(a);
     }
-    return super.findNameForDeserialization(a);
+    return propertyName;
   }
 
   @Override
   public Version version() {
     return Version.unknownVersion();
+  }
+
+  private PropertyName findRosettaPropertyName(Annotated a) {
+    RosettaProperty ann = a.getAnnotation(RosettaProperty.class);
+    if (ann != null) {
+      return ann.value().isEmpty() ? PropertyName.USE_DEFAULT : new PropertyName(ann.value());
+    }
+    return null;
   }
 
 }
