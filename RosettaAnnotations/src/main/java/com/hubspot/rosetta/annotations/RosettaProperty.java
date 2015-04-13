@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * but you might want it to be hubspot_customer_name without changing the way that
  * jackson serializes/deserializes when sending through services.
  */
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
 public @interface RosettaProperty {
