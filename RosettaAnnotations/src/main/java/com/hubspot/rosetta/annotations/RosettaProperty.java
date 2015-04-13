@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 /**
  * like @JsonProperty only limited to Rosetta mapping/binding
  *
- * For instance, if you have a property that is hubSpotCustomerName, and are using
- * a naming strategy of snake case, then the field would be expected to be hub_spot_customer_name,
- * but you might want it to be hubspot_customer_name without changing the way that
+ * For instance, if you have a property that is mcCartneySongTitle, and are using
+ * a naming strategy of snake case, then the field would be expected to be mc_cartney_song_title,
+ * but you might want it to be mccartney_song_title without changing the way that
  * jackson serializes/deserializes when sending through services.
  */
 @Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})

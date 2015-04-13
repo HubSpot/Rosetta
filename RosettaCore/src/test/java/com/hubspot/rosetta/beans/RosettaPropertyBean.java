@@ -3,15 +3,15 @@ package com.hubspot.rosetta.beans;
 import com.hubspot.rosetta.annotations.RosettaProperty;
 
 public class RosettaPropertyBean {
-  @RosettaProperty("hubspot_customer_name")
-  private String hubSpotCustomerName;
+  @RosettaProperty("mccartney_song_title")
+  private String mcCartneySongTitle;
 
-  public String getHubSpotCustomerName() {
-    return hubSpotCustomerName;
+  public String getMcCartneySongTitle() {
+    return mcCartneySongTitle;
   }
 
-  public RosettaPropertyBean setHubSpotCustomerName(String hubSpotCustomerName) {
-    this.hubSpotCustomerName = hubSpotCustomerName;
+  public RosettaPropertyBean setMcCartneySongTitle(String mcCartneySongTitle) {
+    this.mcCartneySongTitle = mcCartneySongTitle;
     return this;
   }
 }
