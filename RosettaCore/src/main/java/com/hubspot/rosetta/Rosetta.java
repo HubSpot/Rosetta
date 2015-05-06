@@ -2,7 +2,7 @@ package com.hubspot.rosetta;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.rosetta.databind.DatabindModule;
+import com.hubspot.rosetta.databind.AutoDiscoveredModule;
 import com.hubspot.rosetta.internal.RosettaModule;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public enum Rosetta {
     List<Module> defaultModules = new ArrayList<Module>();
     defaultModules.add(new RosettaModule());
 
-    for (Module module : ServiceLoader.load(DatabindModule.class)) {
+    for (Module module : ServiceLoader.load(AutoDiscoveredModule.class)) {
       defaultModules.add(module);
     }
 

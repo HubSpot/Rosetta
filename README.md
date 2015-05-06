@@ -72,8 +72,8 @@ You can then register it with Rosetta programmatically during your app's startup
 Rosetta.addModule(new LowerCaseWithUnderscoresModule());
 ```
 
-Or even better your module could extend `com.hubspot.rosetta.databind.DatabindModule`, you can create a file located at
-`src/main/resources/META-INF/services/com.hubspot.rosetta.databind.DatabindModule`
+Or even better your module could extend `com.hubspot.rosetta.databind.AutoDiscoveredModule`, you can create a file located at
+`src/main/resources/META-INF/services/com.hubspot.rosetta.databind.AutoDiscoveredModule`
 
 Rosetta also supports injecting from the default Module:
 `src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`  
