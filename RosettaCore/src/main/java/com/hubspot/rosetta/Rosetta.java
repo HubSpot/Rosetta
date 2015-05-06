@@ -2,6 +2,7 @@ package com.hubspot.rosetta;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.databind.DatabindModule;
 import com.hubspot.rosetta.internal.RosettaModule;
 
 import java.util.ArrayList;
@@ -58,6 +59,10 @@ public enum Rosetta {
   private static List<Module> defaultModules() {
     List<Module> defaultModules = new ArrayList<Module>();
     defaultModules.add(new RosettaModule());
+
+    for (Module module : ServiceLoader.load(DatabindModule.class)) {
+      defaultModules.add(module);
+    }
 
     for (Module module : ServiceLoader.load(Module.class)) {
       defaultModules.add(module);
