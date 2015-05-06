@@ -118,14 +118,14 @@ public class RosettaBinderTest {
     bean.setId(50L);
     bean.setName("test");
 
-    assertThat(bind(bean)).isEqualTo(map("id_value", "50", "name_value", "test"));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.id_value", "50", "prefix.name_value", "test"));
+    assertThat(bind(bean)).isEqualTo(map("id_value", 50, "name_value", "test"));
+    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.id_value", 50, "prefix.name_value", "test"));
   }
 
-  private static Map<String, Object> map(String... strings) {
+  private static Map<String, Object> map(Object... strings) {
     Map<String, Object> map = new HashMap<String, Object>();
     for (int i = 0; i < strings.length; i += 2) {
-      map.put(strings[i], strings[i + 1]);
+      map.put((String) strings[i], strings[i + 1]);
     }
 
     return map;
