@@ -25,6 +25,8 @@ public enum RosettaBinder {
         callback.bind(key, value.booleanValue());
       } else if (value.isBinary()) {
         callback.bind(key, ((BinaryNode) value).binaryValue());
+      } else if (value.isNumber()) {
+        callback.bind(key, value.numberValue());
       } else if (value.isObject()) {
         bind(key, value, callback);
       } else {
