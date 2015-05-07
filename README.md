@@ -17,7 +17,7 @@ To use with jDBI on Maven-based projects, add the following dependency:
 <dependency>
   <groupId>com.hubspot.rosetta</groupId>
   <artifactId>RosettaJdbi</artifactId>
-  <version>3.7</version>
+  <version>3.8</version>
 </dependency>
 ```
 
