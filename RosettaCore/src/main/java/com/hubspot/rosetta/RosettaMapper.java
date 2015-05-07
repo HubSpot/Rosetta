@@ -17,9 +17,15 @@ import java.util.Map;
  */
 public class RosettaMapper<T> {
   private final Class<T> type;
+  private final String tableName;
 
   public RosettaMapper(Class<T> type) {
+    this(type, null);
+  }
+
+  public RosettaMapper(Class<T> type, String tableName) {
     this.type = type;
+    this.tableName = tableName;
   }
 
   /**
@@ -32,7 +38,6 @@ public class RosettaMapper<T> {
     ResultSetMetaData metadata = rs.getMetaData();
 
     for (int i = 1; i <= metadata.getColumnCount(); ++i) {
-      String qualifiedName = metadata.getTableName(i) + "." + metadata.getColumnName(i);
       String label = metadata.getColumnLabel(i);
       final Object value;
 
@@ -43,14 +48,21 @@ public class RosettaMapper<T> {
         value = rs.getObject(i);
       }
 
-      add(map, qualifiedName, value);
-      add(map, label, value);
+      String tableName = metadata.getTableName(i);
+      boolean overwrite = tableName.equals(this.tableName);
+
+      if (!tableName.isEmpty()) {
+        String qualifiedName = tableName + "." + metadata.getColumnName(i);
+        add(map, qualifiedName, value, overwrite);
+      }
+
+      add(map, label, value, overwrite);
     }
 
     return Rosetta.getMapper().convertValue(map, type);
   }
 
-  private void add(Map<String, Object> map, String label, Object value) {
+  private void add(Map<String, Object> map, String label, Object value, boolean overwrite) {
     if (label.contains(".")) {
       int periodIndex = label.indexOf('.');
       String prefix = label.substring(0, periodIndex);
@@ -63,9 +75,11 @@ public class RosettaMapper<T> {
         map.put(prefix, submap);
       }
 
-      add(submap, suffix, value);
+      add(submap, suffix, value, overwrite);
     } else {
-      map.put(label, value);
+      if (overwrite || !map.containsKey(label)) {
+        map.put(label, value);
+      }
     }
   }
 }

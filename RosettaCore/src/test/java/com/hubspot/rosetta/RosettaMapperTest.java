@@ -165,6 +165,22 @@ public class RosettaMapperTest {
     assertThat(map(NestedBean.class).getInner().getStringProperty()).isEqualTo("value");
   }
 
+  @Test
+  public void itDoesntOverwriteIfTableDoesntMatch() {
+    initializeResultSet("table.stringProperty", "pass");
+    initializeResultSet("other_table.stringProperty", "fail");
+
+    assertThat(map(RosettaCreatorConstructorBean.class).getStringProperty()).isEqualTo("pass");
+  }
+
+  @Test
+  public void itOverwritesIfTableMatches() {
+    initializeResultSet("other_table.stringProperty", "fail");
+    initializeResultSet("table.stringProperty", "pass");
+
+    assertThat(map(RosettaCreatorConstructorBean.class).getStringProperty()).isEqualTo("pass");
+  }
+
   private void initializeResultSet(String... strings) {
     for (int i = 0; i < strings.length; i += 2) {
       String[] parts = strings[i].split("\\.");
@@ -176,7 +192,7 @@ public class RosettaMapperTest {
 
   private <T> T map(Class<T> type) {
     try {
-      return new RosettaMapper<T>(type).mapRow(resultSet);
+      return new RosettaMapper<T>(type, "table").mapRow(resultSet);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
