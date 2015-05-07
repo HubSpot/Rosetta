@@ -87,6 +87,7 @@ public class FullName {
   
   // getters/setters
 }
+```
 
 Now a query like this will work as you might expect:
 
