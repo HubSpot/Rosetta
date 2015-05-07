@@ -28,7 +28,8 @@ public class RosettaMapperTest {
   private final ResultSet resultSet = Mockito.mock(ResultSet.class);
   private final ResultSetMetaData resultSetMetaData = Mockito.mock(ResultSetMetaData.class);
 
-  private final List<String> labels = new ArrayList<String>();
+  private final List<String> tables = new ArrayList<String>();
+  private final List<String> names = new ArrayList<String>();
   private final List<String> values = new ArrayList<String>();
 
   @Before
@@ -49,7 +50,7 @@ public class RosettaMapperTest {
 
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
-        return labels.size();
+        return names.size();
       }
     });
     when(resultSetMetaData.getColumnLabel(anyInt())).thenAnswer(new Answer<String>() {
@@ -57,41 +58,58 @@ public class RosettaMapperTest {
       @Override
       public String answer(InvocationOnMock invocation) throws Throwable {
         int index = (Integer) invocation.getArguments()[0];
-        return labels.get(index - 1);
+        return names.get(index - 1);
+      }
+    });
+    when(resultSetMetaData.getColumnName(anyInt())).thenAnswer(new Answer<String>() {
+
+      @Override
+      public String answer(InvocationOnMock invocation) throws Throwable {
+        int index = (Integer) invocation.getArguments()[0];
+        return names.get(index - 1);
+      }
+    });
+    when(resultSetMetaData.getTableName(anyInt())).thenAnswer(new Answer<String>() {
+
+      @Override
+      public String answer(InvocationOnMock invocation) throws Throwable {
+        int index = (Integer) invocation.getArguments()[0];
+        return tables.get(index - 1);
       }
     });
   }
 
   @After
   public void reset() {
-    labels.clear();
+    tables.clear();
+    names.clear();
     values.clear();
   }
 
   @Test
   public void itMapsRosettaCreatorConstructorBeanCorrectly() {
-    initializeResultSet("stringProperty", "value");
+    initializeResultSet("table.stringProperty", "value");
 
     assertThat(map(RosettaCreatorConstructorBean.class).getStringProperty()).isEqualTo("value");
   }
 
   @Test
   public void itMapsRosettaCreatorMethodBeanCorrectly() {
-    initializeResultSet("stringProperty", "value");
+    initializeResultSet("table.stringProperty", "value");
 
     assertThat(map(RosettaCreatorMethodBean.class).getStringProperty()).isEqualTo("value");
   }
 
   @Test
   public void itMapsRosettaNamingBeanCorrectly() {
-    initializeResultSet("string_property", "value");
+    initializeResultSet("table.string_property", "value");
 
     assertThat(map(RosettaNamingBean.class).getStringProperty()).isEqualTo("value");
   }
 
   @Test
   public void itMapsRosettaValueBeanCorrectly() {
-    initializeResultSet("stringProperty", "value");
+    initializeResultSet("table.stringProperty", "value");
 
     assertThat(map(RosettaValueBean.class).getStringProperty()).isEqualTo("value");
   }
@@ -101,12 +119,12 @@ public class RosettaMapperTest {
     String json = "{\"stringProperty\":\"value\"}";
 
     initializeResultSet(
-            "annotatedField", json,
-            "annotatedGetter", json,
-            "annotatedSetter", json,
-            "annotatedFieldWithDefault", json,
-            "annotatedGetterWithDefault", json,
-            "annotatedSetterWithDefault", json
+            "table.annotatedField", json,
+            "table.annotatedGetter", json,
+            "table.annotatedSetter", json,
+            "table.annotatedFieldWithDefault", json,
+            "table.annotatedGetterWithDefault", json,
+            "table.annotatedSetterWithDefault", json
     );
 
     StoredAsJsonBean bean = map(StoredAsJsonBean.class);
@@ -122,12 +140,12 @@ public class RosettaMapperTest {
   @Test
   public void itMapsNullStoredAsJsonBeanCorrectly() {
     initializeResultSet(
-            "annotatedField", null,
-            "annotatedGetter", null,
-            "annotatedSetter", null,
-            "annotatedFieldWithDefault", null,
-            "annotatedGetterWithDefault", null,
-            "annotatedSetterWithDefault", null
+            "table.annotatedField", null,
+            "table.annotatedGetter", null,
+            "table.annotatedSetter", null,
+            "table.annotatedFieldWithDefault", null,
+            "table.annotatedGetterWithDefault", null,
+            "table.annotatedSetterWithDefault", null
     );
 
     StoredAsJsonBean bean = map(StoredAsJsonBean.class);
@@ -149,7 +167,9 @@ public class RosettaMapperTest {
 
   private void initializeResultSet(String... strings) {
     for (int i = 0; i < strings.length; i += 2) {
-      labels.add(strings[i]);
+      String[] parts = strings[i].split("\\.");
+      tables.add(parts[0]);
+      names.add(parts[1]);
       values.add(strings[i + 1]);
     }
   }

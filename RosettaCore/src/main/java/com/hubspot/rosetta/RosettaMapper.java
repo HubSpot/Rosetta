@@ -32,6 +32,7 @@ public class RosettaMapper<T> {
     ResultSetMetaData metadata = rs.getMetaData();
 
     for (int i = 1; i <= metadata.getColumnCount(); ++i) {
+      String qualifiedName = metadata.getTableName(i) + "." + metadata.getColumnName(i);
       String label = metadata.getColumnLabel(i);
       final Object value;
 
@@ -42,6 +43,7 @@ public class RosettaMapper<T> {
         value = rs.getObject(i);
       }
 
+      add(map, qualifiedName, value);
       add(map, label, value);
     }
 
