@@ -36,7 +36,7 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-    final RosettaMapper mapper = new RosettaMapper(type);
+    final RosettaMapper mapper = new RosettaMapper(type, extractTableName(ctx.getRewrittenSql()));
 
     return new ResultSetMapper() {
 
@@ -45,5 +45,24 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
         return mapper.mapRow(r);
       }
     };
+  }
+
+  private String extractTableName(final String sql) {
+    String lowerCaseSql = sql.toLowerCase();
+
+    String from = " from ";
+    int fromIndex = lowerCaseSql.indexOf(from);
+    if (fromIndex < 0) {
+      return null;
+    }
+
+    String tableString = sql.substring(fromIndex + from.length());
+    if (tableString.startsWith("(")) {
+      return null;
+    }
+
+    int endTableIndex = tableString.indexOf(' ');
+
+    return endTableIndex < 0 ? tableString : tableString.substring(0, endTableIndex);
   }
 }
