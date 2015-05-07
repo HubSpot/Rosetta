@@ -35,7 +35,7 @@ public interface MyDAO {
 ```
 
 `@BindWithRosetta` behaves like jDBI's `@BindBean`, but it converts the object to a tree using Jackson which lets
-you use all the Jackson annotations you know and love to customize the representation. It's also generally more robust - it supports the not-quite-standard naming conventions, fluent setters, nested objects (with dot-notation), getters without fields, etc.
+you use all the Jackson annotations you know and love to customize the representation. It's also generally more robust - it supports the not-quite-standard naming conventions, enums, fluent setters, nested objects (with dot-notation), getters without fields, etc.
 
 ## Mapping
 
