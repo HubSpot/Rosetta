@@ -17,8 +17,8 @@ public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
     String prefix = bind.value();
 
     if (node.isValueNode() || node.isArray()) {
-      prefix = prefix.isEmpty() ? "it" : prefix;
-      node = Rosetta.getMapper().createObjectNode().set(prefix, node);
+      node = Rosetta.getMapper().createObjectNode().set(prefix.isEmpty() ? "it" : prefix, node);
+      prefix = "";
     }
 
     RosettaBinder.INSTANCE.bind(prefix, node, new Callback() {
