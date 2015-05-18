@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot.rosetta</groupId>
     <artifactId>Rosetta</artifactId>
-    <version>3.9.1</version>
+    <version>3.9.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>RosettaJdbi</artifactId>
@@ -23,7 +23,7 @@
     <dependency>
       <groupId>com.hubspot.rosetta</groupId>
       <artifactId>RosettaCore</artifactId>
-      <version>3.9.1</version>
+      <version>3.9.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jdbi</groupId>
@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.hubspot.rosetta</groupId>
       <artifactId>RosettaCore</artifactId>
-      <version>3.9.1</version>
+      <version>3.9.2-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
