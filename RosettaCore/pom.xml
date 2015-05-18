@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot.rosetta</groupId>
     <artifactId>Rosetta</artifactId>
-    <version>3.10-SNAPSHOT</version>
+    <version>3.9.1</version>
   </parent>
 
   <artifactId>RosettaCore</artifactId>
@@ -23,7 +23,7 @@
     <dependency>
       <groupId>com.hubspot.rosetta</groupId>
       <artifactId>RosettaAnnotations</artifactId>
-      <version>3.10-SNAPSHOT</version>
+      <version>3.9.1</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
