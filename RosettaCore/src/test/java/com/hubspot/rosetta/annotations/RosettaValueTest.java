@@ -5,7 +5,7 @@ import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.RosettaValueBean;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RosettaValueTest {
 

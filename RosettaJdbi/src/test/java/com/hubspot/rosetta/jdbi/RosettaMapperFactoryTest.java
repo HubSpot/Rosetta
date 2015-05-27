@@ -8,9 +8,7 @@ import com.hubspot.rosetta.beans.RosettaValueBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RosettaMapperFactoryTest {
 

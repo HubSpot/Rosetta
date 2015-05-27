@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <groupId>com.hubspot</groupId>
+    <artifactId>basepom</artifactId>
+    <version>10.2</version>
   </parent>
 
   <groupId>com.hubspot.rosetta</groupId>
@@ -13,18 +13,6 @@
   <version>3.9.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Tools for converting between objects and query results</description>
-
-  <properties>
-    <jackson.version>2.3.1</jackson.version>
-  </properties>
-
-  <repositories>
-    <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-  </repositories>
 
   <scm>
     <connection>scm:git:git@github.com:HubSpot/Rosetta.git</connection>
@@ -34,8 +22,8 @@
 
   <developers>
     <developer>
-      <name>Tom Davis</name>
-      <email>tdavis@hubspot.com</email>
+      <name>Jonathan Haber</name>
+      <email>jhaber@hubspot.com</email>
     </developer>
   </developers>
 
@@ -45,45 +33,34 @@
     <module>RosettaJdbi</module>
   </modules>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.2</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.3</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.hubspot.rosetta</groupId>
+        <artifactId>RosettaAnnotations</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot.rosetta</groupId>
+        <artifactId>RosettaCore</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot.rosetta</groupId>
+        <artifactId>RosettaCore</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot.rosetta</groupId>
+        <artifactId>RosettaJdbi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.0.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
