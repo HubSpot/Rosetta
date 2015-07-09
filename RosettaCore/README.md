@@ -92,7 +92,7 @@ public class FullName {
 Now a query like this will work as you might expect:
 
 ```sql
-SELECT lead.firstName as `fullName.firstName`, last.lastName as `fullName.lastName`
+SELECT lead.firstName as `fullName.firstName`, lead.lastName as `fullName.lastName`
 FROM lead
 ```
 
