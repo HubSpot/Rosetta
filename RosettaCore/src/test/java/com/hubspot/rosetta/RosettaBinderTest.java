@@ -1,5 +1,6 @@
 package com.hubspot.rosetta;
 
+import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hubspot.rosetta.RosettaBinder.Callback;
 import com.hubspot.rosetta.beans.InnerBean;
@@ -11,7 +12,11 @@ import com.hubspot.rosetta.beans.ServiceLoaderBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,8 +60,11 @@ public class RosettaBinderTest {
     bean.setAnnotatedFieldWithDefault(inner);
     bean.setAnnotatedGetterWithDefault(inner);
     bean.setAnnotatedSetterWithDefault(inner);
+    bean.setBinaryField(inner);
+    bean.setBinaryFieldWithDefault(inner);
 
     String json = "{\"stringProperty\":\"value\"}";
+    List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
 
     assertThat(bind(bean)).isEqualTo(map(
             "annotatedField", json,
@@ -64,7 +72,9 @@ public class RosettaBinderTest {
             "annotatedSetter", json,
             "annotatedFieldWithDefault", json,
             "annotatedGetterWithDefault", json,
-            "annotatedSetterWithDefault", json
+            "annotatedSetterWithDefault", json,
+            "binaryField", bytes,
+            "binaryFieldWithDefault", bytes
     ));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
             "prefix.annotatedField", json,
@@ -72,7 +82,9 @@ public class RosettaBinderTest {
             "prefix.annotatedSetter", json,
             "prefix.annotatedFieldWithDefault", json,
             "prefix.annotatedGetterWithDefault", json,
-            "prefix.annotatedSetterWithDefault", json
+            "prefix.annotatedSetterWithDefault", json,
+            "prefix.binaryField", bytes,
+            "prefix.binaryFieldWithDefault", bytes
     ));
   }
 
@@ -81,6 +93,7 @@ public class RosettaBinderTest {
     StoredAsJsonBean bean = new StoredAsJsonBean();
 
     String json = "{\"stringProperty\":\"value\"}";
+    List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
 
     assertThat(bind(bean)).isEqualTo(map(
             "annotatedField", null,
@@ -88,7 +101,9 @@ public class RosettaBinderTest {
             "annotatedSetter", null,
             "annotatedFieldWithDefault", json,
             "annotatedGetterWithDefault", json,
-            "annotatedSetterWithDefault", json
+            "annotatedSetterWithDefault", json,
+            "binaryField", null,
+            "binaryFieldWithDefault", bytes
     ));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
             "prefix.annotatedField", null,
@@ -96,7 +111,9 @@ public class RosettaBinderTest {
             "prefix.annotatedSetter", null,
             "prefix.annotatedFieldWithDefault", json,
             "prefix.annotatedGetterWithDefault", json,
-            "prefix.annotatedSetterWithDefault", json
+            "prefix.annotatedSetterWithDefault", json,
+            "prefix.binaryField", null,
+            "prefix.binaryFieldWithDefault", bytes
     ));
   }
 
@@ -147,11 +164,24 @@ public class RosettaBinderTest {
 
     @Override
     public void bind(String key, Object value) {
+      if (value instanceof byte[]) {
+        value = toList((byte[]) value);
+      }
+
       bindings.put(key, value);
     }
 
     public Map<String, Object> getBindings() {
       return bindings;
     }
+  }
+
+  private static List<Byte> toList(byte[] bytes) {
+    List<Byte> byteList = new ArrayList<>();
+    for (int i = 0; i < bytes.length; i++) {
+      byteList.add(bytes[i]);
+    }
+
+    return byteList;
   }
 }

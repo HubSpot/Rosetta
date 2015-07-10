@@ -1,5 +1,6 @@
 package com.hubspot.rosetta.internal;
 
+import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -10,6 +11,7 @@ import com.hubspot.rosetta.Rosetta;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
 
@@ -30,6 +32,9 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
 
     if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
       return deserialize(mapper, jp.getText(), javaType);
+    } else if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
+      String json = new String(jp.getBinaryValue(Base64Variants.getDefaultVariant()), StandardCharsets.UTF_8);
+      return deserialize(mapper, json, javaType);
     } else if(jp.getCurrentToken() == JsonToken.START_OBJECT || jp.getCurrentToken() == JsonToken.START_ARRAY) {
       return mapper.readValue(jp, javaType);
     } else {
