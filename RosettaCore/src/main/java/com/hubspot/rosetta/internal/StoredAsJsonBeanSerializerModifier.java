@@ -23,7 +23,7 @@ public class StoredAsJsonBeanSerializerModifier extends BeanSerializerModifier {
       if (storedAsJson != null && !StoredAsJson.NULL.equals(storedAsJson.empty())) {
         final JsonSerializer<Object> nullSerializer;
         if (storedAsJson.binary()) {
-          nullSerializer = new ConstantBinarySerializer(storedAsJson.empty().getBytes(StandardCharsets.UTF_8));
+          nullSerializer = new ConstantBinarySerializer(storedAsJson.empty());
         } else {
           nullSerializer = new ConstantSerializer(storedAsJson.empty());
         }

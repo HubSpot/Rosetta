@@ -10,15 +10,16 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 public class ConstantBinarySerializer extends StdSerializer<Object> {
   private static final ByteArraySerializer DELEGATE = new ByteArraySerializer();
 
   private final byte[] value;
 
-  public ConstantBinarySerializer(byte[] value) {
+  public ConstantBinarySerializer(String value) {
     super(Object.class);
-    this.value = value;
+    this.value = value.getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
