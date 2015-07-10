@@ -27,7 +27,12 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   @SuppressWarnings("unchecked")
   public JsonSerializer<?> findSerializer(Annotated a) {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
-    return storedAsJson == null ? null : new StoredAsJsonSerializer(a.getRawType());
+    if (storedAsJson == null) {
+      return null;
+    } else {
+      Class<?> type = a.getRawType();
+      return storedAsJson.binary() ? new StoredAsJsonBinarySerializer(type) : new StoredAsJsonSerializer(type);
+    }
   }
 
   @Override

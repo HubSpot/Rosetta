@@ -2,6 +2,7 @@ package com.hubspot.rosetta.annotations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -11,12 +12,15 @@ import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StoredAsJsonTest {
   private StoredAsJsonBean bean;
   private InnerBean inner;
   private final JsonNode expected = TextNode.valueOf("{\"stringProperty\":\"value\"}");
+  private final JsonNode expectedBinary = BinaryNode.valueOf(expected.textValue().getBytes(StandardCharsets.UTF_8));
 
   @Before
   public void setup() {
@@ -204,5 +208,65 @@ public class StoredAsJsonTest {
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
     assertThat(bean.getAnnotatedSetterWithDefault().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testBinaryFieldSerialization() {
+    bean.setBinaryField(inner);
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryField")).isEqualTo(expectedBinary);
+  }
+
+  @Test
+  public void testBinaryFieldDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("binaryField", expectedBinary);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getBinaryField().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testBinaryFieldNullSerialization() {
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryField")).isEqualTo(NullNode.getInstance());
+  }
+
+  @Test
+  public void testBinaryFieldNullDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("binaryField", NullNode.getInstance());
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getBinaryField()).isNull();
+  }
+
+  @Test
+  public void testBinaryFieldWithDefaultSerialization() {
+    bean.setBinaryFieldWithDefault(inner);
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryFieldWithDefault")).isEqualTo(expectedBinary);
+  }
+
+  @Test
+  public void testBinaryFieldWithDefaultDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("binaryFieldWithDefault", expectedBinary);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getBinaryFieldWithDefault().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testBinaryFieldWithDefaultNullSerialization() {
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryFieldWithDefault")).isEqualTo(expectedBinary);
+  }
+
+  @Test
+  public void testBinaryFieldWithDefaultNullDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("binaryFieldWithDefault", NullNode.getInstance());
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getBinaryFieldWithDefault().getStringProperty()).isEqualTo("value");
   }
 }

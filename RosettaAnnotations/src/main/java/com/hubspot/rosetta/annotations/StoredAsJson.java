@@ -15,4 +15,5 @@ public @interface StoredAsJson {
   String NULL = "___null___";
 
   String empty() default NULL;
+  boolean binary() default false;
 }
