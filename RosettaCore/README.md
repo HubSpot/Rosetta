@@ -70,20 +70,24 @@ enum LeadState {
 
 ### Nested objects
 
-Nested objects are supported using dot-notation. If you have a `Lead` object with a `FullName` object inside, it might look like:
+Nested objects are supported using dot-notation. If you have a `Lead` object with a `Company` object inside, it might look like:
 
 ```java
 public class Lead {
-  private FullName fullName;
+  private long id;
+  private String name;
+  private Company company;
   
   // getter/setter
 }
 ```
 
 ```java
-public class FullName {
-  private String firstName;
-  private String lastName;
+public class Company {
+  private long id;
+  private String name;
+  private String address;
+  private String phoneNumber;
   
   // getters/setters
 }
@@ -92,8 +96,10 @@ public class FullName {
 Now a query like this will work as you might expect:
 
 ```sql
-SELECT leads.firstName as `fullName.firstName`, leads.lastName as `fullName.lastName` FROM leads
+SELECT leads.*, company.* FROM leads INNER JOIN companies AS company ON (leads.company_id = company.id)
 ```
+
+Notice that the `companies` table was aliased to `company` to match the `company` field on the `Lead` object
 
 ## Binding Features
 
