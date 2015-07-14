@@ -10,7 +10,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.hubspot.rosetta</groupId>
   <artifactId>RosettaCore</artifactId>
-  <version>3.4</version>
+  <version>3.10.0</version>
 </dependency>
 ```
 
@@ -25,44 +25,44 @@ Binding is a method for mapping object fields *to* (usually) SQL query parameter
 
 ## Mapping Features
 
-Because Rosetta is built on `jackson-databind`, you can use all the [Annotations](http://wiki.fasterxml.com/JacksonAnnotations) you know and love. Let's cover one common customization: `Enum` handling. Storing an enum in the database by name (ordinal, etc.) is less efficient, less maintainable, and affords fewer queries than a representation like `tinyint`. Say you have leads with some states:
+Because Rosetta delegates to Jackson, you can use all the [Annotations](http://wiki.fasterxml.com/JacksonAnnotations) you know and love. Let's cover one common customization: `Enum` handling. Enums are often stored in the DB as `tinyint`, but returned from the API by name. Say you have leads with some states:
 
 ```java
 enum LeadState {
   VISITED(0),
   STARRED(1),
   EMAILED(2),
-  BOUGHT(3)
+  BOUGHT(3);
 
-  final int state;
+  private final int state;
 
   LeadState(int state) {
     this.state = state;
   }
 
-  public final int getState() {
+  public int getState() {
     return state;
   }
 }
 ```
 
-Standard stuff. And finding all pending leads is as simple as `select * from leads where state < 3`. But we still need to tell Rosetta how to translate the integer (from the database) to the enum value (on our pretend `Lead` class). Here's all it takes:
+Standard stuff. And finding all pending leads is as simple as `SELECT * FROM leads WHERE state != 3`. But we still need to tell Rosetta how to translate the integer (from the database) to the enum value. Here's all it takes:
 
 ```java
 enum LeadState {
   VISITED(0),
   STARRED(1),
   EMAILED(2),
-  BOUGHT(3)
+  BOUGHT(3);
 
-  final int state;
+  private final int state;
 
   LeadState(int state) {
     this.state = state;
   }
 
   @RosettaValue
-  public final int getState() {
+  public int getState() {
     return state;
   }
 }
@@ -92,13 +92,8 @@ public class FullName {
 Now a query like this will work as you might expect:
 
 ```sql
-SELECT lead.firstName as `fullName.firstName`, lead.lastName as `fullName.lastName`
-FROM lead
+SELECT leads.firstName as `fullName.firstName`, leads.lastName as `fullName.lastName` FROM leads
 ```
-
-## Mapping API
-
-Although it's rare you'll use it independently, mapping from a `ResultSet` to an object is handled by `RosettaMapper`
 
 ## Binding Features
 
