@@ -12,7 +12,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.hubspot.rosetta</groupId>
   <artifactId>RosettaJdbi</artifactId>
-  <version>3.4</version>
+  <version>3.10.0</version>
 </dependency>
 ```
 
@@ -40,20 +40,3 @@ handle.createQuery("select * from myTable")
   .map(new RosettaMapper<MyRow>(MyRow.class))
   .list();
 ```
-
-
-## Binding
-
-You can [bind JDBI arguments](http://www.jdbi.org/sql_object_api_argument_binding) in your DAO using `@RosettaBinder`.
-```java
-public interface MyDAO {
-  @SqlUpdate("UPDATE my_table "
-            +"SET some_field=:some_file, another_field=:another_field "
-            +"WHERE id=:id")
-  void update(@BindWithRosetta MyRow obj);
-}
-```
-
-This example assumes that `MyRow` contains properties `some_field`, `another_field` and `id` (most likely camel-cased in the Java class but annotated with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)`).
-
-`@BindWithRosetta` behaves like JDBI's `@BindBean`, but it lets you customize mapped field names using Jackson annotations. It's also generally more robust - it supports the not-quite-standard naming conventions, fluent setters, nested objects (with dot-notation), getters without fields, etc.
