@@ -1,5 +1,7 @@
 package com.hubspot.rosetta;
 
+import com.hubspot.rosetta.internal.TableNameExtractor;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -16,6 +18,8 @@ import java.util.Map;
  * @author tdavis
  */
 public class RosettaMapper<T> {
+  private static TableNameExtractor TABLE_NAME_EXTRACTOR = chooseTableNameExtractor();
+
   private final Class<T> type;
   private final String tableName;
 
@@ -48,7 +52,7 @@ public class RosettaMapper<T> {
         value = rs.getObject(i);
       }
 
-      String tableName = metadata.getTableName(i);
+      String tableName = TABLE_NAME_EXTRACTOR.getTableName(metadata, i);
       boolean overwrite = tableName.equals(this.tableName);
 
       if (!tableName.isEmpty()) {
@@ -71,7 +75,7 @@ public class RosettaMapper<T> {
       @SuppressWarnings("unchecked")
       Map<String, Object> submap = (Map<String, Object>) map.get(prefix);
       if (submap == null) {
-        submap = new HashMap<String, Object>();
+        submap = new HashMap<>();
         map.put(prefix, submap);
       }
 
@@ -80,6 +84,15 @@ public class RosettaMapper<T> {
       if (overwrite || !map.containsKey(label)) {
         map.put(label, value);
       }
+    }
+  }
+
+  private static TableNameExtractor chooseTableNameExtractor() {
+    try {
+      Class.forName("com.mysql.jdbc.ResultSetMetaData");
+      return (TableNameExtractor) Class.forName("com.mysql.jdbc.MysqlTableNameExtractor").newInstance();
+    } catch (Exception e) {
+      return new TableNameExtractor.Default();
     }
   }
 }
