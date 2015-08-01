@@ -73,7 +73,6 @@ Rosetta.addModule(new LowerCaseWithUnderscoresModule());
 ```
 
 Or even better, make your module extend `com.hubspot.rosetta.databind.AutoDiscoveredModule` and create a file located at
-`src/main/resources/META-INF/services/com.hubspot.rosetta.databind.AutoDiscoveredModule` containing a newline separated list of fully qualified class names for the modules you want to load, in this case it would contain something like  
-`your.package.LowerCaseWithUnderscoresModule`.
+`src/main/resources/META-INF/services/com.hubspot.rosetta.databind.AutoDiscoveredModule` containing a newline separated list of fully qualified class names for the modules you want to load, in this case it would contain something like `your.package.LowerCaseWithUnderscoresModule`.
 
 (You can also do this for the default Module service loader location: `src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`)
