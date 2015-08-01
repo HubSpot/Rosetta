@@ -72,11 +72,8 @@ You can then register it with Rosetta programmatically during your app's startup
 Rosetta.addModule(new LowerCaseWithUnderscoresModule());
 ```
 
-Or even better your module could extend `com.hubspot.rosetta.databind.AutoDiscoveredModule`, you can create a file located at
-`src/main/resources/META-INF/services/com.hubspot.rosetta.databind.AutoDiscoveredModule`
+Or even better, make your module extend `com.hubspot.rosetta.databind.AutoDiscoveredModule` and create a file located at
+`src/main/resources/META-INF/services/com.hubspot.rosetta.databind.AutoDiscoveredModule` containing a newline separated list of fully qualified class names for the modules you want to load, in this case it would contain something like  
+`your.package.LowerCaseWithUnderscoresModule`.
 
-Rosetta also supports injecting from the default Module:
-`src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`  
-
-Both files should contain a newline separated list of fully qualified class names for the modules you want to load, in this case it would contain something like  
-`your.package.LowerCaseWithUnderscoresModule`
+(You can also do this for the default Module service loader location: `src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`)
