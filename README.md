@@ -50,6 +50,13 @@ Or to test it out on a single DAO you would do:
 public interface MyDAO { /* ... */ }
 ```
 
+Or to use in combination with a `Handler`:
+```java
+Query<Map<String, Object>> query = handle.createQuery("SELECT * FROM table");
+query.registerMapper(new RosettaMapperFactory());
+query.mapTo(MyRow.class).list();
+```
+
 ## Configuration
 
 Assuming your Java field names are camel-case and your SQL column names are lowercase with underscores (a pretty common scenario) you can make this work with Rosetta by annotating the Java objects with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations throughout your application are unaffected). 
