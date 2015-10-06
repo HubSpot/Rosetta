@@ -27,9 +27,7 @@ You can [bind JDBI arguments](http://www.jdbi.org/sql_object_api_argument_bindin
 
 ```java
 public interface MyDAO {
-  @SqlUpdate("UPDATE my_table "
-            +"SET some_field=:some_field, another_field=:another_field "
-            +"WHERE id=:id")
+  @SqlUpdate("UPDATE my_table SET field_one = :field_one, field_two = :field_two WHERE id = :id")
   void update(@BindWithRosetta MyRow obj);
 }
 ```
@@ -52,7 +50,7 @@ public interface MyDAO { /* ... */ }
 
 Or to use in combination with a `Handler`:
 ```java
-Query<Map<String, Object>> query = handle.createQuery("SELECT * FROM table");
+Query<Map<String, Object>> query = handle.createQuery("SELECT * FROM my_table");
 query.registerMapper(new RosettaMapperFactory());
 query.mapTo(MyRow.class).list();
 ```
