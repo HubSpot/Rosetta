@@ -43,13 +43,18 @@ public class RosettaMapper<T> {
 
     for (int i = 1; i <= metadata.getColumnCount(); ++i) {
       String label = metadata.getColumnLabel(i);
-      final Object value;
 
-      // calling getObject on a CLOB produces really weird results
-      if (Types.CLOB == metadata.getColumnType(i)) {
-        value = rs.getString(i);
-      } else {
-        value = rs.getObject(i);
+      final Object value;
+      // calling getObject on a BLOB/CLOB produces weird results
+      switch (metadata.getColumnType(i)) {
+        case Types.BLOB:
+          value = rs.getBytes(i);
+          break;
+        case Types.CLOB:
+          value = rs.getString(i);
+          break;
+        default:
+          value = rs.getObject(i);
       }
 
       String tableName = TABLE_NAME_EXTRACTOR.getTableName(metadata, i);
