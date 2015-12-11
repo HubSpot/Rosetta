@@ -3,11 +3,13 @@ package com.hubspot.rosetta.internal;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.annotations.RosettaCreator;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 import com.hubspot.rosetta.annotations.RosettaProperty;
@@ -16,6 +18,11 @@ import com.hubspot.rosetta.annotations.StoredAsJson;
 
 public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   private static final long serialVersionUID = 1L;
+  private final ObjectMapper om;
+
+  public RosettaAnnotationIntrospector(ObjectMapper om) {
+    this.om = om;
+  }
 
   @Override
   public Object findNamingStrategy(AnnotatedClass ac) {
@@ -47,7 +54,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       }
 
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? null : storedAsJson.empty();
-      return new StoredAsJsonDeserializer(a.getRawType(), a.getGenericType(), empty);
+      return new StoredAsJsonDeserializer(a.getRawType(), a.getGenericType(), empty, om);
     }
   }
 

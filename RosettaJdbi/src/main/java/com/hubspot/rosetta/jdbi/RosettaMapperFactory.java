@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.Rosetta;
 import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -28,6 +30,17 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
           java.sql.Timestamp.class
   ));
 
+  private final ObjectMapper om;
+
+  public RosettaMapperFactory(){
+        om = Rosetta.getMapper();
+  }
+
+  public RosettaMapperFactory(ObjectMapper om) {
+      this.om = om;
+
+  }
+
   @Override
   public boolean accepts(@SuppressWarnings("rawtypes") Class type, StatementContext ctx) {
     return !(type.isPrimitive() || type.isArray() || type.isAnnotation() || BLACKLIST.contains(type));
@@ -36,7 +49,7 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-    final RosettaMapper mapper = new RosettaMapper(type, extractTableName(ctx.getRewrittenSql()));
+    final RosettaMapper mapper = new RosettaMapper(type, om, extractTableName(ctx.getRewrittenSql()));
 
     return new ResultSetMapper() {
 
