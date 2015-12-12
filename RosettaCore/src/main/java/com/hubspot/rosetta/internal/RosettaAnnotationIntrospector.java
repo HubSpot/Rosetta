@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
-import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.annotations.RosettaCreator;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 import com.hubspot.rosetta.annotations.RosettaProperty;
