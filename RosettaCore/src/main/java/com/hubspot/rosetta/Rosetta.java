@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public enum Rosetta {
   INSTANCE;
 
-  private final List<Module> modules = new CopyOnWriteArrayList<Module>(defaultModules());
-  private final AtomicReference<ObjectMapper> mapper = new AtomicReference<ObjectMapper>(cloneAndCustomize(new ObjectMapper()));
+  private static final List<Module> MODULES = new CopyOnWriteArrayList<Module>(defaultModules());
+  private static final AtomicReference<ObjectMapper> MAPPER = new AtomicReference<ObjectMapper>(cloneAndCustomize(new ObjectMapper()));
 
   public static ObjectMapper getMapper() {
     return INSTANCE.get();
@@ -32,28 +32,28 @@ public enum Rosetta {
     INSTANCE.set(mapper);
   }
 
-  private ObjectMapper get() {
-    return mapper.get();
-  }
-
-  private void set(ObjectMapper mapper) {
-    this.mapper.set(cloneAndCustomize(mapper));
-  }
-
-  private void add(Module module) {
-    modules.add(module);
-    mapper.get().registerModule(module);
-  }
-
-  private ObjectMapper cloneAndCustomize(ObjectMapper mapper) {
+  public static ObjectMapper cloneAndCustomize(ObjectMapper mapper) {
     mapper = mapper.copy();
 
     // ObjectMapper#registerModules doesn't exist in 2.1.x
-    for (Module module : modules) {
+    for (Module module : MODULES) {
       mapper.registerModule(module);
     }
 
     return mapper;
+  }
+
+  private ObjectMapper get() {
+    return MAPPER.get();
+  }
+
+  private void set(ObjectMapper mapper) {
+    MAPPER.set(cloneAndCustomize(mapper));
+  }
+
+  private void add(Module module) {
+    MODULES.add(module);
+    MAPPER.get().registerModule(module);
   }
 
   private static List<Module> defaultModules() {

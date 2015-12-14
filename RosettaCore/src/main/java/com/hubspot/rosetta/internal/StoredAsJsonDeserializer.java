@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import com.hubspot.rosetta.Rosetta;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -18,11 +17,13 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   private static final long serialVersionUID = 1L;
   private final Type type;
   private final String defaultValue;
+  private final ObjectMapper objectMapper;
 
-  public StoredAsJsonDeserializer(Class<T> vc, Type type, String defaultValue) {
+  public StoredAsJsonDeserializer(Class<T> vc, Type type, String defaultValue, ObjectMapper objectMapper) {
     super(vc);
     this.type = type;
     this.defaultValue = defaultValue;
+    this.objectMapper = objectMapper;
   }
 
   @Override
@@ -45,7 +46,7 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   @Override
   public T getNullValue() {
     try {
-      return deserialize(Rosetta.getMapper(), null, Rosetta.getMapper().constructType(type));
+      return deserialize(objectMapper, null, objectMapper.constructType(type));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

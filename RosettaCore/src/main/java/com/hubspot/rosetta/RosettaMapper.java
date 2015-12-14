@@ -1,5 +1,6 @@
 package com.hubspot.rosetta;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.internal.TableNameExtractor;
 
 import java.sql.ResultSet;
@@ -21,14 +22,24 @@ public class RosettaMapper<T> {
   private static TableNameExtractor TABLE_NAME_EXTRACTOR = chooseTableNameExtractor();
 
   private final Class<T> type;
+  private final ObjectMapper objectMapper;
   private final String tableName;
 
   public RosettaMapper(Class<T> type) {
-    this(type, null);
+    this(type, Rosetta.getMapper());
+  }
+
+  public RosettaMapper(Class<T> type, ObjectMapper objectMapper) {
+    this(type, objectMapper, null);
   }
 
   public RosettaMapper(Class<T> type, String tableName) {
+    this(type, Rosetta.getMapper(), tableName);
+  }
+
+  public RosettaMapper(Class<T> type, ObjectMapper objectMapper, String tableName) {
     this.type = type;
+    this.objectMapper = objectMapper;
     this.tableName = tableName;
   }
 
@@ -68,7 +79,7 @@ public class RosettaMapper<T> {
       add(map, label, value, overwrite);
     }
 
-    return Rosetta.getMapper().convertValue(map, type);
+    return objectMapper.convertValue(map, type);
   }
 
   private void add(Map<String, Object> map, String label, Object value, boolean overwrite) {

@@ -22,12 +22,14 @@ public class RosettaModule extends Module {
 
   @Override
   public void setupModule(SetupContext context) {
-    context.insertAnnotationIntrospector(new RosettaAnnotationIntrospector());
     context.addBeanSerializerModifier(new StoredAsJsonBeanSerializerModifier());
 
     ObjectCodec codec = context.getOwner();
     if (codec instanceof ObjectMapper) {
       ObjectMapper mapper = (ObjectMapper) codec;
+
+      context.insertAnnotationIntrospector(new RosettaAnnotationIntrospector(mapper));
+
       mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
       mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

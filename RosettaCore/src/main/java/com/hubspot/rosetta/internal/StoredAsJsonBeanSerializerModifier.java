@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**

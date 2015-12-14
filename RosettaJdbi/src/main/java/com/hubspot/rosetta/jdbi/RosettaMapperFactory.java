@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -36,7 +37,8 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-    final RosettaMapper mapper = new RosettaMapper(type, extractTableName(ctx.getRewrittenSql()));
+    ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(ctx);
+    final RosettaMapper mapper = new RosettaMapper(type, objectMapper, extractTableName(ctx.getRewrittenSql()));
 
     return new ResultSetMapper() {
 
