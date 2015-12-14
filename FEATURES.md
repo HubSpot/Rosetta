@@ -176,3 +176,35 @@ Rosetta will deserialize the JSON string back into the list of `InnerBean` and e
 the JSON as a blob rather than a text column, you just need to update the annotation to be `@StoredAsJson(binary = true)`, and then
 Rosetta will convert the field to a byte array rather than JSON string.
 
+## Configuring the ObjectMapper
+
+By default there is a global singleton `ObjectMapper` that is used for all Rosetta operations, shared across all `DBI` instances.
+However, you can supply your own `ObjectMapper` per DBI, per handle, or even per statement. To set the `ObjectMapper` at the `DBI`
+level, you would do the following while setting up your `DBI`:
+`new RosettaObjectMapperOverride(myObjectMapper).override(dbi);`
+
+To set at the handle or statement level would look similar:
+`new RosettaObjectMapperOverride(myOtherObjectMapper).override(handle);`
+`new RosettaObjectMapperOverride(myOtherOtherObjectMapper).override(query);`
+
+## Different naming strategy
+
+Assuming your Java field names are camel-case and your SQL column names are lowercase with underscores (a pretty common scenario), you
+can make this work with Rosetta by annotating the Java objects with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which
+will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations
+throughout your application are unaffected). 
+
+Or to avoid the need to annotation each Java object individually, you make this configuration change globally for all Rosetta
+operations by using a Jackson `Module` that sets the default naming strategy to lowercase with underscores, which could look like:
+
+```java
+public class LowerCaseWithUnderscoresModule extends SimpleModule {
+
+  @Override
+  public void setupModule(SetupContext context) {
+    context.setNamingStrategy(new LowerCaseWithUnderscoresStrategy());
+  }
+}
+```
+
+You would then register this module with the `ObjectMapper` being used for Rosetta operations.
