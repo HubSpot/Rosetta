@@ -121,3 +121,58 @@ Which would generate the following JSON structure:
 
 Which would also deserialize correctly. So if you're trying to map a complex object graph, remember how Rosetta generates the JSON
 structure and you should be able to use column and/or table aliasing to make it work.
+
+## Fields stored as JSON
+
+Let's say we modify the objects from the previous example so that `OuterBean` now contains a list of `InnerBean` 
+(`InnerBean` definition is unchanged):
+
+```java
+public class OuterBean {
+  private List<InnerBean> inner;
+
+  public List<InnerBean> getInner() {
+    return inner;
+  }
+  
+  public void setInner(List<InnerBean> inner) {
+    this.inner = inner;
+  }
+}
+```
+
+To persist this object, one option is to create a join table and have a row for each element in the list. However, it is often 
+simpler and easier to just store this list in a single column, serialized as JSON. Rosetta makes this very easy via its
+`@StoredAsJson` annotation. You just need to annotate the field with `@StoredAsJson` like this:
+
+```java
+public class OuterBean {
+  @StoredAsJson
+  private List<InnerBean> inner;
+
+  public List<InnerBean> getInner() {
+    return inner;
+  }
+  
+  public void setInner(List<InnerBean> inner) {
+    this.inner = inner;
+  }
+}
+```
+
+And then you can write a SQL Object method that looks like (assuming `my_table` has a text column called `inner`):
+```java
+@SqlUpdate("INSERT INTO my_table (inner) VALUES (:inner)")
+public void insert(@BindWithRosetta OuterBean bean);
+```
+
+Rosetta will write the field to JSON and store the JSON string in the `inner` column. And then to fetch the object would look like:
+```java
+@SqlQuery("SELECT inner FROM my_table")
+public OuterBean retrieve();
+```
+
+Rosetta will deserialize the JSON string back into the list of `InnerBean` and everything should Just Work™. If you prefer to store 
+the JSON as a blob rather than a text column, you just need to update the annotation to be `@StoredAsJson(binary = true)`, and then
+Rosetta will convert the field to a byte array rather than JSON string.
+
