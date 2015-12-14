@@ -2,6 +2,7 @@ package com.hubspot.rosetta.jdbi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.Rosetta;
+import com.hubspot.rosetta.internal.RosettaModule;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.SQLStatement;
@@ -13,7 +14,7 @@ public class RosettaObjectMapperOverride {
   private final ObjectMapper objectMapper;
 
   public RosettaObjectMapperOverride(ObjectMapper objectMapper) {
-    this.objectMapper = Rosetta.cloneAndCustomize(objectMapper);
+    this.objectMapper = objectMapper.copy().registerModule(new RosettaModule());
   }
 
   public void override(DBI dbi) {
