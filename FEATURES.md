@@ -160,7 +160,7 @@ public class OuterBean {
 }
 ```
 
-And then you can write a SQL Object method that looks like (assuming `my_table` has a text column called `inner`):
+And then you can write a SQL Object method that looks like: (assuming `my_table` has a text column called `inner`)
 ```java
 @SqlUpdate("INSERT INTO my_table (inner) VALUES (:inner)")
 public void insert(@BindWithRosetta OuterBean bean);
