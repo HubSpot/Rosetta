@@ -1,11 +1,11 @@
 package com.hubspot.rosetta.jdbi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.RosettaBinder;
 import com.hubspot.rosetta.RosettaBinder.Callback;
 import org.skife.jdbi.v2.SQLStatement;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.hubspot.rosetta.Rosetta;
 import org.skife.jdbi.v2.sqlobject.Binder;
 
 public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
@@ -13,11 +13,13 @@ public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
 
   @Override
   public void bind(final SQLStatement<?> q, BindWithRosetta bind, Object arg) {
-    JsonNode node = Rosetta.getMapper().valueToTree(arg);
+    ObjectMapper objectMapper = ObjectMapperOverride.resolve(q.getContext());
+
+    JsonNode node = objectMapper.valueToTree(arg);
     String prefix = bind.value();
 
     if (node.isValueNode() || node.isArray()) {
-      node = Rosetta.getMapper().createObjectNode().set(prefix.isEmpty() ? "it" : prefix, node);
+      node = objectMapper.createObjectNode().set(prefix.isEmpty() ? "it" : prefix, node);
       prefix = "";
     }
 
