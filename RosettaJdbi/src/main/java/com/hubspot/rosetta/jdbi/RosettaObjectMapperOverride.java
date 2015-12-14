@@ -7,12 +7,12 @@ import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
 
-public class ObjectMapperOverride {
+public class RosettaObjectMapperOverride {
   public static final String ATTRIBUTE_NAME = "_rosetta_object_mapper";
 
   private final ObjectMapper objectMapper;
 
-  public ObjectMapperOverride(ObjectMapper objectMapper) {
+  public RosettaObjectMapperOverride(ObjectMapper objectMapper) {
     this.objectMapper = Rosetta.cloneAndCustomize(objectMapper);
   }
 

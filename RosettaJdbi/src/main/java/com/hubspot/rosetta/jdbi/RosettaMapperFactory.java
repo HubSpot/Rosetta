@@ -37,7 +37,7 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-    ObjectMapper objectMapper = ObjectMapperOverride.resolve(ctx);
+    ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(ctx);
     final RosettaMapper mapper = new RosettaMapper(type, objectMapper, extractTableName(ctx.getRewrittenSql()));
 
     return new ResultSetMapper() {

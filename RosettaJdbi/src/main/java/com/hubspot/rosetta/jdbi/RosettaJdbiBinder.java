@@ -13,7 +13,7 @@ public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
 
   @Override
   public void bind(final SQLStatement<?> q, BindWithRosetta bind, Object arg) {
-    ObjectMapper objectMapper = ObjectMapperOverride.resolve(q.getContext());
+    ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(q.getContext());
 
     JsonNode node = objectMapper.valueToTree(arg);
     String prefix = bind.value();
