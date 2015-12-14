@@ -14,9 +14,8 @@ public class OuterBean {
     return inner;
   }
   
-  public OuterBean setInner(InnerBean inner) {
+  public void setInner(InnerBean inner) {
     this.inner = inner;
-    return this;
   }
 }
 
@@ -28,18 +27,16 @@ public class InnerBean {
     return id;
   }
   
-  public InnerBean setId(long id) {
+  public void setId(long id) {
     this.id = id;
-    return this;
   }
   
   public String getName() {
     return name;
   }
   
-  public InnerBean setName(String name) {
+  public void setName(String name) {
     this.name = name;
-    return this;
   }
 }
 ```
