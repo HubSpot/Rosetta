@@ -48,8 +48,8 @@ You could write a SQL Object method that looked like:
 public void insert(@BindWithRosetta OuterBean bean);
 ```
 
-On the mapping side, things are slightly trickier. At a conceptual level, for mapping to work the JSON we pass to Jackson needs to
-have the following structure, since this is the structure that Jackson expects based on our object graph:
+On the deserialization side, things are slightly trickier. At a conceptual level, for mapping to work the JSON we pass to Jackson
+needs to have the following structure, since this is the expected structure based on our object graph:
 ```json
 {
   "inner": {
@@ -143,7 +143,8 @@ public class OuterBean {
 
 To persist this object, one option is to create a join table and have a row for each element in the list. However, it is often 
 simpler and easier to just store this list in a single column, serialized as JSON. Rosetta makes this very easy via its
-`@StoredAsJson` annotation. You just need to annotate the field with `@StoredAsJson` like this:
+`@StoredAsJson` annotation. **This annotation just affects Rosetta binding/mapper and won't mess up the JSON representation elsewhere
+in your application.**  To use, just annotate the field with `@StoredAsJson` like this:
 
 ```java
 public class OuterBean {
@@ -194,8 +195,8 @@ can make this work with Rosetta by annotating the Java objects with `@RosettaNam
 will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations
 throughout your application are unaffected). 
 
-Or to avoid the need to annotation each Java object individually, you make this configuration change globally for all Rosetta
-operations by using a Jackson `Module` that sets the default naming strategy to lowercase with underscores, which could look like:
+Or to avoid the need to annotate each Java object individually, you can make this configuration change globally for all Rosetta
+operations by using a Jackson `Module` that sets the default naming strategy to lowercase with underscores, which would look like:
 
 ```java
 public class LowerCaseWithUnderscoresModule extends SimpleModule {
