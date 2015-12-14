@@ -180,11 +180,11 @@ Rosetta will convert the field to a byte array rather than JSON string.
 
 By default there is a global singleton `ObjectMapper` that is used for all Rosetta operations, shared across all `DBI` instances.
 However, you can supply your own `ObjectMapper` per DBI, per handle, or even per statement. To set the `ObjectMapper` at the `DBI`
-level, you would do the following while setting up your `DBI`:
+level, you would do the following while setting up your `DBI`:  
 `new RosettaObjectMapperOverride(myObjectMapper).override(dbi);`
 
-To set at the handle or statement level would look similar:
-`new RosettaObjectMapperOverride(myOtherObjectMapper).override(handle);`
+To set at the handle or statement level would look similar:  
+`new RosettaObjectMapperOverride(myOtherObjectMapper).override(handle);`  
 `new RosettaObjectMapperOverride(myOtherOtherObjectMapper).override(query);`
 
 ## Different naming strategy
