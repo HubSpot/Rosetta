@@ -6,8 +6,8 @@ Rosetta is a Java library that leverages [Jackson](https://github.com/FasterXML/
 
 Rosetta isn't an ORM. It doesn't silently read and write to your database, validate input, or manage connections. It does two things:
 
-1. Binds Java objects to SQL query parameters
-2. Maps SQL result sets to Java objects
+1. Binds Java objects to query parameters using a jDBI `BindingAnnotation`
+2. Maps query results back to Java objects using a jDBI `ResultSetMapperFactory`
 
 ## Usage
 
