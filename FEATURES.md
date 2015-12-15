@@ -11,6 +11,16 @@
 
 ## How does Rosetta work?
 
+Rosetta is mostly a thin layer of top of Jackson, which it uses to do all the heavy lifting. When binding a parameter, Rosetta converts
+the object to a JSON tree (specifically, it uses Jackson's `JsonNode`). Then it iterates over this tree and binds each JSON property
+(nested object properties are bound using dot-notation). 
+
+When mapping a parameter, Rosetta builds up a map that represents all of the
+object values. It does this by iterating over the columns in the `ResultSet` and using the `ResultSetMetaData` to introspect the column
+and table name. Each value is added to the map twice. First it is added with the column label as the key, then it is added with the
+column name prefixed with the table name as the key (so if the table was called `table` and the column was called `column`, the value
+would be added to the map under the keys `column` and `table.column`). This is done to make mapping of nested objects easier (see [here](#mapping) for more detail). Once the map is built, we ask Jackson to convert the map into the desired result type.
+
 ## Nested Objects
 
 Rosetta supports binding and mapping of arbitrarily nested object graphs. Dot-notation is used to separate fields of subobjects. The 
