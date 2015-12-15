@@ -2,11 +2,9 @@ package com.hubspot.rosetta.jdbi;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.skife.jdbi.v2.BuiltInArgumentFactory;
 import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -14,24 +12,10 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import com.hubspot.rosetta.RosettaMapper;
 
 public class RosettaMapperFactory implements ResultSetMapperFactory {
-  private static final Set<Class<?>> BLACKLIST = new HashSet<Class<?>>(Arrays.asList(
-          Byte.class,
-          Short.class,
-          Integer.class,
-          Long.class,
-          Float.class,
-          Double.class,
-          Boolean.class,
-          Character.class,
-          String.class,
-          java.util.Date.class,
-          java.sql.Date.class,
-          java.sql.Timestamp.class
-  ));
 
   @Override
   public boolean accepts(@SuppressWarnings("rawtypes") Class type, StatementContext ctx) {
-    return !(type.isPrimitive() || type.isArray() || type.isAnnotation() || BLACKLIST.contains(type));
+    return !(type.isPrimitive() || type.isArray() || type.isAnnotation() || BuiltInArgumentFactory.canAccept(type));
   }
 
   @Override
