@@ -49,11 +49,9 @@ Or to test it out on a single DAO you would do:
 public interface MyDAO { /* ... */ }
 ```
 
-Or to use in combination with a `Handler`:
+Or to use in combination with a `Handle`: (same idea to register on a `Query`)
 ```java
-Query<Map<String, Object>> query = handle.createQuery("SELECT * FROM my_table");
-query.registerMapper(new RosettaMapperFactory());
-query.mapTo(MyRow.class).list();
+handle.registerMapper(new RosettaMapperFactory());
 ```
 
 ## Features
