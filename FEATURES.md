@@ -8,43 +8,24 @@ example, given these objects:
 
 ```java
 public class OuterBean {
+  private String type;
   private InnerBean inner;
 
-  public InnerBean getInner() {
-    return inner;
-  }
-  
-  public void setInner(InnerBean inner) {
-    this.inner = inner;
-  }
+  // getters and setters
 }
 
 public class InnerBean {
   private long id;
   private String name;
   
-  public long getId() {
-    return id;
-  }
-  
-  public void setId(long id) {
-    this.id = id;
-  }
-  
-  public String getName() {
-    return name;
-  }
-  
-  public void setName(String name) {
-    this.name = name;
-  }
+  // getters and setters
 }
 ```
 
 You could write a SQL Object method that looked like:
 
 ```java
-@SqlUpdate("INSERT INTO my_table (id, name) VALUES (:inner.id, :inner.name)")
+@SqlUpdate("INSERT INTO my_table (type, id, name) VALUES (:type, :inner.id, :inner.name)")
 public void insert(@BindWithRosetta OuterBean bean);
 ```
 
@@ -52,6 +33,7 @@ On the deserialization side, things are slightly trickier. At a conceptual level
 needs to have the following structure, since this is the expected structure based on our object graph:
 ```json
 {
+  "type": "car",
   "inner": {
     "id": 123,
     "name": "derp"
@@ -62,16 +44,18 @@ needs to have the following structure, since this is the expected structure base
 When mapping a `ResultSet`, Rosetta creates two entries for each column. One for the column name (or alias), and one for the column
 name prefixed with the table name. So in our previous example, if we wrote a SQL Object method such as:
 ```java
-@SqlQuery("SELECT id, name FROM my_table WHERE id = :id")
+@SqlQuery("SELECT type, id, name FROM my_table WHERE id = :id")
 public OuterBean retrieve(@Bind("id") long id);
 ```
 
 We would end up with a JSON structure that looked like:
 ```json
 {
+  "type": "car",
   "id": 123,
   "name": "derp",
   "my_table": {
+    "type": "car",
     "id": 123,
     "name": "derp"
   }
@@ -81,38 +65,42 @@ We would end up with a JSON structure that looked like:
 Which won't deserialize correctly because it doesn't match our object structure. To make this work we have two options. The first is
 to alias the column names in the select statement, which would look like this:
 ```java
-@SqlQuery("SELECT id AS `inner.id`, name AS `inner.name` FROM my_table WHERE id = :id")
+@SqlQuery("SELECT type, id AS `inner.id`, name AS `inner.name` FROM my_table WHERE id = :id")
 public OuterBean retrieve(@Bind("id") long id);
 ```
 
 Which would generate the following JSON structure:
 ```json
 {
+  "type": "car",
   "inner": {
     "id": 123,
     "name": "derp"
   },
   "my_table": {
+    "type": "car",
     "id": 123,
     "name": "derp"
   }
 }
 ```
 Which would deserialize correctly (the unknown `my_table` field would be ignored by Jackson because we configure the `ObjectMapper` to
-ignore uknown fields).
+ignore unknown fields).
 
 The other option is to alias the table rather than the column, which would look like this:
 ```java
-@SqlQuery("SELECT id, name FROM my_table AS inner WHERE id = :id")
+@SqlQuery("SELECT type, id, name FROM my_table AS inner WHERE id = :id")
 public OuterBean retrieve(@Bind("id") long id);
 ```
 
 Which would generate the following JSON structure:
 ```json
 {
+  "type": "car",
   "id": 123,
   "name": "derp",
   "inner": {
+    "type": "car",
     "id": 123,
     "name": "derp"
   }
@@ -129,15 +117,10 @@ Let's say we modify the objects from the previous example so that `OuterBean` no
 
 ```java
 public class OuterBean {
+  private String type;
   private List<InnerBean> inner;
 
-  public List<InnerBean> getInner() {
-    return inner;
-  }
-  
-  public void setInner(List<InnerBean> inner) {
-    this.inner = inner;
-  }
+  // getters and setters
 }
 ```
 
@@ -148,29 +131,25 @@ in your application.**  To use, just annotate the field with `@StoredAsJson` lik
 
 ```java
 public class OuterBean {
+  private String type;
+
   @StoredAsJson
   private List<InnerBean> inner;
 
-  public List<InnerBean> getInner() {
-    return inner;
-  }
-  
-  public void setInner(List<InnerBean> inner) {
-    this.inner = inner;
-  }
+  // getters and setters
 }
 ```
 
 And then you can write a SQL Object method that looks like: (assuming `my_table` has a text column called `inner`)
 ```java
-@SqlUpdate("INSERT INTO my_table (inner) VALUES (:inner)")
+@SqlUpdate("INSERT INTO my_table (type, inner) VALUES (:type, :inner)")
 public void insert(@BindWithRosetta OuterBean bean);
 ```
 
 Rosetta will write the field to JSON and store the JSON string in the `inner` column. And then to fetch the object would look like:
 ```java
-@SqlQuery("SELECT inner FROM my_table")
-public OuterBean retrieve();
+@SqlQuery("SELECT type, inner FROM my_table WHERE type = :type")
+public OuterBean retrieve(@Bind("type") String type);
 ```
 
 Rosetta will deserialize the JSON string back into the list of `InnerBean` and everything should Just Work™. If you prefer to store 
