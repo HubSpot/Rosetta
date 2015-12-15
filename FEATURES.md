@@ -143,7 +143,7 @@ public class OuterBean {
 
 To persist this object, one option is to create a join table and have a row for each element in the list. However, it is often 
 simpler and easier to just store this list in a single column, serialized as JSON. Rosetta makes this very easy via its
-`@StoredAsJson` annotation. **This annotation just affects Rosetta binding/mapper and won't mess up the JSON representation elsewhere
+`@StoredAsJson` annotation. **This annotation just affects Rosetta binding/mapping and won't mess up the JSON representation elsewhere
 in your application.**  To use, just annotate the field with `@StoredAsJson` like this:
 
 ```java
