@@ -54,6 +54,6 @@ Or to use in combination with a `Handle`: (same idea to register on a `Query`)
 handle.registerMapper(new RosettaMapperFactory());
 ```
 
-## Features
+## Advanced Features
 
-For a longer list of features, see [here](FEATURES.md)
+For a list of advanced features, see [here](FEATURES.md)
