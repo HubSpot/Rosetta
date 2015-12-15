@@ -1,6 +1,7 @@
 
 # Rosetta Advanced Features
 
+* [How does Rosetta work?](#how-does-rosetta-work)
 * [Nested Objects](#nested-objects)
   * [Binding](#binding)
   * [Mapping](#mapping)
@@ -8,14 +9,12 @@
 * [Custom Naming Strategies](#custom-naming-strategies)
 * [Providing your own ObjectMapper](#providing-your-own-objectmapper)
 
+## How does Rosetta work?
+
 ## Nested Objects
 
-### Binding
-
-### Mapping
-
-Rosetta supports binding and mapping of arbitrarily nested object graphs. Dot-notation is used to separate fields of subobjects. For
-example, given these objects:
+Rosetta supports binding and mapping of arbitrarily nested object graphs. Dot-notation is used to separate fields of subobjects. The 
+following examples will use these object definitions:
 
 ```java
 public class OuterBean {
@@ -33,12 +32,17 @@ public class InnerBean {
 }
 ```
 
-You could write a SQL Object method that looked like:
+### Binding
+
+If binding an instance of `OuterBean` with Rosetta, the inner object fields will be bound and prefixed with `inner.`, an example query
+could look like:
 
 ```java
 @SqlUpdate("INSERT INTO my_table (type, id, name) VALUES (:type, :inner.id, :inner.name)")
 public void insert(@BindWithRosetta OuterBean bean);
 ```
+
+### Mapping
 
 On the deserialization side, things are slightly trickier. At a conceptual level, for mapping to work the JSON we pass to Jackson
 needs to have the following structure, since this is the expected structure based on our object graph:
@@ -170,12 +174,13 @@ Rosetta will convert the field to a byte array rather than JSON string.
 ## Custom Naming Strategies
 
 Assuming your Java field names are camel-case and your SQL column names are lowercase with underscores (a pretty common scenario), you
-can make this work with Rosetta by annotating the Java objects with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which
+can allow Rosetta to handle the name transformation by annotating the Java objects with
+`@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which
 will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations
 throughout your application are unaffected). 
 
-Or to avoid the need to annotate each Java object individually, you can make this configuration change globally for all Rosetta
-operations by using a Jackson `Module` that sets the default naming strategy to lowercase with underscores, which would look like:
+Or to avoid the need to annotate each Java object individually, you can make this configuration change globally by using a Jackson
+`Module` that sets the default naming strategy to lowercase with underscores, which would look like:
 
 ```java
 public class LowerCaseWithUnderscoresModule extends SimpleModule {
@@ -187,7 +192,7 @@ public class LowerCaseWithUnderscoresModule extends SimpleModule {
 }
 ```
 
-You would then register this module with the `ObjectMapper` being used for Rosetta operations.
+And then you would need to register this module with the `ObjectMapper` being used for Rosetta operations.
 
 ## Providing your own ObjectMapper
 
