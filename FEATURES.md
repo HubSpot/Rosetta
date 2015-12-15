@@ -1,7 +1,18 @@
 
-# Rosetta Features
+# Rosetta Advanced Features
+
+* [Nested Objects](#nested-objects)
+  * [Binding](#binding)
+  * [Mapping](#mapping)
+* [Fields Stored as JSON](#fields-stored-as-json)
+* [Custom Naming Strategies](#custom-naming-strategies)
+* [Providing your own ObjectMapper](#providing-your-own-objectmapper)
 
 ## Nested Objects
+
+### Binding
+
+### Mapping
 
 Rosetta supports binding and mapping of arbitrarily nested object graphs. Dot-notation is used to separate fields of subobjects. For
 example, given these objects:
@@ -110,7 +121,7 @@ Which would generate the following JSON structure:
 Which would also deserialize correctly. So if you're trying to map a complex object graph, remember how Rosetta generates the JSON
 structure and you should be able to use column and/or table aliasing to make it work.
 
-## Fields stored as JSON
+## Fields Stored as JSON
 
 Let's say we modify the objects from the previous example so that `OuterBean` now contains a list of `InnerBean` 
 (`InnerBean` definition is unchanged):
@@ -156,18 +167,7 @@ Rosetta will deserialize the JSON string back into the list of `InnerBean` and e
 the JSON as a blob rather than a text column, you just need to update the annotation to be `@StoredAsJson(binary = true)`, and then
 Rosetta will convert the field to a byte array rather than JSON string.
 
-## Configuring the ObjectMapper
-
-By default there is a global singleton `ObjectMapper` that is used for all Rosetta operations, shared across all `DBI` instances.
-However, you can supply your own `ObjectMapper` per DBI, per handle, or even per statement. To set the `ObjectMapper` at the `DBI`
-level, you would do the following while setting up your `DBI`:  
-`new RosettaObjectMapperOverride(myObjectMapper).override(dbi);`
-
-To set at the handle or statement level would look similar:  
-`new RosettaObjectMapperOverride(myOtherObjectMapper).override(handle);`  
-`new RosettaObjectMapperOverride(myOtherOtherObjectMapper).override(query);`
-
-## Different naming strategy
+## Custom Naming Strategies
 
 Assuming your Java field names are camel-case and your SQL column names are lowercase with underscores (a pretty common scenario), you
 can make this work with Rosetta by annotating the Java objects with `@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which
@@ -188,3 +188,14 @@ public class LowerCaseWithUnderscoresModule extends SimpleModule {
 ```
 
 You would then register this module with the `ObjectMapper` being used for Rosetta operations.
+
+## Providing your own ObjectMapper
+
+By default there is a global singleton `ObjectMapper` that is used for all Rosetta operations, shared across all `DBI` instances.
+However, you can supply your own `ObjectMapper` per DBI, per handle, or even per statement. To set the `ObjectMapper` at the `DBI`
+level, you would do the following while setting up your `DBI`:  
+`new RosettaObjectMapperOverride(myObjectMapper).override(dbi);`
+
+To set at the handle or statement level would look similar:  
+`new RosettaObjectMapperOverride(myOtherObjectMapper).override(handle);`  
+`new RosettaObjectMapperOverride(myOtherOtherObjectMapper).override(query);`
