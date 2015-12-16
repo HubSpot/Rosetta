@@ -10,7 +10,7 @@
 
   <groupId>com.hubspot.rosetta</groupId>
   <artifactId>Rosetta</artifactId>
-  <version>3.10.4</version>
+  <version>3.10.5-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Tools for converting between objects and query results</description>
 
@@ -18,7 +18,7 @@
     <connection>scm:git:git@github.com:HubSpot/Rosetta.git</connection>
     <developerConnection>scm:git:git@github.com:HubSpot/Rosetta.git</developerConnection>
     <url>git@github.com:HubSpot/Rosetta.git</url>
-    <tag>Rosetta-3.10.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>
