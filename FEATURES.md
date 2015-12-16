@@ -65,7 +65,7 @@ needs to have the following structure, since this is the expected structure base
 ```
 
 When mapping a `ResultSet`, Rosetta creates two entries for each column. One for the column name (or alias), and one for the column
-name prefixed with the table name. So in our previous example, if we wrote a SQL Object method such as:
+name prefixed with the table name. So in our previous example, if we wrote a method such as:
 ```java
 @SqlQuery("SELECT type, id, name FROM my_table WHERE id = :id")
 public OuterBean retrieve(@Bind("id") long id);
@@ -163,7 +163,7 @@ public class OuterBean {
 }
 ```
 
-And then you can write a SQL Object method that looks like: (assuming `my_table` has a text column called `inner`)
+And then you can write a method that looks like: (assuming `my_table` has a text column called `inner`)
 ```java
 @SqlUpdate("INSERT INTO my_table (type, inner) VALUES (:type, :inner)")
 public void insert(@BindWithRosetta OuterBean bean);
@@ -183,9 +183,8 @@ Rosetta will convert the field to a byte array rather than JSON string.
 
 Assuming your Java field names are camel-case and your SQL column names are lowercase with underscores (a pretty common scenario), you
 can allow Rosetta to handle the name transformation by annotating the Java objects with
-`@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which
-will change Jackson's naming strategy to lower case with underscores but only for Rosetta binding/mapping (other Jackson operations
-throughout your application are unaffected). 
+`@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)` which will change Jackson's naming strategy to lower case with underscores
+but only for Rosetta binding/mapping (other Jackson operations throughout your application are unaffected). 
 
 Or to avoid the need to annotate each Java object individually, you can make this configuration change globally by using a Jackson
 `Module` that sets the default naming strategy to lowercase with underscores, which would look like:
