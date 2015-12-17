@@ -58,4 +58,25 @@ public class RosettaMapperFactoryTest {
   public void itAcceptsCircularBean() {
     assertThat(mapperFactory.accepts(CircularBean.class, null)).isTrue();
   }
+
+  @Test
+  public void itExtractsTableNameBasic() {
+    String sql = "SELECT * FROM table WHERE bar = baz";
+
+    assertThat(RosettaMapperFactory.extractTableName(sql)).isEqualTo("table");
+  }
+
+  @Test
+  public void itExtractsTableNameWithComma() {
+    String sql = "SELECT * FROM table, other_table WHERE bar = baz";
+
+    assertThat(RosettaMapperFactory.extractTableName(sql)).isEqualTo("table");
+  }
+
+  @Test
+  public void itExtractsTableNameWithSemicolon() {
+    String sql = "SELECT * FROM table;";
+
+    assertThat(RosettaMapperFactory.extractTableName(sql)).isEqualTo("table");
+  }
 }

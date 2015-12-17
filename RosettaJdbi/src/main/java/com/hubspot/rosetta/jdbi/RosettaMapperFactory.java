@@ -33,7 +33,7 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
     };
   }
 
-  private String extractTableName(final String sql) {
+  static String extractTableName(final String sql) {
     String lowerCaseSql = sql.toLowerCase();
 
     String from = " from ";
@@ -47,7 +47,14 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
       return null;
     }
 
-    int endTableIndex = tableString.indexOf(' ');
+    int endTableIndex = -1;
+    for (int i = 0; i < tableString.length(); i++) {
+      char c = tableString.charAt(i);
+      if (c == ' ' || c == ',' || c == ';') {
+        endTableIndex = i;
+        break;
+      }
+    }
 
     return endTableIndex < 0 ? tableString : tableString.substring(0, endTableIndex);
   }

@@ -69,7 +69,8 @@ public class RosettaMapper<T> {
       }
 
       String tableName = TABLE_NAME_EXTRACTOR.getTableName(metadata, i);
-      boolean overwrite = tableName.equals(this.tableName);
+      // don't use table name extractor because we don't want aliased table name
+      boolean overwrite = metadata.getTableName(i).equals(this.tableName);
 
       if (!tableName.isEmpty()) {
         String qualifiedName = tableName + "." + metadata.getColumnName(i);

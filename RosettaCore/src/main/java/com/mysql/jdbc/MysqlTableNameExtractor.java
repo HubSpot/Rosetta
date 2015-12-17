@@ -7,7 +7,7 @@ import java.sql.SQLException;
 /**
  * This is to work around a deficiency in the JDBC API.
  * There is only one method to get a table name: ResultSetMetaData#getTableName
- * but a table can be alias'ed. MySQL driver used to return the alias'ed table
+ * but a table can be aliased. MySQL driver used to return the alias'ed table
  * name from this method but now it returns the unaliased version. This
  * implements a mysql-specific workaround
  *
