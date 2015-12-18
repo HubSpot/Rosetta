@@ -13,8 +13,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
 public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
-
   private static final long serialVersionUID = 1L;
+
   private final Type type;
   private final String defaultValue;
   private final ObjectMapper objectMapper;
