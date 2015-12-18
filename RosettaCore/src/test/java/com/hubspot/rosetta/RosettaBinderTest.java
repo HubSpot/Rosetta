@@ -132,7 +132,7 @@ public class RosettaBinderTest {
   @Test
   public void itUsesServiceLoaderToDiscoverModules() {
     ServiceLoaderBean bean = new ServiceLoaderBean();
-    bean.setId(50L);
+    bean.setId(50);
     bean.setName("test");
 
     assertThat(bind(bean)).isEqualTo(map("id_value", 50, "name_value", "test"));
