@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hubspot.rosetta.RosettaBinder.Callback;
 import com.hubspot.rosetta.beans.InnerBean;
+import com.hubspot.rosetta.beans.ListBean;
 import com.hubspot.rosetta.beans.NestedBean;
 import com.hubspot.rosetta.beans.RosettaCreatorConstructorBean;
 import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
@@ -127,6 +128,16 @@ public class RosettaBinderTest {
 
     assertThat(bind(bean)).isEqualTo(map("inner.stringProperty", "value"));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.inner.stringProperty", "value"));
+  }
+
+  @Test
+  public void itBindsListFieldsCorrectly() {
+    ListBean bean = new ListBean();
+    List<Integer> values = Arrays.asList(1, 2, 3);
+    bean.setValues(values);
+
+    assertThat(bind(bean)).isEqualTo(map("values", values));
+    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.values", values));
   }
 
   @Test
