@@ -26,7 +26,7 @@ public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
     RosettaBinder.INSTANCE.bind(prefix, node, new Callback() {
 
       @Override
-      public void bind(String key, final Object value) {
+      public void bind(String key, Object value) {
         q.bind(key, value);
       }
     });
