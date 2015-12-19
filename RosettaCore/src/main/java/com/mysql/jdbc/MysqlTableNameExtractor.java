@@ -10,22 +10,18 @@ import java.sql.SQLException;
  * but a table can be aliased. MySQL driver used to return the alias'ed table
  * name from this method but now it returns the unaliased version. This
  * implements a mysql-specific workaround
- *
- * Extends {@link ResultSetMetaData} so that {@link ResultSetMetaData#getField(int)}
- * is accessible, even if both classes are loaded by different class loaders (workaround
- * for the issue described <a href="http://stackoverflow.com/a/3387520/798498">here</a>)
  */
-public class MysqlTableNameExtractor extends ResultSetMetaData implements TableNameExtractor {
-
-  public MysqlTableNameExtractor() {
-    super(new Field[0], false, false, null);
-  }
+public class MysqlTableNameExtractor implements TableNameExtractor {
 
   @Override
   public String getTableName(java.sql.ResultSetMetaData metaData, int columnIndex) throws SQLException {
     if (metaData instanceof ResultSetMetaData) {
       ResultSetMetaData mysqlMetaData = (ResultSetMetaData) metaData;
-      return mysqlMetaData.getField(columnIndex).getTableName();
+      try {
+        return mysqlMetaData.getField(columnIndex).getTableName();
+      } catch (IllegalAccessError e) {
+        return metaData.getTableName(columnIndex);
+      }
     } else {
       return metaData.getTableName(columnIndex);
     }
