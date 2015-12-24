@@ -6,6 +6,7 @@ import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
 import com.hubspot.rosetta.beans.RosettaNamingBean;
 import com.hubspot.rosetta.beans.RosettaValueBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
+import com.hubspot.rosetta.jdbi.beans.CircularBean;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

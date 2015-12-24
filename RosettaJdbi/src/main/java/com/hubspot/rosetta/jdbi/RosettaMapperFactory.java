@@ -3,6 +3,7 @@ package com.hubspot.rosetta.jdbi;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.skife.jdbi.v2.BuiltInArgumentFactory;
 import org.skife.jdbi.v2.ResultSetMapperFactory;
@@ -21,7 +22,7 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
-    ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(ctx);
+    ObjectMapper objectMapper = RosettaObjectMapperOverride.resolveResultSetMapper(ctx);
     final RosettaMapper mapper = new RosettaMapper(type, objectMapper, extractTableName(ctx.getRewrittenSql()));
 
     return new ResultSetMapper() {
