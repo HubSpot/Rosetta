@@ -1,14 +1,14 @@
 package com.hubspot.rosetta;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.rosetta.internal.TableNameExtractor;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.internal.TableNameExtractor;
 
 /**
  * Core mapping functionality.
@@ -58,14 +58,14 @@ public class RosettaMapper<T> {
       final Object value;
       // calling getObject on a BLOB/CLOB produces weird results
       switch (metadata.getColumnType(i)) {
-        case Types.BLOB:
-          value = rs.getBytes(i);
-          break;
-        case Types.CLOB:
-          value = rs.getString(i);
-          break;
-        default:
-          value = rs.getObject(i);
+      case Types.BLOB:
+        value = rs.getBytes(i);
+        break;
+      case Types.CLOB:
+        value = rs.getString(i);
+        break;
+      default:
+        value = rs.getObject(i);
       }
 
       String tableName = TABLE_NAME_EXTRACTOR.getTableName(metadata, i);
@@ -73,7 +73,7 @@ public class RosettaMapper<T> {
       boolean overwrite = metadata.getTableName(i).equals(this.tableName);
 
       if (!tableName.isEmpty()) {
-        String qualifiedName = tableName + "." + metadata.getColumnName(i);
+        String qualifiedName = (tableName + "." + metadata.getColumnName(i)).intern();
         add(map, qualifiedName, value, overwrite);
       }
 
@@ -86,8 +86,8 @@ public class RosettaMapper<T> {
   private void add(Map<String, Object> map, String label, Object value, boolean overwrite) {
     if (label.contains(".")) {
       int periodIndex = label.indexOf('.');
-      String prefix = label.substring(0, periodIndex);
-      String suffix = label.substring(periodIndex + 1);
+      String prefix = label.substring(0, periodIndex).intern();
+      String suffix = label.substring(periodIndex + 1).intern();
 
       @SuppressWarnings("unchecked")
       Map<String, Object> submap = (Map<String, Object>) map.get(prefix);
