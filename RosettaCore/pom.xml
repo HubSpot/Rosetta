@@ -9,7 +9,6 @@
   </parent>
 
   <artifactId>RosettaCore</artifactId>
-  <description>Tools for converting between objects and query results</description>
 
   <dependencies>
     <dependency>
