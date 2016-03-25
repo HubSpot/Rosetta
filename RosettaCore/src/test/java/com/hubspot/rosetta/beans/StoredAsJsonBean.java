@@ -1,5 +1,6 @@
 package com.hubspot.rosetta.beans;
 
+import com.google.common.base.Optional;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 
 public class StoredAsJsonBean {
@@ -13,6 +14,11 @@ public class StoredAsJsonBean {
   private InnerBean annotatedFieldWithDefault;
   private InnerBean annotatedGetterWithDefault;
   private InnerBean annotatedSetterWithDefault;
+
+  @StoredAsJson
+  private Optional<InnerBean> optionalField;
+  private Optional<InnerBean> optionalGetter;
+  private Optional<InnerBean> optionalSetter;
 
   @StoredAsJson(binary = true)
   private InnerBean binaryField;
@@ -69,6 +75,32 @@ public class StoredAsJsonBean {
   @StoredAsJson(empty = "{\"stringProperty\":\"value\"}")
   public void setAnnotatedSetterWithDefault(InnerBean annotatedSetterWithDefault) {
     this.annotatedSetterWithDefault = annotatedSetterWithDefault;
+  }
+
+  public Optional<InnerBean> getOptionalField() {
+    return optionalField;
+  }
+
+  public void setOptionalField(Optional<InnerBean> optionalField) {
+    this.optionalField = optionalField;
+  }
+
+  @StoredAsJson
+  public Optional<InnerBean> getOptionalGetter() {
+    return optionalGetter;
+  }
+
+  public void setOptionalGetter(Optional<InnerBean> optionalGetter) {
+    this.optionalGetter = optionalGetter;
+  }
+
+  public Optional<InnerBean> getOptionalSetter() {
+    return optionalSetter;
+  }
+
+  @StoredAsJson
+  public void setOptionalSetter(Optional<InnerBean> optionalSetter) {
+    this.optionalSetter = optionalSetter;
   }
 
   public InnerBean getBinaryField() {

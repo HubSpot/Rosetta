@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.common.base.Optional;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
@@ -208,6 +209,103 @@ public class StoredAsJsonTest {
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
     assertThat(bean.getAnnotatedSetterWithDefault().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testOptionalFieldSerialization() {
+    bean.setOptionalField(Optional.of(inner));
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalField")).isEqualTo(expected);
+  }
+
+  @Test
+  public void testOptionalFieldDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalField", expected);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalField().isPresent()).isTrue();
+    assertThat(bean.getOptionalField().get().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testOptionalFieldNullSerialization() {
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalField")).isEqualTo(NullNode.getInstance());
+  }
+
+  @Test
+  public void testOptionalFieldNullDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalField", NullNode.getInstance());
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalField()).isNotNull();
+    assertThat(bean.getOptionalField().isPresent()).isFalse();
+  }
+
+  @Test
+  public void testOptionalGetterSerialization() {
+    bean.setOptionalGetter(Optional.of(inner));
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalGetter")).isEqualTo(expected);
+  }
+
+  @Test
+  public void testOptionalGetterDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalGetter", expected);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalGetter().isPresent()).isTrue();
+    assertThat(bean.getOptionalGetter().get().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testOptionalGetterNullSerialization() {
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalGetter")).isEqualTo(NullNode.getInstance());
+
+  }
+
+  @Test
+  public void testOptionalGetterNullDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalGetter", NullNode.getInstance());
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalGetter()).isNotNull();
+    assertThat(bean.getOptionalGetter().isPresent()).isFalse();
+  }
+
+  @Test
+  public void testOptionalSetterSerialization() {
+    bean.setOptionalSetter(Optional.of(inner));
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalSetter")).isEqualTo(expected);
+  }
+
+  @Test
+  public void testOptionalSetterDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalSetter", expected);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalSetter().isPresent()).isTrue();
+    assertThat(bean.getOptionalSetter().get().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testOptionalSetterNullSerialization() {
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalSetter")).isEqualTo(NullNode.getInstance());
+  }
+
+  @Test
+  public void testOptionalSetterNullDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalSetter", NullNode.getInstance());
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalSetter()).isNotNull();
+    assertThat(bean.getOptionalSetter().isPresent()).isFalse();
   }
 
   @Test

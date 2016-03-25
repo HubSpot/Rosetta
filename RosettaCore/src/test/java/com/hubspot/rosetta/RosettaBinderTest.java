@@ -2,6 +2,7 @@ package com.hubspot.rosetta;
 
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Optional;
 import com.hubspot.rosetta.RosettaBinder.Callback;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.ListBean;
@@ -61,6 +62,9 @@ public class RosettaBinderTest {
     bean.setAnnotatedFieldWithDefault(inner);
     bean.setAnnotatedGetterWithDefault(inner);
     bean.setAnnotatedSetterWithDefault(inner);
+    bean.setOptionalField(Optional.of(inner));
+    bean.setOptionalGetter(Optional.of(inner));
+    bean.setOptionalSetter(Optional.of(inner));
     bean.setBinaryField(inner);
     bean.setBinaryFieldWithDefault(inner);
 
@@ -74,6 +78,9 @@ public class RosettaBinderTest {
             "annotatedFieldWithDefault", json,
             "annotatedGetterWithDefault", json,
             "annotatedSetterWithDefault", json,
+            "optionalField", json,
+            "optionalGetter", json,
+            "optionalSetter", json,
             "binaryField", bytes,
             "binaryFieldWithDefault", bytes
     ));
@@ -84,6 +91,9 @@ public class RosettaBinderTest {
             "prefix.annotatedFieldWithDefault", json,
             "prefix.annotatedGetterWithDefault", json,
             "prefix.annotatedSetterWithDefault", json,
+            "prefix.optionalField", json,
+            "prefix.optionalGetter", json,
+            "prefix.optionalSetter", json,
             "prefix.binaryField", bytes,
             "prefix.binaryFieldWithDefault", bytes
     ));
@@ -103,6 +113,9 @@ public class RosettaBinderTest {
             "annotatedFieldWithDefault", json,
             "annotatedGetterWithDefault", json,
             "annotatedSetterWithDefault", json,
+            "optionalField", null,
+            "optionalGetter", null,
+            "optionalSetter", null,
             "binaryField", null,
             "binaryFieldWithDefault", bytes
     ));
@@ -113,6 +126,9 @@ public class RosettaBinderTest {
             "prefix.annotatedFieldWithDefault", json,
             "prefix.annotatedGetterWithDefault", json,
             "prefix.annotatedSetterWithDefault", json,
+            "prefix.optionalField", null,
+            "prefix.optionalGetter", null,
+            "prefix.optionalSetter", null,
             "prefix.binaryField", null,
             "prefix.binaryFieldWithDefault", bytes
     ));
