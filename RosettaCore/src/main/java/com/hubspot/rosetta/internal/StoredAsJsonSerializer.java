@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
 
@@ -22,11 +21,12 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> {
 
   @Override
   public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-    if (NullNode.getInstance().equals(value)) {
+    ObjectMapper mapper = (ObjectMapper) jgen.getCodec();
+    JsonNode tree = mapper.valueToTree(value);
+    if (tree.isNull()) {
       provider.defaultSerializeNull(jgen);
     } else {
-      ObjectMapper mapper = (ObjectMapper) jgen.getCodec();
-      jgen.writeString(mapper.writeValueAsString(value));
+      jgen.writeString(mapper.writeValueAsString(tree));
     }
   }
 
