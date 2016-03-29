@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StoredAsJsonTest {
   private StoredAsJsonBean bean;
   private InnerBean inner;
+  private final JsonNode innerJsonNode = Rosetta.getMapper().createObjectNode().set("stringProperty", TextNode.valueOf("value"));
   private final JsonNode expected = TextNode.valueOf("{\"stringProperty\":\"value\"}");
   private final JsonNode expectedBinary = BinaryNode.valueOf(expected.textValue().getBytes(StandardCharsets.UTF_8));
 
@@ -366,5 +367,35 @@ public class StoredAsJsonTest {
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
     assertThat(bean.getBinaryFieldWithDefault().getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void testJsonNodeFieldSerialization() {
+    bean.setJsonNodeField(innerJsonNode);
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("jsonNodeField")).isEqualTo(expected);
+  }
+
+  @Test
+  public void testJsonNodeFieldDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("jsonNodeField", expected);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getJsonNodeField()).isEqualTo(innerJsonNode);
+  }
+
+  @Test
+  public void testJsonNodeNullSerialization() {
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("jsonNodeField")).isEqualTo(NullNode.getInstance());
+  }
+
+  @Test
+  public void testJsonNodeNullDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("jsonNodeField", NullNode.getInstance());
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getJsonNodeField()).isEqualTo(NullNode.getInstance());
   }
 }
