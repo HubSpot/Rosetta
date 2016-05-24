@@ -22,7 +22,12 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> {
   @Override
   public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
     ObjectMapper mapper = (ObjectMapper) jgen.getCodec();
-    jgen.writeString(mapper.writeValueAsString(value));
+    JsonNode tree = mapper.valueToTree(value);
+    if (tree.isNull()) {
+      provider.defaultSerializeNull(jgen);
+    } else {
+      jgen.writeString(mapper.writeValueAsString(tree));
+    }
   }
 
   @Override

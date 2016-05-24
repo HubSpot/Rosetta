@@ -5,11 +5,10 @@
   <parent>
     <groupId>com.hubspot.rosetta</groupId>
     <artifactId>Rosetta</artifactId>
-    <version>3.10.8-SNAPSHOT</version>
+    <version>3.10.11-SNAPSHOT</version>
   </parent>
 
   <artifactId>RosettaCore</artifactId>
-  <description>Tools for converting between objects and query results</description>
 
   <dependencies>
     <dependency>
@@ -32,6 +31,16 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-guava</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
