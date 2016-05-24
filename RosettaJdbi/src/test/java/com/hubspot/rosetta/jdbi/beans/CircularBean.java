@@ -1,4 +1,4 @@
-package com.hubspot.rosetta.jdbi;
+package com.hubspot.rosetta.jdbi.beans;
 
 import java.util.List;
 

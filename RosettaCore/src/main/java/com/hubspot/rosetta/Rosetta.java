@@ -7,9 +7,12 @@ import com.hubspot.rosetta.internal.RosettaModule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.Collection;
 
 /**
  * Static public APIs to get/set some Rosetta globals.
@@ -19,6 +22,7 @@ public enum Rosetta {
 
   private static final List<Module> MODULES = new CopyOnWriteArrayList<Module>(defaultModules());
   private static final AtomicReference<ObjectMapper> MAPPER = new AtomicReference<ObjectMapper>(cloneAndCustomize(new ObjectMapper()));
+  private static final Map<String, ObjectMapper> NAMED_MAPPERS = new ConcurrentHashMap<String, ObjectMapper>();
 
   public static ObjectMapper getMapper() {
     return INSTANCE.get();
@@ -54,6 +58,10 @@ public enum Rosetta {
   private void add(Module module) {
     MODULES.add(module);
     MAPPER.get().registerModule(module);
+
+    for (ObjectMapper objectMapper : NAMED_MAPPERS.values()) {
+      objectMapper.registerModule(module);
+    }
   }
 
   private static List<Module> defaultModules() {
@@ -70,4 +78,57 @@ public enum Rosetta {
 
     return defaultModules;
   }
+
+  public static void registerNamedMapper(String name, ObjectMapper objectMapper) {
+
+    NAMED_MAPPERS.put(name, cloneAndCustomize(objectMapper));
+  }
+
+  public static void registerNamedMappers(Map<String, ObjectMapper> objectMappers) {
+
+    for (Map.Entry<String, ObjectMapper> entry : objectMappers.entrySet()) {
+
+      NAMED_MAPPERS.put(entry.getKey(), cloneAndCustomize(entry.getValue()));
+    }
+  }
+
+  public static ObjectMapper removeNamedMapper(String name) {
+
+    return NAMED_MAPPERS.remove(name);
+  }
+
+  public static Map<String, ObjectMapper> removeNamedMappers(Collection<String> names) {
+
+    Map<String, ObjectMapper> removedMappers = new ConcurrentHashMap<>();
+
+    for (String name : names) {
+
+      ObjectMapper objectMapper = removeNamedMapper(name);
+
+      if (objectMapper != null) {
+
+        removedMappers.put(name, removeNamedMapper(name));
+
+      }
+
+    }
+
+    return removedMappers;
+  }
+
+  public static Map<String, ObjectMapper> getNamedMappers() {
+
+    return new ConcurrentHashMap<>(NAMED_MAPPERS);
+  }
+
+  public static ObjectMapper getNamedMapper(String mapperName) {
+
+    return NAMED_MAPPERS.get(mapperName);
+  }
+
+  public static void clearNamedMappers() {
+
+    NAMED_MAPPERS.clear();
+  }
+
 }
