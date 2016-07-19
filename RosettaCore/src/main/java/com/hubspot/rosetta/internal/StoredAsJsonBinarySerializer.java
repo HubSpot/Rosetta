@@ -2,18 +2,19 @@ package com.hubspot.rosetta.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.ser.std.StdArraySerializers.ByteArraySerializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
-  private static final ByteArraySerializer DELEGATE = new ByteArraySerializer();
+  private static final StdSerializer<byte[]> DELEGATE = findDelegate();
 
   public StoredAsJsonBinarySerializer(Class<T> t) {
     super(t);
@@ -26,8 +27,14 @@ public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
   }
 
   @Override
-  public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
+  public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
     return DELEGATE.getSchema(provider, typeHint);
+  }
+
+  @Override
+  public void serializeWithType(T value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+    ObjectMapper mapper = (ObjectMapper) gen.getCodec();
+    DELEGATE.serializeWithType(mapper.writeValueAsBytes(value), gen, serializers, typeSer);
   }
 
   @Override
@@ -38,5 +45,22 @@ public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static StdSerializer<byte[]> findDelegate() {
+    try {
+      // Jackson 2.6+
+      return newInstance("com.fasterxml.jackson.databind.ser.std.ByteArraySerializer");
+    } catch (Exception e) {
+      try {
+        return newInstance("com.fasterxml.jackson.databind.ser.std.StdArraySerializers$ByteArraySerializer");
+      } catch (Exception f) {
+        throw new RuntimeException("Unable to find ByteArraySerializer to delegate to", f);
+      }
+    }
+  }
+
+  private static StdSerializer<byte[]> newInstance(String className) throws Exception {
+    return (StdSerializer<byte[]>) Class.forName(className).newInstance();
   }
 }

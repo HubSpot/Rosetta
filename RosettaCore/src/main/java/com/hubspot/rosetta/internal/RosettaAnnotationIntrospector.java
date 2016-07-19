@@ -1,5 +1,7 @@
 package com.hubspot.rosetta.internal;
 
+import java.lang.reflect.Type;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -54,7 +56,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       }
 
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
-      return new StoredAsJsonDeserializer(a.getRawType(), a.getGenericType(), empty, objectMapper);
+      return new StoredAsJsonDeserializer(a.getRawType(), getType(a), empty, objectMapper);
     }
   }
 
@@ -99,4 +101,12 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     return null;
   }
 
+  private Type getType(Annotated a) {
+    try {
+      // Jackson 2.7+
+      return a.getType();
+    } catch (Exception e) {
+      return a.getGenericType();
+    }
+  }
 }
