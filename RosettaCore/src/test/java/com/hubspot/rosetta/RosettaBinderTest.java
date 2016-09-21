@@ -1,6 +1,5 @@
 package com.hubspot.rosetta;
 
-import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;

@@ -1,5 +1,7 @@
 package com.hubspot.rosetta.jdbi;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -20,9 +22,16 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public ResultSetMapper mapperFor(Class type, StatementContext ctx) {
+  public ResultSetMapper mapperFor(Class rawType, StatementContext ctx) {
     ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(ctx);
-    final RosettaMapper mapper = new RosettaMapper(type, objectMapper, extractTableName(ctx.getRewrittenSql()));
+
+    final Type genericType;
+    if (ctx.getSqlObjectMethod() == null) {
+      genericType = rawType;
+    } else {
+      genericType = determineGenericReturnType(rawType, ctx.getSqlObjectMethod().getGenericReturnType());
+    }
+    final RosettaMapper mapper = new RosettaMapper(genericType, objectMapper, extractTableName(ctx.getRewrittenSql()));
 
     return new ResultSetMapper() {
 
@@ -31,6 +40,22 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
         return mapper.mapRow(r);
       }
     };
+  }
+
+  static Type determineGenericReturnType(Class rawType, Type returnType) {
+    if (rawType == returnType || !(returnType instanceof ParameterizedType)) {
+      return rawType;
+    } else {
+      ParameterizedType parameterizedType = (ParameterizedType) returnType;
+
+      if (rawType == parameterizedType.getRawType()) {
+        return parameterizedType;
+      } else if (parameterizedType.getActualTypeArguments().length == 1) {
+        return determineGenericReturnType(rawType, parameterizedType.getActualTypeArguments()[0]);
+      } else {
+        return rawType;
+      }
+    }
   }
 
   static String extractTableName(final String sql) {
