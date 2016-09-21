@@ -10,7 +10,7 @@
 
   <groupId>com.hubspot.rosetta</groupId>
   <artifactId>Rosetta</artifactId>
-  <version>3.11.2-SNAPSHOT</version>
+  <version>3.11.2</version>
   <packaging>pom</packaging>
   <description>
     Rosetta is a Java library that leverages Jackson to take the pain out of 
@@ -21,7 +21,7 @@
     <connection>scm:git:git@github.com:HubSpot/Rosetta.git</connection>
     <developerConnection>scm:git:git@github.com:HubSpot/Rosetta.git</developerConnection>
     <url>git@github.com:HubSpot/Rosetta.git</url>
-    <tag>HEAD</tag>
+    <tag>Rosetta-3.11.2</tag>
   </scm>
 
   <developers>
