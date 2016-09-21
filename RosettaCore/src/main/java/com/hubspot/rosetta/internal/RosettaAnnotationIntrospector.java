@@ -105,7 +105,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     try {
       // Jackson 2.7+
       return a.getType();
-    } catch (Exception e) {
+    } catch (Throwable t) {
       return a.getGenericType();
     }
   }

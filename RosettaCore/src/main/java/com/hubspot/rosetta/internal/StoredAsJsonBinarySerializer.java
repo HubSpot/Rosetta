@@ -51,10 +51,10 @@ public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
     try {
       // Jackson 2.6+
       return newInstance("com.fasterxml.jackson.databind.ser.std.ByteArraySerializer");
-    } catch (Exception e) {
+    } catch (Throwable t) {
       try {
         return newInstance("com.fasterxml.jackson.databind.ser.std.StdArraySerializers$ByteArraySerializer");
-      } catch (Exception f) {
+      } catch (Throwable t2) {
         throw new RuntimeException("Unable to find ByteArraySerializer to delegate to", f);
       }
     }
