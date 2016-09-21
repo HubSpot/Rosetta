@@ -55,7 +55,7 @@ public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
       try {
         return newInstance("com.fasterxml.jackson.databind.ser.std.StdArraySerializers$ByteArraySerializer");
       } catch (Throwable t2) {
-        throw new RuntimeException("Unable to find ByteArraySerializer to delegate to", f);
+        throw new RuntimeException("Unable to find ByteArraySerializer to delegate to", t2);
       }
     }
   }
