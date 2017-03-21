@@ -1,15 +1,15 @@
 package com.hubspot.rosetta;
 
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.rosetta.databind.AutoDiscoveredModule;
-import com.hubspot.rosetta.internal.RosettaModule;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.databind.AutoDiscoveredModule;
+import com.hubspot.rosetta.internal.RosettaModule;
 
 /**
  * Static public APIs to get/set some Rosetta globals.
@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public enum Rosetta {
   INSTANCE;
 
-  private static final List<Module> MODULES = new CopyOnWriteArrayList<Module>(defaultModules());
-  private static final AtomicReference<ObjectMapper> MAPPER = new AtomicReference<ObjectMapper>(cloneAndCustomize(new ObjectMapper()));
+  private static final List<Module> CUSTOM_MODULES = new CopyOnWriteArrayList<Module>();
+  private static final AtomicReference<ObjectMapper> MAPPER = new AtomicReference<ObjectMapper>(cloneAndCustomize(new ObjectMapper(), loadAvailableModules()));
 
   public static ObjectMapper getMapper() {
     return INSTANCE.get();
@@ -32,11 +32,13 @@ public enum Rosetta {
     INSTANCE.set(mapper);
   }
 
-  public static ObjectMapper cloneAndCustomize(ObjectMapper mapper) {
+  public static ObjectMapper cloneAndCustomize(ObjectMapper mapper, List<Module> modules) {
     mapper = mapper.copy();
 
+    mapper.registerModule(new RosettaModule());
+
     // ObjectMapper#registerModules doesn't exist in 2.1.x
-    for (Module module : MODULES) {
+    for (Module module : modules) {
       mapper.registerModule(module);
     }
 
@@ -47,18 +49,17 @@ public enum Rosetta {
     return MAPPER.get();
   }
 
-  private void set(ObjectMapper mapper) {
-    MAPPER.set(cloneAndCustomize(mapper));
-  }
-
   private void add(Module module) {
-    MODULES.add(module);
+    CUSTOM_MODULES.add(module);
     MAPPER.get().registerModule(module);
   }
 
-  private static List<Module> defaultModules() {
+  private void set(ObjectMapper mapper) {
+    MAPPER.set(cloneAndCustomize(mapper, CUSTOM_MODULES));
+  }
+
+  private static List<Module> loadAvailableModules() {
     List<Module> defaultModules = new ArrayList<Module>();
-    defaultModules.add(new RosettaModule());
 
     for (Module module : ServiceLoader.load(AutoDiscoveredModule.class)) {
       defaultModules.add(module);
