@@ -1,5 +1,8 @@
 package com.hubspot.rosetta.internal;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,9 +10,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
 
 public class ConstantSerializer extends NonTypedScalarSerializerBase<Object> {
   private static final StringSerializer DELEGATE = new StringSerializer();
@@ -23,7 +23,7 @@ public class ConstantSerializer extends NonTypedScalarSerializerBase<Object> {
 
   @Override
   public void serialize(Object ignored, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-    DELEGATE.serialize(value, jgen, provider);
+    jgen.writeString(value);
   }
 
   @Override
