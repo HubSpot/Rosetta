@@ -1,15 +1,15 @@
 package com.hubspot.rosetta;
 
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.rosetta.databind.AutoDiscoveredModule;
-import com.hubspot.rosetta.internal.RosettaModule;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.databind.AutoDiscoveredModule;
+import com.hubspot.rosetta.internal.RosettaModule;
 
 /**
  * Static public APIs to get/set some Rosetta globals.
@@ -24,10 +24,18 @@ public enum Rosetta {
     return INSTANCE.get();
   }
 
+  /**
+   * @deprecated To customize the ObjectMapper, use {@link com.hubspot.rosetta.jdbi.RosettaObjectMapperOverride}.
+   */
+  @Deprecated
   public static void addModule(Module module) {
     INSTANCE.add(module);
   }
 
+  /**
+   * @deprecated To customize the ObjectMapper, use {@link com.hubspot.rosetta.jdbi.RosettaObjectMapperOverride}.
+   */
+  @Deprecated
   public static void setMapper(ObjectMapper mapper) {
     INSTANCE.set(mapper);
   }
