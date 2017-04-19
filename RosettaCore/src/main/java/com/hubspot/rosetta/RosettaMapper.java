@@ -17,8 +17,6 @@ import java.util.Map;
  *
  * The {@code map} methods here take iterable result sets (field names * to String values) and use Jackson to bind
  * those values to a * <code>type</code> instance.
- *
- * @author tdavis
  */
 public class RosettaMapper<T> {
   private static TableNameExtractor TABLE_NAME_EXTRACTOR = chooseTableNameExtractor();
