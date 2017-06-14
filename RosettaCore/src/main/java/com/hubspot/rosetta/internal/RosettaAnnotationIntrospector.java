@@ -2,6 +2,8 @@ package com.hubspot.rosetta.internal;
 
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -86,6 +88,21 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       propertyName = super.findNameForDeserialization(a);
     }
     return propertyName;
+  }
+
+  @Override
+  public Include findSerializationInclusion(Annotated a, Include defValue) {
+    return Include.ALWAYS;
+  }
+
+  @Override
+  public Include findSerializationInclusionForContent(Annotated a, Include defValue) {
+    return Include.ALWAYS;
+  }
+
+  @Override
+  public Value findPropertyInclusion(Annotated a) {
+    return Value.construct(Include.ALWAYS, Include.ALWAYS);
   }
 
   @Override
