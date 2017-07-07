@@ -13,9 +13,12 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.hubspot.rosetta.annotations.RosettaCreator;
+import com.hubspot.rosetta.annotations.RosettaDeserialize;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 import com.hubspot.rosetta.annotations.RosettaProperty;
+import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 
@@ -38,21 +41,28 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   @SuppressWarnings("unchecked")
   public JsonSerializer<?> findSerializer(Annotated a) {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
-    if (storedAsJson == null) {
-      return null;
-    } else {
+    if (storedAsJson != null) {
       Class<?> type = a.getRawType();
       return storedAsJson.binary() ? new StoredAsJsonBinarySerializer(type) : new StoredAsJsonSerializer(type);
     }
+
+    RosettaSerialize rosettaSerialize = a.getAnnotation(RosettaSerialize.class);
+    if (rosettaSerialize != null) {
+      Class<? extends JsonSerializer> klass = rosettaSerialize.using();
+      if (klass != JsonSerializer.None.class) {
+        return ClassUtil.createInstance(
+            klass,
+            objectMapper.getSerializationConfig().canOverrideAccessModifiers());
+      }
+    }
+    return null;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public JsonDeserializer<?> findDeserializer(Annotated a) {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
-    if (storedAsJson == null) {
-      return null;
-    } else {
+    if (storedAsJson != null) {
       if (a instanceof AnnotatedMethod) {
         a = ((AnnotatedMethod) a).getParameter(0);
       }
@@ -60,6 +70,18 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
       return new StoredAsJsonDeserializer(a.getRawType(), getType(a), empty, objectMapper);
     }
+
+    RosettaDeserialize rosettaDeserialize = a.getAnnotation(RosettaDeserialize.class);
+    if (rosettaDeserialize != null) {
+      Class<? extends JsonDeserializer> klass = rosettaDeserialize.using();
+      if (klass != JsonDeserializer.None.class) {
+        return ClassUtil.createInstance(
+            klass,
+            objectMapper.getDeserializationConfig().canOverrideAccessModifiers());
+      }
+    }
+
+    return null;
   }
 
   @Override
