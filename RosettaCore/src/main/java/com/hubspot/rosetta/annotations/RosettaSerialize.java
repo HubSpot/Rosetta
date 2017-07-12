@@ -8,11 +8,11 @@ import java.lang.annotation.Target;
 import com.fasterxml.jackson.databind.JsonSerializer;
 
 /**
- * Like @JsonSerialize but only on fields and methods
+ * Like @JsonSerialize for fields, methods and classes
  *
- * Indicate that the field should be serialized using a non-standard serializer
+ * Indicate that the field, or class, should be serialized using a non-standard serializer
  */
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
 public @interface RosettaSerialize {

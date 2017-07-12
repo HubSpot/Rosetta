@@ -41,12 +41,15 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   @SuppressWarnings("unchecked")
   public JsonSerializer<?> findSerializer(Annotated a) {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
+    RosettaSerialize rosettaSerialize = a.getAnnotation(RosettaSerialize.class);
+    if (storedAsJson != null && rosettaSerialize != null) {
+      throw new IllegalArgumentException("Cannot have @StoredAsJson as well as @RosettaSerialize annotations on the same entry");
+    }
     if (storedAsJson != null) {
       Class<?> type = a.getRawType();
       return storedAsJson.binary() ? new StoredAsJsonBinarySerializer(type) : new StoredAsJsonSerializer(type);
     }
 
-    RosettaSerialize rosettaSerialize = a.getAnnotation(RosettaSerialize.class);
     if (rosettaSerialize != null) {
       Class<? extends JsonSerializer> klass = rosettaSerialize.using();
       if (klass != JsonSerializer.None.class) {
@@ -62,6 +65,10 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   @SuppressWarnings("unchecked")
   public JsonDeserializer<?> findDeserializer(Annotated a) {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
+    RosettaDeserialize rosettaDeserialize = a.getAnnotation(RosettaDeserialize.class);
+    if (storedAsJson != null && rosettaDeserialize != null) {
+      throw new IllegalArgumentException("Cannot have @StoredAsJson as well as @RosettaDeserialize annotations on the same entry");
+    }
     if (storedAsJson != null) {
       if (a instanceof AnnotatedMethod) {
         a = ((AnnotatedMethod) a).getParameter(0);
@@ -71,7 +78,6 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       return new StoredAsJsonDeserializer(a.getRawType(), getType(a), empty, objectMapper);
     }
 
-    RosettaDeserialize rosettaDeserialize = a.getAnnotation(RosettaDeserialize.class);
     if (rosettaDeserialize != null) {
       Class<? extends JsonDeserializer> klass = rosettaDeserialize.using();
       if (klass != JsonDeserializer.None.class) {

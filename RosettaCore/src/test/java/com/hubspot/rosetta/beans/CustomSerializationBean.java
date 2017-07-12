@@ -24,6 +24,8 @@ public class CustomSerializationBean {
   private List<String> annotatedGetter;
   private List<String> annotatedSetter;
 
+  private InnerSerializationBean annotatedInnerField;
+
   public List<String> getAnnotatedField() {
     return annotatedField;
   }
@@ -50,6 +52,14 @@ public class CustomSerializationBean {
   @RosettaDeserialize(using = StringListDeserializer.class)
   public void setAnnotatedSetter(List<String> annotatedSetter) {
     this.annotatedSetter = annotatedSetter;
+  }
+
+  public InnerSerializationBean getAnnotatedInnerField() {
+    return annotatedInnerField;
+  }
+
+  public void setAnnotatedInnerField(InnerSerializationBean annotatedInnerField) {
+    this.annotatedInnerField = annotatedInnerField;
   }
 
   private static class StringListSerializer extends JsonSerializer<List<String>> {

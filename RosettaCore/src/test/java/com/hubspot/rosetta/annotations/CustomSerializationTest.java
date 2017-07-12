@@ -15,16 +15,21 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableList;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.CustomSerializationBean;
+import com.hubspot.rosetta.beans.InnerSerializationBean;
 
 public class CustomSerializationTest {
   private CustomSerializationBean bean;
   private List<String> stringList;
+  private InnerSerializationBean innerBean;
+
   private final JsonNode expected = TextNode.valueOf("one;two;buckle;my;shoe");
+  private final JsonNode expectedInnerBean = TextNode.valueOf("foo:bar");
 
   @Before
   public void setup() {
     bean = new CustomSerializationBean();
     stringList = ImmutableList.of("one", "two", "buckle", "my", "shoe");
+    innerBean = new InnerSerializationBean("foo", "bar");
   }
 
   @Test
@@ -120,6 +125,38 @@ public class CustomSerializationTest {
 
     CustomSerializationBean bean = Rosetta.getMapper().treeToValue(node, CustomSerializationBean.class);
     assertThat(bean.getAnnotatedField())
+        .isNull();
+  }
+
+  @Test
+  public void testAnnotatedInnerFieldSerialization() {
+    bean.setAnnotatedInnerField(innerBean);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedInnerField"))
+        .isEqualTo(expectedInnerBean);
+  }
+
+  @Test
+  public void testAnnotatedInnerFieldDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.set("annotatedInnerField", expectedInnerBean);
+
+    CustomSerializationBean bean = Rosetta.getMapper().treeToValue(node, CustomSerializationBean.class);
+    assertThat(bean.getAnnotatedInnerField()).isEqualTo(innerBean);
+  }
+
+  @Test
+  public void testAnnotatedInnerFieldNullSerialization() {
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedInnerField"))
+        .isEqualTo(NullNode.getInstance());
+  }
+
+  @Test
+  public void testAnnotatedInnerFieldNullDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.set("annotatedInnerField", NullNode.getInstance());
+
+    CustomSerializationBean bean = Rosetta.getMapper().treeToValue(node, CustomSerializationBean.class);
+    assertThat(bean.getAnnotatedInnerField())
         .isNull();
   }
 }
