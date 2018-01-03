@@ -1,5 +1,13 @@
 package com.hubspot.rosetta.annotations;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
@@ -10,12 +18,8 @@ import com.google.common.base.Optional;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
+import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
 
 public class StoredAsJsonTest {
   private StoredAsJsonBean bean;
@@ -397,5 +401,27 @@ public class StoredAsJsonTest {
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
     assertThat(bean.getJsonNodeField()).isEqualTo(NullNode.getInstance());
+  }
+
+  @Test
+  public void itHandlesSubTypes() throws JsonProcessingException {
+    ConcreteStoredAsJsonList typeInfoBean = new ConcreteStoredAsJsonList();
+    typeInfoBean.setInnerBeans(Collections.singletonList(inner));
+
+    TextNode expectedList = TextNode.valueOf("[{\"stringProperty\":\"value\"}]");
+    JsonNode node = Rosetta.getMapper().valueToTree(typeInfoBean);
+    assertThat(node.get("innerBeans")).isEqualTo(expectedList);
+
+    assertThat(Rosetta.getMapper().treeToValue(node, StoredAsJsonListTypeInfoBean.class)
+                   .getInnerBeans()
+                   .get(0)
+                   .getStringProperty())
+        .isEqualTo("value");
+
+    assertThat(Rosetta.getMapper().treeToValue(node, ConcreteStoredAsJsonList.class)
+                   .getInnerBeans()
+                   .get(0)
+                   .getStringProperty())
+        .isEqualTo("value");
   }
 }

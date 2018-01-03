@@ -71,7 +71,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     }
     if (storedAsJson != null) {
       if (a instanceof AnnotatedMethod) {
-        a = ((AnnotatedMethod) a).getParameter(0);
+        a = getAnnotatedTypeFromAnnotatedMethod((AnnotatedMethod) a);
       }
 
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
@@ -144,6 +144,16 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       return ann.value().isEmpty() ? PropertyName.USE_DEFAULT : new PropertyName(ann.value());
     }
     return null;
+  }
+
+  private Annotated getAnnotatedTypeFromAnnotatedMethod(AnnotatedMethod a) {
+    if (a.getParameterCount() > 0) {
+      return a.getParameter(0);
+    } else if (a.hasReturnType()) {
+      return a;
+    } else {
+      throw new IllegalArgumentException("Cannot have @StoredAsJson on a method with no parameters AND no arguments");
+    }
   }
 
   private Type getType(Annotated a) {
