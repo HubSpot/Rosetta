@@ -14,7 +14,6 @@ import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJs
     @JsonSubTypes.Type(value = ConcreteStoredAsJsonList.class)
 })
 public abstract class StoredAsJsonListTypeInfoBean {
-
   @StoredAsJson
   public abstract List<InnerBean> getInnerBeans();
 
