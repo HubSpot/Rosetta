@@ -1,9 +1,5 @@
 package com.hubspot.rosetta;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.rosetta.internal.TableNameExtractor;
-
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -11,6 +7,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.internal.TableNameExtractor;
 
 /**
  * Core mapping functionality.
@@ -73,7 +73,7 @@ public class RosettaMapper<T> {
       }
 
       // don't use table name extractor because we don't want aliased table name
-      boolean overwrite = metadata.getTableName(i).equals(this.tableName);
+      boolean overwrite = this.tableName != null && this.tableName.equals(metadata.getTableName(i));
       String tableName = TABLE_NAME_EXTRACTOR.getTableName(metadata, i);
       if (tableName != null && !tableName.isEmpty()) {
         String qualifiedName = tableName + "." + metadata.getColumnName(i);
