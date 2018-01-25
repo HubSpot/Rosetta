@@ -29,6 +29,16 @@ public class StoredAsJsonBean {
   @StoredAsJson
   private JsonNode jsonNodeField;
 
+  @StoredAsJson
+  private Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoField;
+  private Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoGetter;
+  private Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoSetter;
+
+  @StoredAsJson
+  private StoredAsJsonTypeInfoBean typeInfoField;
+  private StoredAsJsonTypeInfoBean typeInfoGetter;
+  private StoredAsJsonTypeInfoBean typeInfoSetter;
+
   public InnerBean getAnnotatedField() {
     return annotatedField;
   }
@@ -132,5 +142,57 @@ public class StoredAsJsonBean {
   public StoredAsJsonBean setJsonNodeField(JsonNode jsonNodeField) {
     this.jsonNodeField = jsonNodeField;
     return this;
+  }
+
+  public Optional<StoredAsJsonTypeInfoBean> getOptionalTypeInfoField() {
+    return optionalTypeInfoField;
+  }
+
+  public void setOptionalTypeInfoField(Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoField) {
+    this.optionalTypeInfoField = optionalTypeInfoField;
+  }
+
+  @StoredAsJson
+  public Optional<StoredAsJsonTypeInfoBean> getOptionalTypeInfoGetter() {
+    return optionalTypeInfoGetter;
+  }
+
+  public void setOptionalTypeInfoGetter(Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoGetter) {
+    this.optionalTypeInfoGetter = optionalTypeInfoGetter;
+  }
+
+  public Optional<StoredAsJsonTypeInfoBean> getOptionalTypeInfoSetter() {
+    return optionalTypeInfoSetter;
+  }
+
+  @StoredAsJson
+  public void setOptionalTypeInfoSetter(Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoSetter) {
+    this.optionalTypeInfoSetter = optionalTypeInfoSetter;
+  }
+
+  public StoredAsJsonTypeInfoBean getTypeInfoField() {
+    return typeInfoField;
+  }
+
+  public void setTypeInfoField(StoredAsJsonTypeInfoBean typeInfoField) {
+    this.typeInfoField = typeInfoField;
+  }
+
+  @StoredAsJson
+  public StoredAsJsonTypeInfoBean getTypeInfoGetter() {
+    return typeInfoGetter;
+  }
+
+  public void setTypeInfoGetter(StoredAsJsonTypeInfoBean typeInfoGetter) {
+    this.typeInfoGetter = typeInfoGetter;
+  }
+
+  public StoredAsJsonTypeInfoBean getTypeInfoSetter() {
+    return typeInfoSetter;
+  }
+
+  @StoredAsJson
+  public void setTypeInfoSetter(StoredAsJsonTypeInfoBean typeInfoSetter) {
+    this.typeInfoSetter = typeInfoSetter;
   }
 }
