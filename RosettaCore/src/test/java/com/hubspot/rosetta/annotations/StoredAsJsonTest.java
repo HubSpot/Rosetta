@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.InnerBean;
+import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
@@ -423,5 +424,20 @@ public class StoredAsJsonTest {
                    .get(0)
                    .getStringProperty())
         .isEqualTo("value");
+  }
+
+  @Test
+  public void testNestedStoredAsJsonBeans() throws JsonProcessingException {
+    InnerBean innerBean = new InnerBean();
+    innerBean.setStringProperty("value");
+
+    StoredAsJsonBean storedAsJsonBean = new StoredAsJsonBean();
+    storedAsJsonBean.setAnnotatedField(innerBean);
+
+    NestedStoredAsJsonBean top = new NestedStoredAsJsonBean();
+    top.setAnnotatedField(storedAsJsonBean);
+
+    JsonNode node = Rosetta.getMapper().valueToTree(top);
+    assertThat(Rosetta.getMapper().treeToValue(node, NestedStoredAsJsonBean.class)).isEqualTo(top);
   }
 }
