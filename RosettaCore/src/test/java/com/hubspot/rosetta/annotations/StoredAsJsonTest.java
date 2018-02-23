@@ -18,6 +18,9 @@ import com.google.common.base.Optional;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
+import com.hubspot.rosetta.beans.PolymorphicBeanA;
+import com.hubspot.rosetta.beans.PolymorphicBeanB;
+import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
@@ -439,5 +442,17 @@ public class StoredAsJsonTest {
 
     JsonNode node = Rosetta.getMapper().valueToTree(top);
     assertThat(Rosetta.getMapper().treeToValue(node, NestedStoredAsJsonBean.class)).isEqualTo(top);
+  }
+
+  @Test
+  public void testPolymorphicStoredAsJsonBeans() throws JsonProcessingException {
+    PolymorphicStoredAsJsonBean bean = new PolymorphicStoredAsJsonBean();
+    bean.setAnnotatedField(new PolymorphicBeanA());
+
+    JsonNode node = Rosetta.getMapper().valueToTree(bean);
+    assertThat(node.get("annotatedField")).isNotNull();
+    assertThat(node.get("annotatedField").hasNonNull("beanType"));
+
+    assertThat(Rosetta.getMapper().treeToValue(node, PolymorphicStoredAsJsonBean.class).getAnnotatedField()).isInstanceOf(PolymorphicBeanB.class);
   }
 }
