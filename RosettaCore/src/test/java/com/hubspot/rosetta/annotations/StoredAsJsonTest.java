@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +18,9 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.InnerBean;
+import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
+import com.hubspot.rosetta.beans.PolymorphicBeanA;
+import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
@@ -476,6 +480,7 @@ public class StoredAsJsonTest {
     assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoGetter().get()).getConcreteValue())
         .isEqualTo("internal");
   }
+
   @Test
   public void itHandlesAnnotatedOptionalGenericSetterSerialization() {
     bean.setOptionalTypeInfoSetter(Optional.of(typeInfoBean));
@@ -558,5 +563,33 @@ public class StoredAsJsonTest {
     assertThat(bean.getTypeInfoSetter().getGeneralValue()).isEqualTo("General");
     assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoSetter()).getConcreteValue())
         .isEqualTo("internal");
+  }
+
+  @Test
+  @Ignore
+  public void testNestedStoredAsJsonBeans() throws JsonProcessingException {
+    InnerBean innerBean = new InnerBean();
+    innerBean.setStringProperty("value");
+
+    StoredAsJsonBean storedAsJsonBean = new StoredAsJsonBean();
+    storedAsJsonBean.setAnnotatedField(innerBean);
+
+    NestedStoredAsJsonBean top = new NestedStoredAsJsonBean();
+    top.setAnnotatedField(storedAsJsonBean);
+
+    JsonNode node = Rosetta.getMapper().valueToTree(top);
+    assertThat(Rosetta.getMapper().treeToValue(node, NestedStoredAsJsonBean.class)).isEqualTo(top);
+  }
+
+  @Test
+  public void testPolymorphicStoredAsJsonBeans() throws JsonProcessingException {
+    PolymorphicStoredAsJsonBean bean = new PolymorphicStoredAsJsonBean();
+    bean.setAnnotatedField(new PolymorphicBeanA());
+
+    JsonNode node = Rosetta.getMapper().valueToTree(bean);
+    assertThat(node.get("annotatedField")).isNotNull();
+    assertThat(node.get("annotatedField").hasNonNull("beanType"));
+
+    assertThat(Rosetta.getMapper().treeToValue(node, PolymorphicStoredAsJsonBean.class).getAnnotatedField()).isInstanceOf(PolymorphicBeanA.class);
   }
 }
