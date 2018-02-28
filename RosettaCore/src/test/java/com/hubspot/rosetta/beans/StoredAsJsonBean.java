@@ -1,10 +1,12 @@
 package com.hubspot.rosetta.beans;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 
 public class StoredAsJsonBean {
+  private static final CastToSuper CAST_TO_SUPER = new CastToSuper();
 
   @StoredAsJson
   private InnerBean annotatedField;
@@ -148,8 +150,8 @@ public class StoredAsJsonBean {
     return optionalTypeInfoField;
   }
 
-  public void setOptionalTypeInfoField(Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoField) {
-    this.optionalTypeInfoField = optionalTypeInfoField;
+  public void setOptionalTypeInfoField(Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoField) {
+    this.optionalTypeInfoField = optionalTypeInfoField.transform(CAST_TO_SUPER);
   }
 
   @StoredAsJson
@@ -157,8 +159,8 @@ public class StoredAsJsonBean {
     return optionalTypeInfoGetter;
   }
 
-  public void setOptionalTypeInfoGetter(Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoGetter) {
-    this.optionalTypeInfoGetter = optionalTypeInfoGetter;
+  public void setOptionalTypeInfoGetter(Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoGetter) {
+    this.optionalTypeInfoGetter = optionalTypeInfoGetter.transform(CAST_TO_SUPER);
   }
 
   public Optional<StoredAsJsonTypeInfoBean> getOptionalTypeInfoSetter() {
@@ -166,8 +168,8 @@ public class StoredAsJsonBean {
   }
 
   @StoredAsJson
-  public void setOptionalTypeInfoSetter(Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoSetter) {
-    this.optionalTypeInfoSetter = optionalTypeInfoSetter;
+  public void setOptionalTypeInfoSetter(Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoSetter) {
+    this.optionalTypeInfoSetter = optionalTypeInfoSetter.transform(CAST_TO_SUPER);
   }
 
   public StoredAsJsonTypeInfoBean getTypeInfoField() {
@@ -194,5 +196,12 @@ public class StoredAsJsonBean {
   @StoredAsJson
   public void setTypeInfoSetter(StoredAsJsonTypeInfoBean typeInfoSetter) {
     this.typeInfoSetter = typeInfoSetter;
+  }
+
+  private static class CastToSuper<U extends T, T> implements Function<U, T> {
+    @Override
+    public T apply(U input) {
+      return input;
+    }
   }
 }
