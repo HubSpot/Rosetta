@@ -1,5 +1,9 @@
 package com.hubspot.rosetta.internal;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -7,10 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   private static final long serialVersionUID = 1L;
@@ -41,6 +42,12 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     } else {
       throw ctxt.mappingException("Expected JSON String");
     }
+  }
+
+  @Override
+  public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+    // we're delegating to the our parent object mapper, so the TypeDeserializer doesn't matter
+    return deserialize(jp, ctxt);
   }
 
   @Override
