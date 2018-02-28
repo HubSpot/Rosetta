@@ -1,5 +1,16 @@
 package com.hubspot.rosetta;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
@@ -12,16 +23,7 @@ import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
 import com.hubspot.rosetta.beans.RosettaNamingBean;
 import com.hubspot.rosetta.beans.ServiceLoaderBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
-import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
 
 public class RosettaBinderTest {
 
@@ -51,9 +53,13 @@ public class RosettaBinderTest {
   }
 
   @Test
-  public void itBindsStoredAsJsonBeanCorrectly() {
+  public void itBindsStoredAsJsonBeanCorrectly() throws Exception {
     InnerBean inner = new InnerBean();
     inner.setStringProperty("value");
+
+    ConcreteStoredAsJsonTypeInfo concrete = new ConcreteStoredAsJsonTypeInfo();
+    concrete.setGeneralValue("general");
+    concrete.setConcreteValue("concrete");
 
     JsonNode innerJsonNode = Rosetta.getMapper().createObjectNode().set("stringProperty", TextNode.valueOf("value"));
 
@@ -70,8 +76,15 @@ public class RosettaBinderTest {
     bean.setBinaryField(inner);
     bean.setBinaryFieldWithDefault(inner);
     bean.setJsonNodeField(innerJsonNode);
+    bean.setOptionalTypeInfoField(Optional.of(concrete));
+    bean.setOptionalTypeInfoGetter(Optional.of(concrete));
+    bean.setOptionalTypeInfoSetter(Optional.of(concrete));
+    bean.setTypeInfoField(concrete);
+    bean.setTypeInfoGetter(concrete);
+    bean.setTypeInfoSetter(concrete);
 
     String json = "{\"stringProperty\":\"value\"}";
+    String typedJson = "{\"generalValue\":\"general\",\"concreteValue\":\"concrete\",\"type\":\"concrete\"}";
     List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
 
     assertThat(bind(bean)).isEqualTo(map(
@@ -86,7 +99,13 @@ public class RosettaBinderTest {
             "optionalSetter", json,
             "binaryField", bytes,
             "binaryFieldWithDefault", bytes,
-            "jsonNodeField", json
+            "jsonNodeField", json,
+            "optionalTypeInfoField", typedJson,
+            "optionalTypeInfoGetter", typedJson,
+            "optionalTypeInfoSetter", typedJson,
+            "typeInfoField", typedJson,
+            "typeInfoGetter", typedJson,
+            "typeInfoSetter", typedJson
     ));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
             "prefix.annotatedField", json,
@@ -100,7 +119,13 @@ public class RosettaBinderTest {
             "prefix.optionalSetter", json,
             "prefix.binaryField", bytes,
             "prefix.binaryFieldWithDefault", bytes,
-            "prefix.jsonNodeField", json
+            "prefix.jsonNodeField", json,
+            "prefix.optionalTypeInfoField", typedJson,
+            "prefix.optionalTypeInfoGetter", typedJson,
+            "prefix.optionalTypeInfoSetter", typedJson,
+            "prefix.typeInfoField", typedJson,
+            "prefix.typeInfoGetter", typedJson,
+            "prefix.typeInfoSetter", typedJson
     ));
   }
 
@@ -123,7 +148,13 @@ public class RosettaBinderTest {
             "optionalSetter", null,
             "binaryField", null,
             "binaryFieldWithDefault", bytes,
-            "jsonNodeField", null
+            "jsonNodeField", null,
+            "optionalTypeInfoField", null,
+            "optionalTypeInfoGetter", null,
+            "optionalTypeInfoSetter", null,
+            "typeInfoField", null,
+            "typeInfoGetter", null,
+            "typeInfoSetter", null
     ));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
             "prefix.annotatedField", null,
@@ -137,7 +168,13 @@ public class RosettaBinderTest {
             "prefix.optionalSetter", null,
             "prefix.binaryField", null,
             "prefix.binaryFieldWithDefault", bytes,
-            "prefix.jsonNodeField", null
+            "prefix.jsonNodeField", null,
+            "prefix.optionalTypeInfoField", null,
+            "prefix.optionalTypeInfoGetter", null,
+            "prefix.optionalTypeInfoSetter", null,
+            "prefix.typeInfoField", null,
+            "prefix.typeInfoGetter", null,
+            "prefix.typeInfoSetter", null
     ));
   }
 

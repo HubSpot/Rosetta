@@ -24,6 +24,8 @@ import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
+import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean;
+import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
 
 public class StoredAsJsonTest {
   private StoredAsJsonBean bean;
@@ -32,11 +34,19 @@ public class StoredAsJsonTest {
   private final JsonNode expected = TextNode.valueOf("{\"stringProperty\":\"value\"}");
   private final JsonNode expectedBinary = BinaryNode.valueOf(expected.textValue().getBytes(StandardCharsets.UTF_8));
 
+  private StoredAsJsonTypeInfoBean typeInfoBean;
+  private final JsonNode expectedTypeInfo = TextNode.valueOf("{\"generalValue\":\"General\",\"concreteValue\":\"internal\",\"type\":\"concrete\"}");
+
   @Before
   public void setup() {
     bean = new StoredAsJsonBean();
     inner = new InnerBean();
     inner.setStringProperty("value");
+
+    ConcreteStoredAsJsonTypeInfo concrete = new ConcreteStoredAsJsonTypeInfo();
+    concrete.setGeneralValue("General");
+    concrete.setConcreteValue("internal");
+    typeInfoBean = concrete;
   }
 
   @Test
@@ -427,6 +437,132 @@ public class StoredAsJsonTest {
                    .get(0)
                    .getStringProperty())
         .isEqualTo("value");
+  }
+
+  @Test
+  public void itHandlesAnnotatedOptionalGenericFieldSerialization() {
+    bean.setOptionalTypeInfoField(Optional.of(typeInfoBean));
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField"))
+        .isEqualTo(expectedTypeInfo);
+  }
+
+  @Test
+  public void itHandlesAnnotatedOptionalGenericFieldDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalTypeInfoField", expectedTypeInfo);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalTypeInfoField().isPresent()).isTrue();
+    assertThat(bean.getOptionalTypeInfoField().get()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getOptionalTypeInfoField().get().getGeneralValue()).isEqualTo("General");
+    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoField().get()).getConcreteValue())
+        .isEqualTo("internal");
+  }
+
+  @Test
+  public void itHandlesAnnotatedOptionalGenericGetterSerialization() {
+    bean.setOptionalTypeInfoGetter(Optional.of(typeInfoBean));
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoGetter"))
+        .isEqualTo(expectedTypeInfo);
+  }
+
+  @Test
+  public void itHandlesAnnotatedOptionalGenericGetterDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalTypeInfoGetter", expectedTypeInfo);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalTypeInfoGetter().isPresent()).isTrue();
+    assertThat(bean.getOptionalTypeInfoGetter().get()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getOptionalTypeInfoGetter().get().getGeneralValue()).isEqualTo("General");
+    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoGetter().get()).getConcreteValue())
+        .isEqualTo("internal");
+  }
+
+  @Test
+  public void itHandlesAnnotatedOptionalGenericSetterSerialization() {
+    bean.setOptionalTypeInfoSetter(Optional.of(typeInfoBean));
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoSetter"))
+        .isEqualTo(expectedTypeInfo);
+  }
+
+  @Test
+  public void itHandlesAnnotatedOptionalGenericSetterDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("optionalTypeInfoSetter", expectedTypeInfo);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getOptionalTypeInfoSetter().isPresent()).isTrue();
+    assertThat(bean.getOptionalTypeInfoSetter().get()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getOptionalTypeInfoSetter().get().getGeneralValue()).isEqualTo("General");
+    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoSetter().get()).getConcreteValue())
+        .isEqualTo("internal");
+  }
+
+  @Test
+  public void itHandlesAnnotatedGenericFieldSerialization() {
+    bean.setTypeInfoField(typeInfoBean);
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoField"))
+        .isEqualTo(expectedTypeInfo);
+  }
+
+  @Test
+  public void itHandlesAnnotatedGenericFieldDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("typeInfoField", expectedTypeInfo);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getTypeInfoField()).isNotNull();
+    assertThat(bean.getTypeInfoField()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getTypeInfoField().getGeneralValue()).isEqualTo("General");
+    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoField()).getConcreteValue())
+        .isEqualTo("internal");
+  }
+
+  @Test
+  public void itHandlesAnnotatedGenericGetterSerialization() {
+    bean.setTypeInfoGetter(typeInfoBean);
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoGetter"))
+        .isEqualTo(expectedTypeInfo);
+  }
+
+  @Test
+  public void itHandlesAnnotatedGenericGetterDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("typeInfoGetter", expectedTypeInfo);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getTypeInfoGetter()).isNotNull();
+    assertThat(bean.getTypeInfoGetter()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getTypeInfoGetter().getGeneralValue()).isEqualTo("General");
+    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoGetter()).getConcreteValue())
+        .isEqualTo("internal");
+  }
+
+  @Test
+  public void itHandlesAnnotatedGenericSetterSerialization() {
+    bean.setTypeInfoSetter(typeInfoBean);
+
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoSetter"))
+        .isEqualTo(expectedTypeInfo);
+  }
+
+  @Test
+  public void itHandlesAnnotatedGenericSetterDeserialization() throws JsonProcessingException {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.put("typeInfoSetter", expectedTypeInfo);
+
+    StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
+    assertThat(bean.getTypeInfoSetter()).isNotNull();
+    assertThat(bean.getTypeInfoSetter()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getTypeInfoSetter().getGeneralValue()).isEqualTo("General");
+    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoSetter()).getConcreteValue())
+        .isEqualTo("internal");
   }
 
   @Test
