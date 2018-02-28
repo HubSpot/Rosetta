@@ -1,5 +1,16 @@
 package com.hubspot.rosetta;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
@@ -12,16 +23,8 @@ import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
 import com.hubspot.rosetta.beans.RosettaNamingBean;
 import com.hubspot.rosetta.beans.ServiceLoaderBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
-import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean;
+import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
 
 public class RosettaBinderTest {
 
@@ -55,6 +58,8 @@ public class RosettaBinderTest {
     InnerBean inner = new InnerBean();
     inner.setStringProperty("value");
 
+    StoredAsJsonTypeInfoBean typeInfoBean = new ConcreteStoredAsJsonTypeInfo();
+
     JsonNode innerJsonNode = Rosetta.getMapper().createObjectNode().set("stringProperty", TextNode.valueOf("value"));
 
     StoredAsJsonBean bean = new StoredAsJsonBean();
@@ -70,6 +75,12 @@ public class RosettaBinderTest {
     bean.setBinaryField(inner);
     bean.setBinaryFieldWithDefault(inner);
     bean.setJsonNodeField(innerJsonNode);
+    bean.setOptionalTypeInfoField(Optional.of(typeInfoBean));
+    bean.setOptionalTypeInfoGetter(Optional.of(typeInfoBean));
+    bean.setOptionalTypeInfoSetter(Optional.of(typeInfoBean));
+    bean.setTypeInfoField(typeInfoBean);
+    bean.setTypeInfoGetter(typeInfoBean);
+    bean.setTypeInfoSetter(typeInfoBean);
 
     String json = "{\"stringProperty\":\"value\"}";
     List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
@@ -86,7 +97,13 @@ public class RosettaBinderTest {
             "optionalSetter", json,
             "binaryField", bytes,
             "binaryFieldWithDefault", bytes,
-            "jsonNodeField", json
+            "jsonNodeField", json,
+            "optionalTypeInfoField", typeInfoBean,
+            "optionalTypeInfoGetter", typeInfoBean,
+            "optionalTypeInfoSetter", typeInfoBean,
+            "typeInfoField", typeInfoBean,
+            "typeInfoGetter", typeInfoBean,
+            "typeInfoSetter", typeInfoBean
     ));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
             "prefix.annotatedField", json,
@@ -100,7 +117,13 @@ public class RosettaBinderTest {
             "prefix.optionalSetter", json,
             "prefix.binaryField", bytes,
             "prefix.binaryFieldWithDefault", bytes,
-            "prefix.jsonNodeField", json
+            "prefix.jsonNodeField", json,
+            "prefix.optionalTypeInfoField", typeInfoBean,
+            "prefix.optionalTypeInfoGetter", typeInfoBean,
+            "prefix.optionalTypeInfoSetter", typeInfoBean,
+            "prefix.typeInfoField", typeInfoBean,
+            "prefix.typeInfoGetter", typeInfoBean,
+            "prefix.typeInfoSetter", typeInfoBean
     ));
   }
 
@@ -123,7 +146,13 @@ public class RosettaBinderTest {
             "optionalSetter", null,
             "binaryField", null,
             "binaryFieldWithDefault", bytes,
-            "jsonNodeField", null
+            "jsonNodeField", null,
+            "optionalTypeInfoField", null,
+            "optionalTypeInfoGetter", null,
+            "optionalTypeInfoSetter", null,
+            "typeInfoField", null,
+            "typeInfoGetter", null,
+            "typeInfoSetter", null
     ));
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
             "prefix.annotatedField", null,
@@ -137,7 +166,13 @@ public class RosettaBinderTest {
             "prefix.optionalSetter", null,
             "prefix.binaryField", null,
             "prefix.binaryFieldWithDefault", bytes,
-            "prefix.jsonNodeField", null
+            "prefix.jsonNodeField", null,
+            "prefix.optionalTypeInfoField", null,
+            "prefix.optionalTypeInfoGetter", null,
+            "prefix.optionalTypeInfoSetter", null,
+            "prefix.typeInfoField", null,
+            "prefix.typeInfoGetter", null,
+            "prefix.typeInfoSetter", null
     ));
   }
 
