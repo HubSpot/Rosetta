@@ -1,0 +1,52 @@
+package com.hubspot.rosetta.jdbi3;
+
+import java.lang.reflect.Type;
+import java.util.Optional;
+
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.mapper.BuiltInMapperFactory;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.RosettaMapper;
+import com.hubspot.rosetta.util.SqlTableNameExtractor;
+
+public class RosettaRowMapperFactory implements RowMapperFactory {
+  private static final BuiltInMapperFactory BUILT_INS = new BuiltInMapperFactory();
+
+  @Override
+  public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    if (accepts(type, config)) {
+      return Optional.of((rs, ctx) -> {
+        ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(ctx);
+
+        String tableName = SqlTableNameExtractor.extractTableName(ctx.getParsedSql().getSql());
+        final RosettaMapper mapper = new RosettaMapper(type, objectMapper, tableName);
+
+        return mapper.mapRow(rs);
+      });
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  private static boolean accepts(Type type, ConfigRegistry config) {
+    Class<?> rawType = GenericTypes.getErasedType(type);
+
+    if (rawType.isPrimitive() || rawType.isArray() || rawType.isAnnotation()) {
+      return false;
+    } else if (rawType == Optional.class) {
+      Optional<Type> optionalType = GenericTypes.findGenericParameter(type, Optional.class);
+      // TODO we currently return false if we can't infer the type of the Optional, should we reverse that?
+      return optionalType.isPresent() && accepts(optionalType.get(), config);
+    } else {
+      return !hasBuiltInMapper(type, config);
+    }
+  }
+
+  private static boolean hasBuiltInMapper(Type type, ConfigRegistry config) {
+    return BUILT_INS.build(type, config).isPresent();
+  }
+}

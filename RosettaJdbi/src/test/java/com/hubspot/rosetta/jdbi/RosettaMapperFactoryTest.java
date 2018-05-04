@@ -1,19 +1,20 @@
 package com.hubspot.rosetta.jdbi;
 
-import com.hubspot.rosetta.beans.NestedBean;
-import com.hubspot.rosetta.beans.RosettaCreatorConstructorBean;
-import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
-import com.hubspot.rosetta.beans.RosettaNamingBean;
-import com.hubspot.rosetta.beans.RosettaValueBean;
-import com.hubspot.rosetta.beans.StoredAsJsonBean;
-import org.junit.Test;
-
 import static com.hubspot.rosetta.jdbi.RosettaMapperFactory.determineGenericReturnType;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+
+import org.junit.Test;
+
+import com.hubspot.rosetta.beans.NestedBean;
+import com.hubspot.rosetta.beans.RosettaCreatorConstructorBean;
+import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
+import com.hubspot.rosetta.beans.RosettaNamingBean;
+import com.hubspot.rosetta.beans.RosettaValueBean;
+import com.hubspot.rosetta.beans.StoredAsJsonBean;
 
 public class RosettaMapperFactoryTest {
 
@@ -112,27 +113,6 @@ public class RosettaMapperFactoryTest {
   public void itHandlesListOfPrimitiveWrappers() {
     Type type = determineGenericReturnType(Integer.class, returnTypeForMethod("listOfPrimitiveWrapper"));
     assertThat(type).isEqualTo(Integer.class);
-  }
-
-  @Test
-  public void itExtractsTableNameBasic() {
-    String sql = "SELECT * FROM table WHERE bar = baz";
-
-    assertThat(RosettaMapperFactory.extractTableName(sql)).isEqualTo("table");
-  }
-
-  @Test
-  public void itExtractsTableNameWithComma() {
-    String sql = "SELECT * FROM table, other_table WHERE bar = baz";
-
-    assertThat(RosettaMapperFactory.extractTableName(sql)).isEqualTo("table");
-  }
-
-  @Test
-  public void itExtractsTableNameWithSemicolon() {
-    String sql = "SELECT * FROM table;";
-
-    assertThat(RosettaMapperFactory.extractTableName(sql)).isEqualTo("table");
   }
 
   private Type returnTypeForMethod(String methodName) {
