@@ -32,7 +32,7 @@ Latest versions can be seen [here](https://search.maven.org/#search%7Cga%7C1%7Cg
 
 ## Binding
 
-You can [bind JDBI arguments](http://www.jdbi.org/sql_object_api_argument_binding) in your DAO using `@BindWithRosetta`.
+You can [bind JDBI arguments](http://jdbi.org/#_binding_arguments) in your DAO using `@BindWithRosetta`.
 
 ```java
 public interface MyDAO {
@@ -41,13 +41,13 @@ public interface MyDAO {
 }
 ```
 
-`@BindWithRosetta` behaves like jDBI's `@BindBean`, but it converts the object to a tree using Jackson which lets
-you use all the Jackson annotations you know and love to customize the representation. It's also generally more robust - it supports
-the not-quite-standard naming conventions, enums, fluent setters, nested objects (with dot-notation), getters without fields, etc.
+`@BindWithRosetta` converts the object to a tree using Jackson, and then binds every property in the JSON tree on the Jdbi statement (using dot notation for nested object fields). This lets you use all the Jackson annotations you know and love to customize the representation.
 
 ## Mapping
 
-To register Rosetta globally for mapping, you can add it to your `DBI` like so:
+### Jdbi 2
+
+With Jdbi 2, you can register the Rosetta mapper globally by adding it your `DBI` like so:
 ```java
 dbi.registerMapper(new RosettaMapperFactory());
 ```
@@ -61,6 +61,24 @@ public interface MyDAO { /* ... */ }
 Or to use in combination with a `Handle`: (same idea to register on a `Query`)
 ```java
 handle.registerMapper(new RosettaMapperFactory());
+```
+
+### Jdbi 3
+
+With Jdbi 3, you can register the Rosetta mapper globally by adding it your `Jdbi` like so:
+```java
+jdbi.registerRowMapper(new RosettaRowMapperFactory());
+```
+
+Or to test it out on a single DAO you would do:
+```java
+@RegisterRowMapperFactory(RosettaRowMapperFactory.class)
+public interface MyDAO { /* ... */ }
+```
+
+Or to use in combination with a `Handle`: (same idea to register on a `Query`)
+```java
+handle.registerRowMapper(new RosettaRowMapperFactory());
 ```
 
 ## Advanced Features
