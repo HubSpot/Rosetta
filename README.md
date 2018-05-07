@@ -2,16 +2,11 @@
 
 ## Overview
 
-Rosetta is a Java library that leverages [Jackson](https://github.com/FasterXML/jackson) to take the pain out of mapping objects to/from the DB, designed to integrate seamlessly with [jDBI](https://github.com/jdbi/jdbi). Jackson is extremely fast, endlessly configurable, and already used by many Java webapps. 
-
-Rosetta isn't an ORM. It doesn't silently read and write to your database, validate input, or manage connections. It does two things:
-
-1. Binds Java objects to query parameters using a jDBI `BindingAnnotation`
-2. Maps query results back to Java objects using a jDBI `ResultSetMapperFactory`
+Rosetta is a Java library that leverages [Jackson](https://github.com/FasterXML/jackson) to take the pain out of mapping objects to/from the DB, designed to integrate seamlessly with [Jdbi](https://github.com/jdbi/jdbi). Jackson is extremely fast, endlessly configurable, and already used by many Java webapps.
 
 ## Usage
 
-To use with jDBI on Maven-based projects, add the following dependency:
+If you are on Jdbi 2, add the following dependency:
 
 ```xml
 <dependency>
@@ -20,7 +15,20 @@ To use with jDBI on Maven-based projects, add the following dependency:
   <version>{latest version}</version>
 </dependency>
 ```
-Latest version can be seen [here](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.rosetta%22)
+
+Latest versions can be seen [here](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.rosetta%22)
+
+Or if you are on Jdbi 3, add the following dependency:
+
+```xml
+<dependency>
+  <groupId>com.hubspot.rosetta</groupId>
+  <artifactId>RosettaJdbi3</artifactId>
+  <version>{latest version}</version>
+</dependency>
+```
+
+Latest versions can be seen [here](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.hubspot.rosetta%22)
 
 ## Binding
 
