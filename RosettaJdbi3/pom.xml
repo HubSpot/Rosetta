@@ -10,6 +10,10 @@
 
   <artifactId>RosettaJdbi3</artifactId>
 
+  <properties>
+    <dep.slf4j.version>1.7.25</dep.slf4j.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.hubspot.rosetta</groupId>
@@ -22,6 +26,14 @@
     <dependency>
       <groupId>org.jdbi</groupId>
       <artifactId>jdbi3-sqlobject</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -38,9 +50,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.hubspot.rosetta</groupId>
-      <artifactId>RosettaCore</artifactId>
-      <type>test-jar</type>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

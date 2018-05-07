@@ -4,6 +4,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.Rosetta;
+import com.hubspot.rosetta.internal.RosettaModule;
 
 public class RosettaObjectMapper implements JdbiConfig<RosettaObjectMapper> {
   private ObjectMapper objectMapper;
@@ -21,7 +22,7 @@ public class RosettaObjectMapper implements JdbiConfig<RosettaObjectMapper> {
   }
 
   public void setObjectMapper(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
+    this.objectMapper = objectMapper.copy().registerModule(new RosettaModule());
   }
 
   @Override
