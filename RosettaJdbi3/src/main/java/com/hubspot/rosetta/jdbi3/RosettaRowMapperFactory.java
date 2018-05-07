@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.mapper.BuiltInMapperFactory;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 
@@ -14,14 +14,13 @@ import com.hubspot.rosetta.RosettaMapper;
 import com.hubspot.rosetta.util.SqlTableNameExtractor;
 
 public class RosettaRowMapperFactory implements RowMapperFactory {
-  private static final BuiltInMapperFactory BUILT_INS = new BuiltInMapperFactory();
 
   @Override
   public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
     if (accepts(type, config)) {
-      return Optional.of((rs, ctx) -> {
-        ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(ctx);
+      ObjectMapper objectMapper = config.get(RosettaObjectMapper.class).getObjectMapper();
 
+      return Optional.of((rs, ctx) -> {
         String tableName = SqlTableNameExtractor.extractTableName(ctx.getParsedSql().getSql());
         final RosettaMapper mapper = new RosettaMapper(type, objectMapper, tableName);
 
@@ -47,6 +46,6 @@ public class RosettaRowMapperFactory implements RowMapperFactory {
   }
 
   private static boolean hasBuiltInMapper(Type type, ConfigRegistry config) {
-    return BUILT_INS.build(type, config).isPresent();
+    return config.get(ColumnMappers.class).findFor(type).isPresent();
   }
 }

@@ -38,7 +38,7 @@ public @interface BindWithRosetta {
         Type paramType
     ) {
       return (stmt, arg) -> {
-        ObjectMapper objectMapper = RosettaObjectMapperOverride.resolve(stmt.getContext());
+        ObjectMapper objectMapper = stmt.getConfig(RosettaObjectMapper.class).getObjectMapper();
 
         JsonNode node = objectMapper.valueToTree(arg);
         String prefix = ((BindWithRosetta) annotation).prefix();
