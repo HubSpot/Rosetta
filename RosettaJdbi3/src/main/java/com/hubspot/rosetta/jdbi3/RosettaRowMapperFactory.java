@@ -18,9 +18,8 @@ public class RosettaRowMapperFactory implements RowMapperFactory {
   @Override
   public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
     if (accepts(type, config)) {
-      ObjectMapper objectMapper = config.get(RosettaObjectMapper.class).getObjectMapper();
-
       return Optional.of((rs, ctx) -> {
+        ObjectMapper objectMapper = ctx.getConfig(RosettaObjectMapper.class).getObjectMapper();
         String tableName = SqlTableNameExtractor.extractTableName(ctx.getParsedSql().getSql());
         final RosettaMapper mapper = new RosettaMapper(type, objectMapper, tableName);
 
