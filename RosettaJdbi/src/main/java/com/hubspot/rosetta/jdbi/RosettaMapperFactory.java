@@ -5,13 +5,14 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.skife.jdbi.v2.BuiltInArgumentFactory;
 import org.skife.jdbi.v2.ResultSetMapperFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.RosettaMapper;
+import com.hubspot.rosetta.util.SqlTableNameExtractor;
 
 public class RosettaMapperFactory implements ResultSetMapperFactory {
 
@@ -31,7 +32,8 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
     } else {
       genericType = determineGenericReturnType(rawType, ctx.getSqlObjectMethod().getGenericReturnType());
     }
-    final RosettaMapper mapper = new RosettaMapper(genericType, objectMapper, extractTableName(ctx.getRewrittenSql()));
+    String tableName = SqlTableNameExtractor.extractTableName(ctx.getRewrittenSql());
+    final RosettaMapper mapper = new RosettaMapper(genericType, objectMapper, tableName);
 
     return new ResultSetMapper() {
 
@@ -56,31 +58,5 @@ public class RosettaMapperFactory implements ResultSetMapperFactory {
         return rawType;
       }
     }
-  }
-
-  static String extractTableName(final String sql) {
-    String lowerCaseSql = sql.toLowerCase();
-
-    String from = " from ";
-    int fromIndex = lowerCaseSql.indexOf(from);
-    if (fromIndex < 0) {
-      return null;
-    }
-
-    String tableString = sql.substring(fromIndex + from.length());
-    if (tableString.startsWith("(")) {
-      return null;
-    }
-
-    int endTableIndex = -1;
-    for (int i = 0; i < tableString.length(); i++) {
-      char c = tableString.charAt(i);
-      if (c == ' ' || c == ',' || c == ';') {
-        endTableIndex = i;
-        break;
-      }
-    }
-
-    return endTableIndex < 0 ? tableString : tableString.substring(0, endTableIndex);
   }
 }

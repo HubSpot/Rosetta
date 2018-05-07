@@ -31,10 +31,15 @@
     </developer>
   </developers>
 
+  <properties>
+    <project.build.targetJdk>1.8</project.build.targetJdk>
+  </properties>
+
   <modules>
     <module>RosettaAnnotations</module>
     <module>RosettaCore</module>
     <module>RosettaJdbi</module>
+    <module>RosettaJdbi3</module>
   </modules>
 
   <dependencyManagement>
@@ -59,6 +64,26 @@
         <groupId>com.hubspot.rosetta</groupId>
         <artifactId>RosettaJdbi</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot.rosetta</groupId>
+        <artifactId>RosettaJdbi3</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-core</artifactId>
+        <version>3.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-sqlobject</artifactId>
+        <version>3.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>1.4.197</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
