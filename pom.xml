@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot</groupId>
     <artifactId>basepom</artifactId>
-    <version>18.2</version>
+    <version>25.1</version>
   </parent>
 
   <groupId>com.hubspot.rosetta</groupId>
@@ -13,27 +13,9 @@
   <version>3.11.10-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>
-    Rosetta is a Java library that leverages Jackson to take the pain out of 
-    mapping objects to/from the DB, designed to integrate seamlessly with jDBI.        
+    Rosetta is a Java library that leverages Jackson to take the pain out of
+    mapping objects to/from the DB, designed to integrate seamlessly with jDBI.
   </description>
-
-  <scm>
-    <connection>scm:git:git@github.com:HubSpot/Rosetta.git</connection>
-    <developerConnection>scm:git:git@github.com:HubSpot/Rosetta.git</developerConnection>
-    <url>git@github.com:HubSpot/Rosetta.git</url>
-    <tag>HEAD</tag>
-  </scm>
-
-  <developers>
-    <developer>
-      <name>Jonathan Haber</name>
-      <email>jhaber@hubspot.com</email>
-    </developer>
-  </developers>
-
-  <properties>
-    <project.build.targetJdk>1.8</project.build.targetJdk>
-  </properties>
 
   <modules>
     <module>RosettaAnnotations</module>
@@ -41,6 +23,10 @@
     <module>RosettaJdbi</module>
     <module>RosettaJdbi3</module>
   </modules>
+
+  <properties>
+    <project.build.targetJdk>1.8</project.build.targetJdk>
+  </properties>
 
   <dependencyManagement>
     <dependencies>
@@ -87,4 +73,18 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <developers>
+    <developer>
+      <name>Jonathan Haber</name>
+      <email>jhaber@hubspot.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:HubSpot/Rosetta.git</connection>
+    <developerConnection>scm:git:git@github.com:HubSpot/Rosetta.git</developerConnection>
+    <url>git@github.com:HubSpot/Rosetta.git</url>
+    <tag>HEAD</tag>
+  </scm>
 </project>
