@@ -24,6 +24,11 @@
     <module>RosettaJdbi3</module>
   </modules>
 
+  <properties>
+    <dep.jackson.version>2.9.9</dep.jackson.version>
+    <dep.jackson-databind.version>2.9.9.3</dep.jackson-databind.version>
+  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
