@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.rosetta.Rosetta;
+import com.hubspot.rosetta.beans.FieldBeanStoredAsJson;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.ListStoredAsJsonBean;
 import com.hubspot.rosetta.beans.MapStoredAsJsonBean;
@@ -634,5 +635,13 @@ public class StoredAsJsonTest {
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("bean")).isNotNull();
     assertThat(node.get("bean").textValue()).contains("beanType");
+  }
+
+  @Test
+  public void testDeserializingStoredAsJsonPrivateField() throws Exception {
+    ObjectNode node = Rosetta.getMapper().createObjectNode();
+    node.putObject("bean").put("beanType", "C").put("value", "test");
+
+    FieldBeanStoredAsJson res = Rosetta.getMapper().readValue(node.toString(), FieldBeanStoredAsJson.class);
   }
 }

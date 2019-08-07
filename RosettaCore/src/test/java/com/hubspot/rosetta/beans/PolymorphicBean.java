@@ -9,7 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "beanType")
 @JsonSubTypes({
     @Type(value = PolymorphicBeanA.class, name = "A"),
-    @Type(value = PolymorphicBeanB.class, name = "B")
+    @Type(value = PolymorphicBeanB.class, name = "B"),
+    @Type(value = PolymorphicBeanC.class, name = "C")
 })
 public interface PolymorphicBean {
   String getValue();
