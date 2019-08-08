@@ -56,7 +56,7 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
     if (property == null) {
       return this;
     } else {
-      return new ContextualStoredAsJsonSerializer<>(_handledType, property);
+      return new ContextualStoredAsJsonSerializer<>(handledType(), property);
     }
   }
 
@@ -78,12 +78,9 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
 
       if (serializer != null) {
         SegmentedStringWriter sw = new SegmentedStringWriter(new BufferRecycler());
-        JsonGenerator subGen = mapper.getFactory().createGenerator(sw);
-        try {
+        try (JsonGenerator subGen = mapper.getFactory().createGenerator(sw)) {
           mapper.getSerializationConfig().initialize(subGen);
           serializer.serialize(value, subGen, provider);
-        } finally {
-          subGen.close();
         }
 
         String res = sw.getAndClear();
