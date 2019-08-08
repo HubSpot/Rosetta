@@ -11,12 +11,12 @@ public class SetStoredAsJsonBean {
   private final Set<PolymorphicBean> beans;
 
   @JsonCreator
-  public SetStoredAsJsonBean(@JsonProperty("beans") Set<PolymorphicBean> beans) {
+  public SetStoredAsJsonBean(@JsonProperty Set<PolymorphicBean> beans) {
     this.beans = beans;
   }
 
   @StoredAsJson
-  @JsonProperty("bean")
+  @JsonProperty
   public Set<PolymorphicBean> getBeans() {
     return beans;
   }

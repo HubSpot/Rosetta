@@ -11,12 +11,12 @@ public class MapStoredAsJsonBean {
   private final Map<String, PolymorphicBean> beans;
 
   @JsonCreator
-  public MapStoredAsJsonBean(@JsonProperty("beans") Map<String, PolymorphicBean> beans) {
+  public MapStoredAsJsonBean(@JsonProperty Map<String, PolymorphicBean> beans) {
     this.beans = beans;
   }
 
   @StoredAsJson
-  @JsonProperty("bean")
+  @JsonProperty
   public Map<String, PolymorphicBean> getBeans() {
     return beans;
   }

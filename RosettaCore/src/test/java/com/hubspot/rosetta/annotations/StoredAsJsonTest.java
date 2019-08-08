@@ -16,19 +16,21 @@ import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.beans.FieldBeanStoredAsJson;
 import com.hubspot.rosetta.beans.InnerBean;
-import com.hubspot.rosetta.beans.ListStoredAsJsonBean;
+import com.hubspot.rosetta.beans.ListStoredAsJsonBeanIF.ListStoredAsJsonBean;
 import com.hubspot.rosetta.beans.MapStoredAsJsonBean;
 import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
-import com.hubspot.rosetta.beans.OptionalStoredAsJsonBean;
+import com.hubspot.rosetta.beans.OptionalStoredAsJsonBeanIF.OptionalStoredAsJsonBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean.Polymorph;
 import com.hubspot.rosetta.beans.PolymorphicBeanA;
+import com.hubspot.rosetta.beans.PolymorphicBeanASubTypeA;
 import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
 import com.hubspot.rosetta.beans.SetStoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
@@ -49,6 +51,8 @@ public class StoredAsJsonTest {
 
   @Before
   public void setup() {
+    Rosetta.addModule(new Jdk8Module());
+
     bean = new StoredAsJsonBean();
     inner = new InnerBean();
     inner.setStringProperty("value");
@@ -613,12 +617,21 @@ public class StoredAsJsonTest {
   }
 
   @Test
-  public void testSerializingListStoredAsJsonBean() {
-    ListStoredAsJsonBean bean = new ListStoredAsJsonBean(Arrays.asList(new PolymorphicBeanA()));
+  public void testSerializingOptionalStoredAsJsonSubtypeBean() {
+    OptionalStoredAsJsonBean bean = new OptionalStoredAsJsonBean(java.util.Optional.of(new PolymorphicBeanASubTypeA()));
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("bean")).isNotNull();
     assertThat(node.get("bean").textValue()).contains("beanType");
+  }
+
+  @Test
+  public void testSerializingListStoredAsJsonBean() {
+    ListStoredAsJsonBean bean = new ListStoredAsJsonBean(Arrays.asList(new PolymorphicBeanA()));
+
+    JsonNode node = Rosetta.getMapper().valueToTree(bean);
+    assertThat(node.get("beans")).isNotNull();
+    assertThat(node.get("beans").textValue()).contains("beanType");
   }
 
   @Test
@@ -626,8 +639,8 @@ public class StoredAsJsonTest {
     MapStoredAsJsonBean bean = new MapStoredAsJsonBean(ImmutableMap.of("A", new PolymorphicBeanA()));
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
-    assertThat(node.get("bean")).isNotNull();
-    assertThat(node.get("bean").textValue()).contains("beanType");
+    assertThat(node.get("beans")).isNotNull();
+    assertThat(node.get("beans").textValue()).contains("beanType");
   }
 
   @Test
@@ -635,8 +648,8 @@ public class StoredAsJsonTest {
     SetStoredAsJsonBean bean = new SetStoredAsJsonBean(ImmutableSet.of(new PolymorphicBeanA()));
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
-    assertThat(node.get("bean")).isNotNull();
-    assertThat(node.get("bean").textValue()).contains("beanType");
+    assertThat(node.get("beans")).isNotNull();
+    assertThat(node.get("beans").textValue()).contains("beanType");
   }
 
   @Test
