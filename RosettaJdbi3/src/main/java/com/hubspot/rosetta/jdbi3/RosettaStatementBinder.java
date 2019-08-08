@@ -52,4 +52,9 @@ public class RosettaStatementBinder {
       statement.bindMap(namedValues);
     };
   }
+
+  // prevent instantiation
+  private RosettaStatementBinder() {
+    throw new AssertionError();
+  }
 }
