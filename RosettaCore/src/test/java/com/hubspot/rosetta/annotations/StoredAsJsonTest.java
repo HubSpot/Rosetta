@@ -29,6 +29,7 @@ import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonBeanIF.OptionalStoredAsJsonBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean.Polymorph;
+import com.hubspot.rosetta.beans.NullPolymorphicBean;
 import com.hubspot.rosetta.beans.PolymorphicBeanA;
 import com.hubspot.rosetta.beans.PolymorphicBeanASubTypeA;
 import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
@@ -605,6 +606,16 @@ public class StoredAsJsonTest {
     assertThat(node.get("annotatedField").hasNonNull("beanType"));
 
     assertThat(Rosetta.getMapper().treeToValue(node, PolymorphicStoredAsJsonBean.class).getAnnotatedField()).isInstanceOf(PolymorphicBeanA.class);
+  }
+
+  @Test
+  public void testNullPolymorphicStoredAsJsonBean() {
+    PolymorphicStoredAsJsonBean bean = new PolymorphicStoredAsJsonBean();
+    bean.setAnnotatedField(new NullPolymorphicBean());
+
+    JsonNode node = Rosetta.getMapper().valueToTree(bean);
+    assertThat(node.get("annotatedField")).isNotNull();
+    assertThat(node.get("annotatedField").isNull()).isTrue();
   }
 
   @Test
