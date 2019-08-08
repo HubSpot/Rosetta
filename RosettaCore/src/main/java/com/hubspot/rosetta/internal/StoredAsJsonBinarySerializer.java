@@ -1,19 +1,22 @@
 package com.hubspot.rosetta.internal;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+public class StoredAsJsonBinarySerializer<T> extends NonTypedScalarSerializerBase<T> implements ContextualSerializer {
   private static final StdSerializer<byte[]> DELEGATE = findDelegate();
 
   public StoredAsJsonBinarySerializer(Class<T> t) {
@@ -32,18 +35,26 @@ public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
   }
 
   @Override
-  public void serializeWithType(T value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
-    ObjectMapper mapper = (ObjectMapper) gen.getCodec();
-    DELEGATE.serializeWithType(mapper.writeValueAsBytes(value), gen, serializers, typeSer);
-  }
-
-  @Override
   public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
     // try/catch is for 2.1.x compatibility
     try {
       DELEGATE.acceptJsonFormatVisitor(visitor, typeHint);
     } catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
+    if (property == null) {
+      return this;
+    } else {
+      return new ContextualStoredAsJsonSerializer<T>(handledType(), property) {
+        @Override
+        public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+          serializeAsBytes(value, gen, provider, DELEGATE);
+        }
+      };
     }
   }
 
@@ -63,4 +74,5 @@ public class StoredAsJsonBinarySerializer<T> extends StdSerializer<T> {
   private static StdSerializer<byte[]> newInstance(String className) throws Exception {
     return (StdSerializer<byte[]>) Class.forName(className).newInstance();
   }
+
 }

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.io.SegmentedStringWriter;
-import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -56,48 +54,12 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
     if (property == null) {
       return this;
     } else {
-      return new ContextualStoredAsJsonSerializer<>(handledType(), property);
-    }
-  }
-
-  private static class ContextualStoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> {
-    private final BeanProperty property;
-
-    ContextualStoredAsJsonSerializer(Class<T> t, BeanProperty property) {
-      super(t);
-      this.property = property;
-    }
-
-    @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-      ObjectMapper mapper = (ObjectMapper) gen.getCodec();
-      JsonSerializer<Object> serializer = provider.findTypedValueSerializer(
-          mapper.getTypeFactory().constructSpecializedType(property.getType(), value.getClass()),
-          false,
-          null);
-
-      if (serializer != null) {
-        SegmentedStringWriter sw = new SegmentedStringWriter(new BufferRecycler());
-        try (JsonGenerator subGen = mapper.getFactory().createGenerator(sw)) {
-          mapper.getSerializationConfig().initialize(subGen);
-          serializer.serialize(value, subGen, provider);
+      return new ContextualStoredAsJsonSerializer<T>(handledType(), property) {
+        @Override
+        public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+          serializeAsString(value, gen, provider);
         }
-
-        String res = sw.getAndClear();
-        if ("null".equals(res)) {
-          gen.writeNull();
-        } else {
-          gen.writeString(res);
-        }
-      } else {
-        // fallback on old behavior
-        JsonNode tree = mapper.valueToTree(value);
-        if (tree.isNull()) {
-          provider.defaultSerializeNull(gen);
-        } else {
-          gen.writeString(mapper.writeValueAsString(tree));
-        }
-      }
+      };
     }
   }
 }
