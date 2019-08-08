@@ -26,6 +26,8 @@ import com.hubspot.rosetta.beans.ListStoredAsJsonBean;
 import com.hubspot.rosetta.beans.MapStoredAsJsonBean;
 import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonBean;
+import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean;
+import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean.Polymorph;
 import com.hubspot.rosetta.beans.PolymorphicBeanA;
 import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
 import com.hubspot.rosetta.beans.SetStoredAsJsonBean;
@@ -635,6 +637,17 @@ public class StoredAsJsonTest {
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("bean")).isNotNull();
     assertThat(node.get("bean").textValue()).contains("beanType");
+  }
+
+  @Test
+  public void testSerializingOptionalStoredAsJsonTypeInfoBean() throws Exception {
+    Polymorph polymorph = () -> "lambda";
+    OptionalStoredAsJsonTypeInfoBean bean = new OptionalStoredAsJsonTypeInfoBean(polymorph);
+
+    String actual = Rosetta.getMapper().valueToTree(bean).get("polymorphicField").textValue();
+    String expected = Rosetta.getMapper().valueToTree(polymorph).toString();
+
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
