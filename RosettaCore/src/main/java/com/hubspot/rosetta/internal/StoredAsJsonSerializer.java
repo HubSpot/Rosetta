@@ -71,11 +71,11 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
       ObjectMapper mapper = (ObjectMapper) gen.getCodec();
-      if (value == null) {
-        provider.defaultSerializeNull(gen);
-      }
+      JsonSerializer<Object> serializer = provider.findTypedValueSerializer(
+          mapper.getTypeFactory().constructSpecializedType(property.getType(), value.getClass()),
+          false,
+          null);
 
-      JsonSerializer<Object> serializer = provider.findTypedValueSerializer(resolveRealType(value, mapper), false, null);
       if (serializer != null) {
         SegmentedStringWriter sw = new SegmentedStringWriter(new BufferRecycler());
         JsonGenerator subGen = mapper.getFactory().createGenerator(sw);
@@ -85,17 +85,21 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
         } finally {
           subGen.close();
         }
-        gen.writeString(sw.getAndClear());
-      } else {
 
-      }
-    }
-
-    private JavaType resolveRealType(T value, ObjectMapper mapper) {
-      if (property.getType().hasGenericTypes()) {
-        return property.getType();
+        String res = sw.getAndClear();
+        if ("null".equals(res)) {
+          gen.writeNull();
+        } else {
+          gen.writeString(res);
+        }
       } else {
-        return mapper.getTypeFactory().constructSpecializedType(property.getType(), value.getClass());
+        // fallback on old behavior
+        JsonNode tree = mapper.valueToTree(value);
+        if (tree.isNull()) {
+          provider.defaultSerializeNull(gen);
+        } else {
+          gen.writeString(mapper.writeValueAsString(tree));
+        }
       }
     }
   }
