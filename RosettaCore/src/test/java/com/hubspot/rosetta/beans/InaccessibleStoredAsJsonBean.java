@@ -21,7 +21,7 @@ public class InaccessibleStoredAsJsonBean {
     private final int id;
 
     @JsonCreator
-    public FieldBean(@JsonProperty("name") int id) {
+    public FieldBean(@JsonProperty("id") int id) {
       this.id = id;
     }
   }
