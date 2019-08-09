@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
 import com.hubspot.rosetta.Rosetta;
+import com.hubspot.rosetta.beans.InaccessibleStoredAsJsonBean;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
 import com.hubspot.rosetta.beans.NullPolymorphicBean;
@@ -602,5 +603,14 @@ public class StoredAsJsonTest {
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("annotatedField")).isNotNull();
     assertThat(node.get("annotatedField").isNull()).isTrue();
+  }
+
+  @Test
+  public void testDeserizalizeInaccessibleStoredAsJsonBean() throws Exception {
+    String json = "{\"fieldBean\":\"{\\\"id\\\":1}\"}";
+    InaccessibleStoredAsJsonBean deserialized =
+        Rosetta.getMapper().readValue(json, InaccessibleStoredAsJsonBean.class);
+    assertThat(deserialized)
+        .hasFieldOrPropertyWithValue("fieldBean.id", 1);
   }
 }
