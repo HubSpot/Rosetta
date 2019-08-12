@@ -3,7 +3,6 @@ package com.hubspot.rosetta.annotations;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -16,24 +15,13 @@ import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.hubspot.rosetta.Rosetta;
-import com.hubspot.rosetta.beans.FieldBeanStoredAsJson;
 import com.hubspot.rosetta.beans.InnerBean;
-import com.hubspot.rosetta.beans.ListStoredAsJsonBeanIF.ListStoredAsJsonBean;
-import com.hubspot.rosetta.beans.MapStoredAsJsonBean;
 import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
-import com.hubspot.rosetta.beans.OptionalStoredAsJsonBeanIF.OptionalStoredAsJsonBean;
-import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean;
-import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean.Polymorph;
 import com.hubspot.rosetta.beans.NullPolymorphicBean;
 import com.hubspot.rosetta.beans.PolymorphicBeanA;
-import com.hubspot.rosetta.beans.PolymorphicBeanASubTypeA;
 import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
-import com.hubspot.rosetta.beans.SetStoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
@@ -52,8 +40,6 @@ public class StoredAsJsonTest {
 
   @Before
   public void setup() {
-    Rosetta.addModule(new Jdk8Module());
-
     bean = new StoredAsJsonBean();
     inner = new InnerBean();
     inner.setStringProperty("value");
@@ -616,69 +602,5 @@ public class StoredAsJsonTest {
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("annotatedField")).isNotNull();
     assertThat(node.get("annotatedField").isNull()).isTrue();
-  }
-
-  @Test
-  public void testSerializingOptionalStoredAsJsonBean() {
-    OptionalStoredAsJsonBean bean = new OptionalStoredAsJsonBean(java.util.Optional.of(new PolymorphicBeanA()));
-
-    JsonNode node = Rosetta.getMapper().valueToTree(bean);
-    assertThat(node.get("bean")).isNotNull();
-    assertThat(node.get("bean").textValue()).contains("beanType");
-  }
-
-  @Test
-  public void testSerializingOptionalStoredAsJsonSubtypeBean() {
-    OptionalStoredAsJsonBean bean = new OptionalStoredAsJsonBean(java.util.Optional.of(new PolymorphicBeanASubTypeA()));
-
-    JsonNode node = Rosetta.getMapper().valueToTree(bean);
-    assertThat(node.get("bean")).isNotNull();
-    assertThat(node.get("bean").textValue()).contains("beanType");
-  }
-
-  @Test
-  public void testSerializingListStoredAsJsonBean() {
-    ListStoredAsJsonBean bean = new ListStoredAsJsonBean(Arrays.asList(new PolymorphicBeanA()));
-
-    JsonNode node = Rosetta.getMapper().valueToTree(bean);
-    assertThat(node.get("beans")).isNotNull();
-    assertThat(node.get("beans").textValue()).contains("beanType");
-  }
-
-  @Test
-  public void testSerializingMapStoredAsJsonBean() {
-    MapStoredAsJsonBean bean = new MapStoredAsJsonBean(ImmutableMap.of("A", new PolymorphicBeanA()));
-
-    JsonNode node = Rosetta.getMapper().valueToTree(bean);
-    assertThat(node.get("beans")).isNotNull();
-    assertThat(node.get("beans").textValue()).contains("beanType");
-  }
-
-  @Test
-  public void testSerializingSetStoredAsJsonBean() {
-    SetStoredAsJsonBean bean = new SetStoredAsJsonBean(ImmutableSet.of(new PolymorphicBeanA()));
-
-    JsonNode node = Rosetta.getMapper().valueToTree(bean);
-    assertThat(node.get("beans")).isNotNull();
-    assertThat(node.get("beans").textValue()).contains("beanType");
-  }
-
-  @Test
-  public void testSerializingOptionalStoredAsJsonTypeInfoBean() throws Exception {
-    Polymorph polymorph = () -> "lambda";
-    OptionalStoredAsJsonTypeInfoBean bean = new OptionalStoredAsJsonTypeInfoBean(polymorph);
-
-    String actual = Rosetta.getMapper().valueToTree(bean).get("polymorphicField").textValue();
-    String expected = Rosetta.getMapper().valueToTree(polymorph).toString();
-
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  public void testDeserializingStoredAsJsonPrivateField() throws Exception {
-    ObjectNode node = Rosetta.getMapper().createObjectNode();
-    node.putObject("bean").put("beanType", "C").put("value", "test");
-
-    FieldBeanStoredAsJson res = Rosetta.getMapper().readValue(node.toString(), FieldBeanStoredAsJson.class);
   }
 }
