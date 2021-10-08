@@ -11,11 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.hubspot.rosetta.annotations.RosettaCreator;
 import com.hubspot.rosetta.annotations.RosettaDeserialize;
+import com.hubspot.rosetta.annotations.RosettaIgnore;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 import com.hubspot.rosetta.annotations.RosettaProperty;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
@@ -131,6 +133,11 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   @Override
   public Value findPropertyInclusion(Annotated a) {
     return Value.construct(Include.ALWAYS, Include.ALWAYS);
+  }
+
+  @Override
+  public boolean hasIgnoreMarker(AnnotatedMember m) {
+    return m.hasAnnotation(RosettaIgnore.class);
   }
 
   @Override
