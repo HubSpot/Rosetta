@@ -1,7 +1,5 @@
 package com.hubspot.rosetta.internal;
 
-import java.lang.reflect.Type;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.Version;
@@ -77,7 +75,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       }
 
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
-      return new StoredAsJsonDeserializer(a.getRawType(), getType(a), empty, objectMapper);
+      return new StoredAsJsonDeserializer(a.getRawType(), a.getType(), empty, objectMapper);
     }
 
     if (rosettaDeserialize != null) {
@@ -160,15 +158,6 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       return a;
     } else {
       throw new IllegalArgumentException("Cannot have @StoredAsJson on a method with no parameters AND no arguments");
-    }
-  }
-
-  private Type getType(Annotated a) {
-    try {
-      // Jackson 2.7+
-      return a.getType();
-    } catch (Throwable t) {
-      return a.getGenericType();
     }
   }
 }
