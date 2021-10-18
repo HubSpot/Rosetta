@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.hubspot.rosetta.Rosetta;
@@ -69,6 +70,13 @@ public class RosettaIgnoreTest {
     assertThat(bean).isNotNull();
     assertThat(bean.stringProperty).isEqualTo("value");
     assertThat(bean.ignoredProperty).isNull();
+  }
+
+  @Test
+  public void itIgnoresJsonValueWhenSerializing() throws JsonProcessingException {
+    IgnoreJsonValueBean bean = new IgnoreJsonValueBean();
+    assertThat(Rosetta.getMapper().writeValueAsString(bean))
+        .isEqualTo(Integer.toString(bean.getId()));
   }
 
   private static class IgnoreMethodBean {
@@ -142,6 +150,20 @@ public class RosettaIgnoreTest {
     ) {
       this.stringProperty = stringProperty;
       this.ignoredProperty = ignoredProperty;
+    }
+  }
+
+  private class IgnoreJsonValueBean {
+
+    @RosettaValue
+    public int getId() {
+      return 1;
+    }
+
+    @JsonValue
+    @RosettaIgnore
+    public String getCode() {
+      return "a";
     }
   }
 }

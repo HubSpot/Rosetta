@@ -139,6 +139,16 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   }
 
   @Override
+  public Boolean hasAsValue(Annotated a) {
+    if (a.hasAnnotation(RosettaIgnore.class)) {
+      // The super method can return null, so we can't use && here
+      return false;
+    } else {
+      return super.hasAsValue(a);
+    }
+  }
+
+  @Override
   public Version version() {
     return Version.unknownVersion();
   }
