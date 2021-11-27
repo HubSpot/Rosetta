@@ -211,3 +211,15 @@ level, you would do the following while setting up your `DBI`:
 To set at the handle or statement level would look similar:  
 `new RosettaObjectMapperOverride(myOtherObjectMapper).override(handle);`  
 `new RosettaObjectMapperOverride(myOtherOtherObjectMapper).override(query);`
+
+### JDBI3
+
+`RosettaObjectMapperOverride` is no longer available when using Jdbi 3.  To override the `ObjectMapper` for all Jdbi instances
+when you are setting up your `JDBI`:
+
+```java
+jdbi.getConfig()
+        .get(RosettaObjectMapper.class)
+        .setObjectMapper(myObjectMapper);
+```
+
