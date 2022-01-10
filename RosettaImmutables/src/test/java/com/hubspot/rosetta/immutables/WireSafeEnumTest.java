@@ -31,9 +31,9 @@ public class WireSafeEnumTest {
   public void itCanDeserializeBeanWithWireSafeField() {
     WireSafeBean bean = new WireSafeBean();
     bean.setSimple(WireSafeEnum.of(SimpleEnum.ONE));
-    bean.setCustom(WireSafeEnum.of(CustomEnum.ONE));
+    bean.setCustom(WireSafeEnum.of(CustomEnum.TWO));
 
-    assertThat(deserialize("{\"simple\": \"ONE\", \"custom\": 1}", WireSafeBean.class)).isEqualTo(bean);
+    assertThat(deserialize("{\"simple\": \"ONE\", \"custom\": 2}", WireSafeBean.class)).isEqualTo(bean);
   }
 
   private JsonNode asNode(String value) {

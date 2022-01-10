@@ -51,12 +51,14 @@ public class RosettaAwareWireSafeEnumDeserializer extends JsonDeserializer<WireS
 
       @Override
       public WireSafeEnum<T> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        T value;
         try {
-          return WireSafeEnum.of(p.getCodec().readValue(p, enumType));
+          value = p.getCodec().readValue(p, enumType);
         } catch (IOException e) {
-          // TODO - better messaging
-          throw ctxt.mappingException("Could not deserialize wiresafe enum");
+          throw new IllegalStateException("Invalid value for enum type: " + enumType.getTypeName(), e);
         }
+
+        return WireSafeEnum.of(value);
       }
     };
   }
