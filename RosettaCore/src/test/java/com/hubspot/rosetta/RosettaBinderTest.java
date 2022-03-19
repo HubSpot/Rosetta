@@ -12,6 +12,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
 import com.hubspot.rosetta.RosettaBinder.Callback;
@@ -83,50 +84,52 @@ public class RosettaBinderTest {
     bean.setTypeInfoGetter(concrete);
     bean.setTypeInfoSetter(concrete);
 
-    String json = "{\"stringProperty\":\"value\"}";
-    String typedJson = "{\"generalValue\":\"general\",\"concreteValue\":\"concrete\",\"type\":\"concrete\"}";
-    List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode typedJson = mapper.readTree("{\"generalValue\":\"general\",\"concreteValue\":\"concrete\",\"type\":\"concrete\"}");
+    JsonNode json = mapper.readTree("{\"stringProperty\":\"value\"}");
+    List<Byte> bytes = toList(mapper.writeValueAsString(json).getBytes(StandardCharsets.UTF_8));
 
-    assertThat(bind(bean)).isEqualTo(map(
-            "annotatedField", json,
-            "annotatedGetter", json,
-            "annotatedSetter", json,
-            "annotatedFieldWithDefault", json,
-            "annotatedGetterWithDefault", json,
-            "annotatedSetterWithDefault", json,
-            "optionalField", json,
-            "optionalGetter", json,
-            "optionalSetter", json,
-            "binaryField", bytes,
-            "binaryFieldWithDefault", bytes,
-            "jsonNodeField", json,
-            "optionalTypeInfoField", typedJson,
-            "optionalTypeInfoGetter", typedJson,
-            "optionalTypeInfoSetter", typedJson,
-            "typeInfoField", typedJson,
-            "typeInfoGetter", typedJson,
-            "typeInfoSetter", typedJson
-    ));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
-            "prefix.annotatedField", json,
-            "prefix.annotatedGetter", json,
-            "prefix.annotatedSetter", json,
-            "prefix.annotatedFieldWithDefault", json,
-            "prefix.annotatedGetterWithDefault", json,
-            "prefix.annotatedSetterWithDefault", json,
-            "prefix.optionalField", json,
-            "prefix.optionalGetter", json,
-            "prefix.optionalSetter", json,
-            "prefix.binaryField", bytes,
-            "prefix.binaryFieldWithDefault", bytes,
-            "prefix.jsonNodeField", json,
-            "prefix.optionalTypeInfoField", typedJson,
-            "prefix.optionalTypeInfoGetter", typedJson,
-            "prefix.optionalTypeInfoSetter", typedJson,
-            "prefix.typeInfoField", typedJson,
-            "prefix.typeInfoGetter", typedJson,
-            "prefix.typeInfoSetter", typedJson
-    ));
+    Map<String, Object> BeanMap = bind(bean);
+    assertThat(mapper.readTree(BeanMap.get("annotatedField").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("annotatedGetter").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("annotatedSetter").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("annotatedFieldWithDefault").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("annotatedGetterWithDefault").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("annotatedSetterWithDefault").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("optionalField").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("optionalGetter").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("optionalSetter").toString()).equals(json)).isTrue();
+    assertThat(BeanMap.get("binaryField")).isEqualTo(bytes);
+    assertThat(BeanMap.get("binaryFieldWithDefault")).isEqualTo(bytes);
+    assertThat(mapper.readTree(BeanMap.get("jsonNodeField").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("optionalTypeInfoField").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("optionalTypeInfoGetter").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("optionalTypeInfoSetter").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("typeInfoField").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("typeInfoGetter").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("typeInfoSetter").toString()).equals(typedJson)).isTrue();
+    assertThat(BeanMap.keySet().size()).isEqualTo(18);
+
+    BeanMap = bindWithPrefix("prefix", bean);
+    assertThat(mapper.readTree(BeanMap.get("prefix.annotatedField").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.annotatedGetter").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.annotatedSetter").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.annotatedFieldWithDefault").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.annotatedGetterWithDefault").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.annotatedSetterWithDefault").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.optionalField").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.optionalGetter").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.optionalSetter").toString()).equals(json)).isTrue();
+    assertThat(BeanMap.get("prefix.binaryField")).isEqualTo(bytes);
+    assertThat(BeanMap.get("prefix.binaryFieldWithDefault")).isEqualTo(bytes);
+    assertThat(mapper.readTree(BeanMap.get("prefix.jsonNodeField").toString()).equals(json)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.optionalTypeInfoField").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.optionalTypeInfoGetter").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.optionalTypeInfoSetter").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.typeInfoField").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.typeInfoGetter").toString()).equals(typedJson)).isTrue();
+    assertThat(mapper.readTree(BeanMap.get("prefix.typeInfoSetter").toString()).equals(typedJson)).isTrue();
+    assertThat(BeanMap.keySet().size()).isEqualTo(18);
   }
 
   @Test
