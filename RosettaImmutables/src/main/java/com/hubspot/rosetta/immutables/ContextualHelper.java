@@ -1,5 +1,6 @@
 package com.hubspot.rosetta.immutables;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -48,7 +49,7 @@ class ContextualHelper {
       return null;
     } else if (type.hasRawClass(WireSafeEnum.class)) {
       return type;
-    } else if (type.hasRawClass(Optional.class) || type.hasRawClass(com.google.common.base.Optional.class)) {
+    } else if (type.hasRawClass(Optional.class) || type.hasRawClass(com.google.common.base.Optional.class) || type.hasRawClass(List.class)) {
       return type.containedType(0);
     } else {
       return null;
