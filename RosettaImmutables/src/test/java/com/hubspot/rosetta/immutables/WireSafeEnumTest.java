@@ -30,10 +30,19 @@ public class WireSafeEnumTest {
     bean.setCustom(WireSafeEnum.of(CustomEnum.ONE));
     bean.setSimpleMaybe(Optional.of(WireSafeEnum.of(SimpleEnum.TWO)));
     bean.setCustomMaybe(Optional.of(WireSafeEnum.of(CustomEnum.TWO)));
-    bean.setSimpleList(ImmutableList.of(WireSafeEnum.of(SimpleEnum.ONE), WireSafeEnum.of(SimpleEnum.TWO)));
-    bean.setCustomList(ImmutableList.of(WireSafeEnum.of(CustomEnum.ONE), WireSafeEnum.of(CustomEnum.TWO)));
+    bean.setSimpleList(
+        ImmutableList.of(WireSafeEnum.of(SimpleEnum.ONE), WireSafeEnum.of(SimpleEnum.TWO))
+    );
+    bean.setCustomList(
+        ImmutableList.of(WireSafeEnum.of(CustomEnum.ONE), WireSafeEnum.of(CustomEnum.TWO))
+    );
 
-    assertThat(serialize(bean)).isEqualTo(asNode("{\"simple\": \"ONE\", \"custom\": 1, \"simpleMaybe\": \"TWO\", \"simpleList\":[\"ONE\",\"TWO\"], \"customMaybe\": 2,\"customList\":[1,2]}"));
+    assertThat(serialize(bean))
+        .isEqualTo(
+            asNode(
+                "{\"simple\": \"ONE\", \"custom\": 1, \"simpleMaybe\": \"TWO\", \"simpleList\":[\"ONE\",\"TWO\"], \"customMaybe\": 2,\"customList\":[1,2]}"
+            )
+        );
   }
 
   @Test
@@ -41,12 +50,22 @@ public class WireSafeEnumTest {
     WireSafeBean bean = new WireSafeBean();
     bean.setSimple(WireSafeEnum.of(SimpleEnum.ONE));
     bean.setSimpleMaybe(Optional.of(WireSafeEnum.of(SimpleEnum.TWO)));
-    bean.setSimpleList(ImmutableList.of(WireSafeEnum.of(SimpleEnum.ONE), WireSafeEnum.of(SimpleEnum.TWO)));
+    bean.setSimpleList(
+        ImmutableList.of(WireSafeEnum.of(SimpleEnum.ONE), WireSafeEnum.of(SimpleEnum.TWO))
+    );
     bean.setCustom(WireSafeEnum.of(CustomEnum.TWO));
     bean.setCustomMaybe(Optional.of(WireSafeEnum.of(CustomEnum.ONE)));
-    bean.setCustomList(ImmutableList.of(WireSafeEnum.of(CustomEnum.ONE), WireSafeEnum.of(CustomEnum.TWO)));
+    bean.setCustomList(
+        ImmutableList.of(WireSafeEnum.of(CustomEnum.ONE), WireSafeEnum.of(CustomEnum.TWO))
+    );
 
-    assertThat(deserialize("{\"simple\": \"ONE\", \"simpleMaybe\": \"TWO\", \"custom\": 2, \"customMaybe\": 1, \"simpleList\":[\"ONE\",\"TWO\"], \"customList\":[1,2]}", WireSafeBean.class)).isEqualTo(bean);
+    assertThat(
+        deserialize(
+            "{\"simple\": \"ONE\", \"simpleMaybe\": \"TWO\", \"custom\": 2, \"customMaybe\": 1, \"simpleList\":[\"ONE\",\"TWO\"], \"customList\":[1,2]}",
+            WireSafeBean.class
+        )
+    )
+        .isEqualTo(bean);
   }
 
   @Test
@@ -55,7 +74,12 @@ public class WireSafeEnumTest {
     bean.setSimple(WireSafeEnum.of(SimpleEnum.ONE));
     bean.setCustom(WireSafeEnum.of(CustomEnum.ONE));
 
-    assertThat(serialize(bean)).isEqualTo(asNode("{\"simple\": \"ONE\", \"custom\": 1, \"simpleMaybe\": null, \"customMaybe\": null, \"simpleList\": null, \"customList\": null}"));
+    assertThat(serialize(bean))
+        .isEqualTo(
+            asNode(
+                "{\"simple\": \"ONE\", \"custom\": 1, \"simpleMaybe\": null, \"customMaybe\": null, \"simpleList\": null, \"customList\": null}"
+            )
+        );
   }
 
   @Test
@@ -64,7 +88,12 @@ public class WireSafeEnumTest {
     bean.setSimpleList(Collections.emptyList());
     bean.setCustomList(Collections.emptyList());
 
-    assertThat(serialize(bean)).isEqualTo(asNode("{\"simple\": null, \"simpleMaybe\": null, \"simpleList\": [], \"custom\": null, \"customMaybe\": null, \"customList\": []}"));
+    assertThat(serialize(bean))
+        .isEqualTo(
+            asNode(
+                "{\"simple\": null, \"simpleMaybe\": null, \"simpleList\": [], \"custom\": null, \"customMaybe\": null, \"customList\": []}"
+            )
+        );
   }
 
   @Test
@@ -74,7 +103,13 @@ public class WireSafeEnumTest {
     bean.setSimpleMaybe(Optional.empty());
     bean.setCustom(WireSafeEnum.of(CustomEnum.TWO));
 
-    assertThat(deserialize("{\"simple\": \"ONE\", \"simpleMaybe\": null, \"custom\": 2 }", WireSafeBean.class)).isEqualTo(bean);
+    assertThat(
+        deserialize(
+            "{\"simple\": \"ONE\", \"simpleMaybe\": null, \"custom\": 2 }",
+            WireSafeBean.class
+        )
+    )
+        .isEqualTo(bean);
   }
 
   private JsonNode asNode(String value) {

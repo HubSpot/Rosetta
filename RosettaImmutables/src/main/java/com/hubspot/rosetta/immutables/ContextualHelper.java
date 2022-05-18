@@ -49,9 +49,10 @@ class ContextualHelper {
       return null;
     } else if (type.hasRawClass(WireSafeEnum.class)) {
       return type;
-    } else if (type.hasRawClass(Optional.class)
-        || type.hasRawClass(com.google.common.base.Optional.class)
-        || type.hasRawClass(List.class)
+    } else if (
+        type.hasRawClass(Optional.class) ||
+        type.hasRawClass(com.google.common.base.Optional.class) ||
+        type.hasRawClass(List.class)
     ) {
       return type.containedType(0);
     } else {
