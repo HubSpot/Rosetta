@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -17,10 +18,8 @@ public class RosettaAwareWireSafeEnumDeserializer extends JsonDeserializer<WireS
 
   @Override
   public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-    return ContextualHelper.createContextual(
-        ctxt::getContextualType,
-        RosettaAwareWireSafeEnumDeserializer::deserializerFor,
-        ctxt::reportMappingException);
+    Class<?> enumType = extractEnumType(ctxt);
+    return deserializerFor(enumType);
   }
 
   @Override
@@ -28,19 +27,16 @@ public class RosettaAwareWireSafeEnumDeserializer extends JsonDeserializer<WireS
     throw ctxt.mappingException("Expected createContextual to be called");
   }
 
+  @SuppressWarnings("unchecked")
   private static <T extends Enum<T>> JsonDeserializer<?> deserializerFor(Class<?> rawType) {
-    return DESERIALIZER_CACHE.computeIfAbsent(rawType, ignored -> {
-      @SuppressWarnings("unchecked")
-      Class<T> enumType = (Class<T>) rawType;
-      return newDeserializer(enumType);
-    });
+    return DESERIALIZER_CACHE.computeIfAbsent(rawType, ignored -> newDeserializer((Class<T>) rawType));
   }
 
   private static <T extends Enum<T>> JsonDeserializer<WireSafeEnum<?>> newDeserializer(Class<T> enumType) {
     return new JsonDeserializer<WireSafeEnum<?>>() {
 
       @Override
-      public WireSafeEnum<T> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+      public WireSafeEnum<T> deserialize(JsonParser p, DeserializationContext ctxt) {
         try {
           return WireSafeEnum.of(p.getCodec().readValue(p, enumType));
         } catch (IOException e) {
@@ -48,5 +44,22 @@ public class RosettaAwareWireSafeEnumDeserializer extends JsonDeserializer<WireS
         }
       }
     };
+  }
+
+  private static Class<?> extractEnumType(DeserializationContext context) throws JsonMappingException {
+    JavaType javaType = context.getContextualType();
+
+    if (!WireSafeEnum.class.equals(javaType.getRawClass())) {
+      context.reportMappingException("Expected contextual type to be WireSafeEnum, got: " + javaType);
+    } else {
+      JavaType typeParameter = javaType.findTypeParameters(WireSafeEnum.class)[0];
+      if (!typeParameter.isEnumType()) {
+        context.reportMappingException("Can not handle non-enum type: " + typeParameter);
+      } else {
+        return typeParameter.getRawClass();
+      }
+    }
+
+    throw new IllegalStateException(); // should never get here
   }
 }
