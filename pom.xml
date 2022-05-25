@@ -22,6 +22,7 @@
     <module>RosettaCore</module>
     <module>RosettaJdbi</module>
     <module>RosettaJdbi3</module>
+    <module>RosettaImmutables</module>
   </modules>
 
   <properties>
