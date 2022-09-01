@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.hubspot.rosetta.annotations.StoredAsJsonTest" time="0.115" tests="1" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
+    <property name="nondexStart" value="0"/>
+    <property name="java.specification.version" value="11"/>
+    <property name="sun.cpu.isalist" value=""/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/home/yichen28/.m2/repository/org/apache/maven/surefire/surefire-booter/2.21.0/surefire-booter-2.21.0.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/surefire-api/2.21.0/surefire-api-2.21.0.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/surefire-logger-api/2.21.0/surefire-logger-api-2.21.0.jar:/home/yichen28/cs527/Rosetta-527/RosettaCore/target/test-classes:/home/yichen28/cs527/Rosetta-527/RosettaCore/target/classes:/home/yichen28/.m2/repository/com/hubspot/rosetta/RosettaAnnotations/3.11.11-SNAPSHOT/RosettaAnnotations-3.11.11-SNAPSHOT.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.9.10/jackson-annotations-2.9.10.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.9.10/jackson-core-2.9.10.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.9.10.4/jackson-databind-2.9.10.4.jar:/home/yichen28/.m2/repository/mysql/mysql-connector-java/5.1.43/mysql-connector-java-5.1.43.jar:/home/yichen28/.m2/repository/com/google/guava/guava/22.0/guava-22.0.jar:/home/yichen28/.m2/repository/com/google/errorprone/error_prone_annotations/2.0.18/error_prone_annotations-2.0.18.jar:/home/yichen28/.m2/repository/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar:/home/yichen28/.m2/repository/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-guava/2.9.10/jackson-datatype-guava-2.9.10.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.9.10/jackson-datatype-jdk8-2.9.10.jar:/home/yichen28/.m2/repository/junit/junit/4.12/junit-4.12.jar:/home/yichen28/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/yichen28/.m2/repository/org/assertj/assertj-core/3.4.1/assertj-core-3.4.1.jar:/home/yichen28/.m2/repository/org/mockito/mockito-core/2.23.4/mockito-core-2.23.4.jar:/home/yichen28/.m2/repository/net/bytebuddy/byte-buddy/1.9.3/byte-buddy-1.9.3.jar:/home/yichen28/.m2/repository/net/bytebuddy/byte-buddy-agent/1.9.3/byte-buddy-agent-1.9.3.jar:/home/yichen28/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/surefire-junit47/2.21.0/surefire-junit47-2.21.0.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/common-junit48/2.21.0/common-junit48-2.21.0.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/common-junit4/2.21.0/common-junit4-2.21.0.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/common-junit3/2.21.0/common-junit3-2.21.0.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/common-java5/2.21.0/common-java5-2.21.0.jar:/home/yichen28/.m2/repository/org/apache/maven/shared/maven-shared-utils/0.9/maven-shared-utils-0.9.jar:/home/yichen28/.m2/repository/org/apache/maven/surefire/surefire-grouper/2.21.0/surefire-grouper-2.21.0.jar"/>
+    <property name="java.vm.vendor" value="Ubuntu"/>
+    <property name="nondexPrintstack" value="false"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.vendor.url" value="https://ubuntu.com/"/>
+    <property name="nondexRuns" value="100"/>
+    <property name="user.timezone" value="UTC"/>
+    <property name="os.name" value="Linux"/>
+    <property name="java.vm.specification.version" value="11"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-11-openjdk-amd64/lib"/>
+    <property name="nondexLogging" value="CONFIG"/>
+    <property name="sun.java.command" value="org.apache.maven.surefire.booter.ForkedBooter /home/yichen28/cs527/Rosetta-527/RosettaCore/target/surefire 2022-09-01T07-32-44_539-jvmRun1 surefire4330090240657803078tmp surefire_911397725098510781922tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="test" value="com.hubspot.rosetta.annotations.StoredAsJsonTest#itHandlesAnnotatedOptionalGenericFieldSerialization"/>
+    <property name="surefire.test.class.path" value="/home/yichen28/cs527/Rosetta-527/RosettaCore/target/test-classes:/home/yichen28/cs527/Rosetta-527/RosettaCore/target/classes:/home/yichen28/.m2/repository/com/hubspot/rosetta/RosettaAnnotations/3.11.11-SNAPSHOT/RosettaAnnotations-3.11.11-SNAPSHOT.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.9.10/jackson-annotations-2.9.10.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.9.10/jackson-core-2.9.10.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.9.10.4/jackson-databind-2.9.10.4.jar:/home/yichen28/.m2/repository/mysql/mysql-connector-java/5.1.43/mysql-connector-java-5.1.43.jar:/home/yichen28/.m2/repository/com/google/guava/guava/22.0/guava-22.0.jar:/home/yichen28/.m2/repository/com/google/errorprone/error_prone_annotations/2.0.18/error_prone_annotations-2.0.18.jar:/home/yichen28/.m2/repository/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar:/home/yichen28/.m2/repository/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-guava/2.9.10/jackson-datatype-guava-2.9.10.jar:/home/yichen28/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.9.10/jackson-datatype-jdk8-2.9.10.jar:/home/yichen28/.m2/repository/junit/junit/4.12/junit-4.12.jar:/home/yichen28/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/home/yichen28/.m2/repository/org/assertj/assertj-core/3.4.1/assertj-core-3.4.1.jar:/home/yichen28/.m2/repository/org/mockito/mockito-core/2.23.4/mockito-core-2.23.4.jar:/home/yichen28/.m2/repository/net/bytebuddy/byte-buddy/1.9.3/byte-buddy-1.9.3.jar:/home/yichen28/.m2/repository/net/bytebuddy/byte-buddy-agent/1.9.3/byte-buddy-agent-1.9.3.jar:/home/yichen28/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="nondexExecid" value="gQsw7vLslSsOI9jL2PIQTGhB9Ha2QqWeA8UbbcmyyJs="/>
+    <property name="user.home" value="/home/yichen28"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2022-07-19"/>
+    <property name="java.home" value="/usr/lib/jvm/java-11-openjdk-amd64"/>
+    <property name="basedir" value="/home/yichen28/cs527/Rosetta-527/RosettaCore"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="nondexEnd" value="9223372036854775807"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
+    <property name="java.awt.headless" value="true"/>
+    <property name="nondexFilter" value=".*"/>
+    <property name="nondexSeed" value="4663138"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="11.0.16+8-post-Ubuntu-0ubuntu120.04"/>
+    <property name="user.name" value="yichen28"/>
+    <property name="path.separator" value=":"/>
+    <property name="java.security.egd" value="file:/dev/./urandom"/>
+    <property name="os.version" value="5.4.0-124-generic"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="localRepository" value="/home/yichen28/.m2/repository"/>
+    <property name="nondexDir" value="/home/yichen28/cs527/Rosetta-527/RosettaCore/.nondex"/>
+    <property name="nondexJarDir" value="/home/yichen28/cs527/Rosetta-527/RosettaCore/.nondex"/>
+    <property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-lts"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="java.version" value="11.0.16"/>
+    <property name="user.dir" value="/home/yichen28/cs527/Rosetta-527/RosettaCore"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="nondexMode" value="FULL"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="java.util.logging.SimpleFormatter.format" value="%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$s %5$s%6$s%n"/>
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+    <property name="java.vendor" value="Ubuntu"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.vm.version" value="11.0.16+8-post-Ubuntu-0ubuntu120.04"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="55.0"/>
+  </properties>
+  <testcase name="itHandlesAnnotatedOptionalGenericFieldSerialization" classname="com.hubspot.rosetta.annotations.StoredAsJsonTest" time="0.114"/>
+</testsuite>

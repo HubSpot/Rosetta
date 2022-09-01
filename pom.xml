@@ -32,6 +32,11 @@
 
   <dependencyManagement>
     <dependencies>
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1.1</version>
+    </dependency>
       <dependency>
         <groupId>com.hubspot.rosetta</groupId>
         <artifactId>RosettaAnnotations</artifactId>

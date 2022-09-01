@@ -1,0 +1,11 @@
+nondexFilter=.*
+nondexMode=FULL
+nondexSeed=3378374
+nondexStart=0
+nondexEnd=9223372036854775807
+nondexPrintstack=false
+nondexDir=/home/yichen28/cs527/Rosetta-527/RosettaCore/.nondex
+nondexJarDir=/home/yichen28/cs527/Rosetta-527/RosettaCore/.nondex
+nondexExecid=grw71pC3qtx0hWeWvypPw3+bOm3jEo1BuPlab3vhG4=
+nondexLogging=CONFIG
+test=

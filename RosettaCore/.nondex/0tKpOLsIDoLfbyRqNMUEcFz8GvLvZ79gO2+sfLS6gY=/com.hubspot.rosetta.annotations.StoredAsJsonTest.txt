@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: com.hubspot.rosetta.annotations.StoredAsJsonTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.118 s <<< FAILURE! - in com.hubspot.rosetta.annotations.StoredAsJsonTest
+itHandlesAnnotatedOptionalGenericFieldSerialization(com.hubspot.rosetta.annotations.StoredAsJsonTest)  Time elapsed: 0.103 s  <<< FAILURE!
+org.junit.ComparisonFailure: expected:<"{\"[generalValue\":\"General\",\"concreteValue\":\"intern]al\",\"type\":\"conc...> but was:<"{\"[concreteValue\":\"internal\",\"generalValue\":\"Gener]al\",\"type\":\"conc...>
+	at com.hubspot.rosetta.annotations.StoredAsJsonTest.itHandlesAnnotatedOptionalGenericFieldSerialization(StoredAsJsonTest.java:465)
+

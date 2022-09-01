@@ -4,11 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Collections;
+
+import java.lang.Integer;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -457,9 +463,25 @@ public class StoredAsJsonTest {
   @Test
   public void itHandlesAnnotatedOptionalGenericFieldSerialization() {
     bean.setOptionalTypeInfoField(Optional.of(typeInfoBean));
-
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField"))
-        .isEqualTo(expectedTypeInfo);
+    String actualJsonString = Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField").toString();
+    List<String> list1 = Arrays.asList(actualJsonString.split(","));
+    List<String> list2 = Arrays.asList(expectedTypeInfo.toString().split(","));
+    Assert.assertEquals(list1.size(), list2.size());
+    list1.set(0, list1.get(0).replace("\"{", ""));
+    list1.set(list1.size() - 1, list1.get(list1.size() - 1).replace("}","").replace("\\\"\"","\\\""));
+    list2.set(0, list2.get(0).replace("\"{", ""));
+    list2.set(list2.size() - 1, list2.get(list2.size() - 1).replace("}","").replace("\\\"\"","\\\""));
+    Map<String,String> map1 = new HashMap<>();
+    Map<String,String> map2 = new HashMap<>();
+    for(int i = 0; i < list1.size(); ++i) {
+      String[] a1 = list1.get(i).split(":");
+      String[] a2 = list2.get(i).split(":");
+      map1.put(a1[0],a1[1]);
+      map2.put(a2[0],a2[1]);
+    }
+    assertThat(map1).isEqualTo(map2);
+    // assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField"))
+    //     .isEqualTo(expectedTypeInfo);
   }
 
   @Test
