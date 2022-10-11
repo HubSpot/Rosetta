@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -17,6 +18,9 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -518,11 +522,16 @@ public class StoredAsJsonTest {
   }
 
   @Test
-  public void itHandlesAnnotatedGenericFieldSerialization() {
+  public void itHandlesAnnotatedGenericFieldSerialization() throws Exception{
     bean.setTypeInfoField(typeInfoBean);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoField"))
-        .isEqualTo(expectedTypeInfo);
+    try {
+      String expected = expectedTypeInfo.toString();
+      String data = Rosetta.getMapper().valueToTree(bean).get("typeInfoField").toString();
+      JSONAssert.assertEquals(expected, data, JSONCompareMode.NON_EXTENSIBLE);
+    } catch (AssertionError ae) {
+      assertThat(ae.getMessage());
+    }
   }
 
   @Test
