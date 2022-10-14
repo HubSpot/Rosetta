@@ -4,11 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Collections;
+
+import java.lang.Integer;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,6 +56,22 @@ public class StoredAsJsonTest {
   private StoredAsJsonTypeInfoBean typeInfoBean;
   private final JsonNode expectedTypeInfo = TextNode.valueOf("{\"generalValue\":\"General\",\"concreteValue\":\"internal\",\"type\":\"concrete\"}");
 
+  public void constructKVPairs(Map<String, String> map1, Map<String, String> map2, String jsonString) {
+    // separate the key-value pairs from actual string and expected string
+    List<String> list1 = Arrays.asList(jsonString.split(","));
+    List<String> list2 = Arrays.asList(expectedTypeInfo.toString().split(","));
+    list1.set(0, list1.get(0).replace("\"{", ""));
+    list1.set(list1.size() - 1, list1.get(list1.size() - 1).replace("}","").replace("\\\"\"","\\\""));
+    list2.set(0, list2.get(0).replace("\"{", ""));
+    list2.set(list2.size() - 1, list2.get(list2.size() - 1).replace("}","").replace("\\\"\"","\\\""));
+    // store key-value pairs into hashmap and compares them
+    for(int i = 0; i < list1.size(); ++i) {
+      String[] a1 = list1.get(i).split(":");
+      String[] a2 = list2.get(i).split(":");
+      map1.put(a1[0],a1[1]);
+      map2.put(a2[0],a2[1]);
+    }
+  }
   @Before
   public void setup() {
     Rosetta.addModule(new Jdk8Module());
@@ -457,9 +479,12 @@ public class StoredAsJsonTest {
   @Test
   public void itHandlesAnnotatedOptionalGenericFieldSerialization() {
     bean.setOptionalTypeInfoField(Optional.of(typeInfoBean));
-
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField"))
-        .isEqualTo(expectedTypeInfo);
+    // get the actual JSON string from bean
+    String actualJsonString = Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField").toString();
+    Map<String,String> map1 = new HashMap<>();
+    Map<String,String> map2 = new HashMap<>();
+    constructKVPairs(map1, map2, actualJsonString);
+    assertThat(map1).isEqualTo(map2);
   }
 
   @Test
@@ -499,9 +524,11 @@ public class StoredAsJsonTest {
   @Test
   public void itHandlesAnnotatedOptionalGenericSetterSerialization() {
     bean.setOptionalTypeInfoSetter(Optional.of(typeInfoBean));
-
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoSetter"))
-        .isEqualTo(expectedTypeInfo);
+    String actualJsonString = Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoSetter").toString();
+    Map<String,String> map1 = new HashMap<>();
+    Map<String,String> map2 = new HashMap<>();
+    constructKVPairs(map1, map2, actualJsonString);
+    assertThat(map1).isEqualTo(map2);
   }
 
   @Test
@@ -520,9 +547,12 @@ public class StoredAsJsonTest {
   @Test
   public void itHandlesAnnotatedGenericFieldSerialization() {
     bean.setTypeInfoField(typeInfoBean);
-
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoField"))
-        .isEqualTo(expectedTypeInfo);
+    // get the actual JSON string from bean
+    String actualJsonString = Rosetta.getMapper().valueToTree(bean).get("typeInfoField").toString();
+    Map<String,String> map1 = new HashMap<>();
+    Map<String,String> map2 = new HashMap<>();
+    constructKVPairs(map1, map2, actualJsonString);
+    assertThat(map1).isEqualTo(map2);
   }
 
   @Test
@@ -541,9 +571,12 @@ public class StoredAsJsonTest {
   @Test
   public void itHandlesAnnotatedGenericGetterSerialization() {
     bean.setTypeInfoGetter(typeInfoBean);
-
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoGetter"))
-        .isEqualTo(expectedTypeInfo);
+    // get the actual JSON string from bean
+    String actualJsonString = Rosetta.getMapper().valueToTree(bean).get("typeInfoGetter").toString();
+    Map<String,String> map1 = new HashMap<>();
+    Map<String,String> map2 = new HashMap<>();
+    constructKVPairs(map1, map2, actualJsonString);
+    assertThat(map1).isEqualTo(map2);
   }
 
   @Test
@@ -562,9 +595,12 @@ public class StoredAsJsonTest {
   @Test
   public void itHandlesAnnotatedGenericSetterSerialization() {
     bean.setTypeInfoSetter(typeInfoBean);
-
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoSetter"))
-        .isEqualTo(expectedTypeInfo);
+    // get the actual JSON string from bean
+    String actualJsonString = Rosetta.getMapper().valueToTree(bean).get("typeInfoSetter").toString();
+    Map<String,String> map1 = new HashMap<>();
+    Map<String,String> map2 = new HashMap<>();
+    constructKVPairs(map1, map2, actualJsonString);
+    assertThat(map1).isEqualTo(map2);
   }
 
   @Test
