@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -18,9 +17,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -53,6 +49,14 @@ public class StoredAsJsonTest {
 
   private StoredAsJsonTypeInfoBean typeInfoBean;
   private final JsonNode expectedTypeInfo = TextNode.valueOf("{\"generalValue\":\"General\",\"concreteValue\":\"internal\",\"type\":\"concrete\"}");
+
+  private boolean jsonEquals(String expected, String actual){
+    String[] expectedArray = expected.replace("{","").replace("}","").split(",");
+    Arrays.sort(expectedArray);
+    String[] actualArray = actual.replace("{","").replace("}","").split(",");
+    Arrays.sort(actualArray);
+    return Arrays.toString(expectedArray).equals(Arrays.toString(actualArray));
+  }
 
   @Before
   public void setup() {
@@ -461,9 +465,8 @@ public class StoredAsJsonTest {
   @Test
   public void itHandlesAnnotatedOptionalGenericFieldSerialization() {
     bean.setOptionalTypeInfoField(Optional.of(typeInfoBean));
-
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField"))
-        .isEqualTo(expectedTypeInfo);
+    assertThat(jsonEquals(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField").asText(),expectedTypeInfo.asText()))
+        .isEqualTo(true);
   }
 
   @Test
@@ -483,8 +486,8 @@ public class StoredAsJsonTest {
   public void itHandlesAnnotatedOptionalGenericGetterSerialization() {
     bean.setOptionalTypeInfoGetter(Optional.of(typeInfoBean));
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoGetter"))
-        .isEqualTo(expectedTypeInfo);
+    assertThat(jsonEquals(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoGetter").asText(),expectedTypeInfo.asText()))
+        .isEqualTo(true);
   }
 
   @Test
@@ -504,8 +507,8 @@ public class StoredAsJsonTest {
   public void itHandlesAnnotatedOptionalGenericSetterSerialization() {
     bean.setOptionalTypeInfoSetter(Optional.of(typeInfoBean));
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoSetter"))
-        .isEqualTo(expectedTypeInfo);
+    assertThat(jsonEquals(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoSetter").asText(),expectedTypeInfo.asText()))
+        .isEqualTo(true);
   }
 
   @Test
@@ -522,16 +525,10 @@ public class StoredAsJsonTest {
   }
 
   @Test
-  public void itHandlesAnnotatedGenericFieldSerialization() throws Exception{
+  public void itHandlesAnnotatedGenericFieldSerialization() {
     bean.setTypeInfoField(typeInfoBean);
-
-    try {
-      String expected = expectedTypeInfo.toString();
-      String data = Rosetta.getMapper().valueToTree(bean).get("typeInfoField").toString();
-      JSONAssert.assertEquals(expected, data, JSONCompareMode.NON_EXTENSIBLE);
-    } catch (AssertionError ae) {
-      assertThat(ae.getMessage());
-    }
+    assertThat(jsonEquals(Rosetta.getMapper().valueToTree(bean).get("typeInfoField").asText(),expectedTypeInfo.asText()))
+        .isEqualTo(true);
   }
 
   @Test
@@ -551,8 +548,8 @@ public class StoredAsJsonTest {
   public void itHandlesAnnotatedGenericGetterSerialization() {
     bean.setTypeInfoGetter(typeInfoBean);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoGetter"))
-        .isEqualTo(expectedTypeInfo);
+    assertThat(jsonEquals(Rosetta.getMapper().valueToTree(bean).get("typeInfoGetter").asText(),expectedTypeInfo.asText()))
+        .isEqualTo(true);
   }
 
   @Test
@@ -572,8 +569,8 @@ public class StoredAsJsonTest {
   public void itHandlesAnnotatedGenericSetterSerialization() {
     bean.setTypeInfoSetter(typeInfoBean);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoSetter"))
-        .isEqualTo(expectedTypeInfo);
+    assertThat(jsonEquals(Rosetta.getMapper().valueToTree(bean).get("typeInfoSetter").asText(),expectedTypeInfo.asText()))
+        .isEqualTo(true);
   }
 
   @Test
