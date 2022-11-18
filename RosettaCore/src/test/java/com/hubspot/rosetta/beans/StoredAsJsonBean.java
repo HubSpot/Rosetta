@@ -1,11 +1,9 @@
 package com.hubspot.rosetta.beans;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.hubspot.rosetta.annotations.StoredAsJson;
-@JsonPropertyOrder({"generalValue", "General","concreteValue","internal","type","concrete"})
 public class StoredAsJsonBean {
   private static final CastToSuper CAST_TO_SUPER = new CastToSuper();
 

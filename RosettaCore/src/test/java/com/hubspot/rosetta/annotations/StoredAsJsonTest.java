@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
@@ -40,7 +39,6 @@ import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
-@JsonPropertyOrder({"generalValue", "General","concreteValue","internal","type","concrete"})
 public class StoredAsJsonTest {
   private StoredAsJsonBean bean;
   private InnerBean inner;

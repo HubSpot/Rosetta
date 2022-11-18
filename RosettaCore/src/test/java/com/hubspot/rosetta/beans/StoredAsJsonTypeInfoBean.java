@@ -1,5 +1,6 @@
 package com.hubspot.rosetta.beans;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -10,6 +11,7 @@ import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTy
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ConcreteStoredAsJsonTypeInfo.class, name = "concrete")
 })
+@JsonPropertyOrder({"generalValue", "General","concreteValue","internal","type","concrete"})
 public interface StoredAsJsonTypeInfoBean {
 
   String getType();
