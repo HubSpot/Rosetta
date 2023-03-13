@@ -74,11 +74,11 @@ public @interface BindListWithRosetta {
                   : "argument is empty; emptiness was explicitly forbidden on this instance of BindListWithRosetta");
             default:
           }
+        } else {
+          List<Object> list = new ArrayList<>(node.size());
+          RosettaBinder.INSTANCE.bindList((ArrayNode) node, bindList.field(), list::add);
+          stmt.bindList(name, list);
         }
-
-        List<Object> list = new ArrayList<>(node.size());
-        RosettaBinder.INSTANCE.bindList((ArrayNode) node, bindList.field(), list::add);
-        stmt.bindList(name, list);
       };
     }
   }
