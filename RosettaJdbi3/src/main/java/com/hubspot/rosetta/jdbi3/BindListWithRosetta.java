@@ -43,7 +43,7 @@ public @interface BindListWithRosetta {
         String key = ((BindListWithRosetta) annotation).value();
 
         if (!node.isArray()) {
-          throw new IllegalArgumentException("Value provided to @BindListWithRosetta was not a list!");
+          throw new IllegalArgumentException("Value provided to @BindListWithRosetta was not an iterable!");
         }
 
         List<Object> list = new ArrayList<>(node.size());

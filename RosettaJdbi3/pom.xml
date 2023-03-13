@@ -17,6 +17,10 @@
   <dependencies>
     <dependency>
       <groupId>com.hubspot.rosetta</groupId>
+      <artifactId>RosettaAnnotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hubspot.rosetta</groupId>
       <artifactId>RosettaCore</artifactId>
     </dependency>
     <dependency>
