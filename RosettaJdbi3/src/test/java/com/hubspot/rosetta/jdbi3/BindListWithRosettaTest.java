@@ -24,5 +24,11 @@ public class BindListWithRosettaTest extends AbstractJdbiTest {
     assertThat(getDao().getWithValue(Arrays.asList(TestEnum.A, TestEnum.C))).containsExactlyInAnyOrder(one, four);
     assertThat(getDao().getWithValue(Arrays.asList(TestEnum.A, TestEnum.B, TestEnum.C)))
         .containsExactlyInAnyOrder(one, two, three, four);
+
+    assertThat(getDao().getWithFieldValue(Collections.singletonList(one))).containsExactly(one);
+    assertThat(getDao().getWithFieldValue(Collections.singletonList(two))).containsExactly(two, three);
+    assertThat(getDao().getWithFieldValue(Arrays.asList(one, four))).containsExactlyInAnyOrder(one, four);
+    assertThat(getDao().getWithFieldValue(Arrays.asList(one, two, four)))
+        .containsExactlyInAnyOrder(one, two, three, four);
   }
 }

@@ -18,6 +18,9 @@ public interface TestDao extends SqlObject {
   @SqlQuery("SELECT * FROM test_list_table WHERE value IN (<values>)")
   List<TestListObject> getWithValue(@BindListWithRosetta("values") List<TestEnum> values);
 
+  @SqlQuery("SELECT * FROM test_list_table WHERE value IN (<values>)")
+  List<TestListObject> getWithFieldValue(@BindListWithRosetta(value = "values", field = "value") List<TestListObject> values);
+
   @SqlUpdate("INSERT INTO test_table (id, name) VALUES (:id, :name)")
   int insert(@BindWithRosetta TestObject object);
 

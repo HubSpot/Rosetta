@@ -16,12 +16,20 @@ public enum RosettaBinder {
     void bind(String key, Object value);
   }
 
-  public void bindList(ArrayNode node, Consumer<Object> valueConsumer) {
-    for (JsonNode element : node) {
-      if (element.isObject()) {
-        throw new IllegalArgumentException("Binding lists of objects is not supported");
+  public void bindList(ArrayNode node, String field, Consumer<Object> valueConsumer) {
+    for (JsonNode value : node) {
+      if (!field.isEmpty()) {
+        if (!value.has(field)) {
+          throw new IllegalArgumentException(String.format("Field %s does not exist in elements of input array", field));
+        } else {
+          value = value.get(field);
+        }
+      }
+
+      if (value.isObject() ) {
+        throw new IllegalArgumentException("Binding objects to list is not supported");
       } else {
-        valueConsumer.accept(unwrapJsonValue(element));
+        valueConsumer.accept(unwrapJsonValue(value));
       }
     }
   }

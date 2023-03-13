@@ -25,6 +25,7 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 @SqlStatementCustomizingAnnotation(RosettaListBinderFactory.class)
 public @interface BindListWithRosetta {
   String value() default "";
+  String field() default "";
 
   class RosettaListBinderFactory implements SqlStatementCustomizerFactory {
 
@@ -37,7 +38,8 @@ public @interface BindListWithRosetta {
         int index,
         Type paramType
     ) {
-      String name = ParameterUtil.findParameterName(((BindListWithRosetta) annotation).value(), param)
+      BindListWithRosetta bindList = (BindListWithRosetta) annotation;
+      String name = ParameterUtil.findParameterName(bindList.value(), param)
           .orElseThrow(() -> new UnsupportedOperationException(
               "A @BindListWithRosetta parameter was not given a name, " +
                   "and parameter name data is not present in the class file, for: " +
@@ -53,7 +55,7 @@ public @interface BindListWithRosetta {
         }
 
         List<Object> list = new ArrayList<>(node.size());
-        RosettaBinder.INSTANCE.bindList((ArrayNode) node, list::add);
+        RosettaBinder.INSTANCE.bindList((ArrayNode) node, bindList.field(), list::add);
         stmt.bindList(name, list);
       };
     }
