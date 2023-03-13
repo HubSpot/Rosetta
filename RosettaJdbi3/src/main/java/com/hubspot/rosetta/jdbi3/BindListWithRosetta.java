@@ -15,6 +15,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -24,8 +25,12 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 @Target({ ElementType.PARAMETER })
 @SqlStatementCustomizingAnnotation(RosettaListBinderFactory.class)
 public @interface BindListWithRosetta {
+
   String value() default "";
+
   String field() default "";
+
+  EmptyHandling onEmpty() default EmptyHandling.THROW;
 
   class RosettaListBinderFactory implements SqlStatementCustomizerFactory {
 
@@ -50,8 +55,25 @@ public @interface BindListWithRosetta {
         ObjectMapper objectMapper = stmt.getConfig(RosettaObjectMapper.class).getObjectMapper();
         JsonNode node = objectMapper.valueToTree(arg);
 
-        if (!node.isArray()) {
+        // if we got a non-null argument that isn't a list
+        if (node != null && !node.isArray()) {
           throw new IllegalArgumentException("Value provided to @BindListWithRosetta was not an iterable!");
+        }
+
+        if (node == null || node.size() == 0) {
+          switch (bindList.onEmpty()) {
+            case VOID:
+              stmt.define(name, "");
+              return;
+            case NULL:
+              stmt.define(name, "null");
+              return;
+            case THROW:
+              throw new IllegalArgumentException(arg == null
+                  ? "argument is null; null was explicitly forbidden on this instance of BindListWithRosetta"
+                  : "argument is empty; emptiness was explicitly forbidden on this instance of BindListWithRosetta");
+            default:
+          }
         }
 
         List<Object> list = new ArrayList<>(node.size());

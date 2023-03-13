@@ -1,6 +1,7 @@
 package com.hubspot.rosetta.jdbi3;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
@@ -30,5 +31,34 @@ public class BindListWithRosettaTest extends AbstractJdbiTest {
     assertThat(getDao().getWithFieldValue(Arrays.asList(one, four))).containsExactlyInAnyOrder(one, four);
     assertThat(getDao().getWithFieldValue(Arrays.asList(one, two, four)))
         .containsExactlyInAnyOrder(one, two, three, four);
+  }
+
+  @Test
+  public void itThrowsOnEmpty() {
+    assertThatThrownBy(() -> getDao().getWithValue(Collections.emptyList())).isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("argument is empty");
+  }
+
+  @Test
+  public void itCanTurnEmptyToNull() {
+    TestListObject one = new TestListObject(1, TestEnum.A);
+    TestListObject two = new TestListObject(2, TestEnum.B);
+
+    getDao().insert(one);
+    getDao().insert(two);
+
+    // SELECT * WHERE id NOT IN (NULL) becomes SELECT * WHERE NULL so always returns empty list
+    assertThat(getDao().getWithoutValueEmptyToNull(Collections.emptyList())).isEmpty();
+  }
+
+  @Test
+  public void itCanTurnEmptyToEmptyToVoid() {
+    TestListObject one = new TestListObject(1, TestEnum.A);
+    TestListObject two = new TestListObject(2, TestEnum.B);
+
+    getDao().insert(one);
+    getDao().insert(two);
+
+    assertThat(getDao().getWithoutValueEmptyToVoid(Collections.emptyList())).containsExactlyInAnyOrder(one, two);
   }
 }
