@@ -18,6 +18,7 @@ import java.util.List;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
+import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER})
@@ -38,9 +39,13 @@ public @interface BindListWithRosetta {
     ) {
       return (stmt, arg) -> {
         ObjectMapper objectMapper = stmt.getConfig(RosettaObjectMapper.class).getObjectMapper();
-
         JsonNode node = objectMapper.valueToTree(arg);
-        String key = ((BindListWithRosetta) annotation).value();
+        String name = ParameterUtil.findParameterName(((BindListWithRosetta) annotation).value(), param)
+            .orElseThrow(() -> new UnsupportedOperationException(
+                "A @BindListWithRosetta parameter was not given a name, " +
+                "and parameter name data is not present in the class file, for: " +
+                param.getDeclaringExecutable() + "::" + param
+            ));
 
         if (!node.isArray()) {
           throw new IllegalArgumentException("Value provided to @BindListWithRosetta was not an iterable!");
@@ -48,7 +53,7 @@ public @interface BindListWithRosetta {
 
         List<Object> list = new ArrayList<>(node.size());
         RosettaBinder.INSTANCE.bindList((ArrayNode) node, list::add);
-        stmt.bindList(key, list);
+        stmt.bindList(name, list);
       };
     }
   }
