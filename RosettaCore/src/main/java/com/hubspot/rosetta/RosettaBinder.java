@@ -1,18 +1,29 @@
 package com.hubspot.rosetta;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 public enum RosettaBinder {
   INSTANCE;
 
   public interface Callback {
     void bind(String key, Object value);
+  }
+
+  public void bindList(ArrayNode node, Consumer<Object> valueConsumer) {
+    for (JsonNode element : node) {
+      if (element.isObject()) {
+        throw new IllegalArgumentException("Binding lists of objects is not supported");
+      } else {
+        valueConsumer.accept(unwrapJsonValue(element));
+      }
+    }
   }
 
   public void bind(String prefix, JsonNode node, Callback callback) {
