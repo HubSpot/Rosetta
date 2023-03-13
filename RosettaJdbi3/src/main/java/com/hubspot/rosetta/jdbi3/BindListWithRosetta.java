@@ -73,6 +73,7 @@ public @interface BindListWithRosetta {
                   ? "argument is null; null was explicitly forbidden on this instance of BindListWithRosetta"
                   : "argument is empty; emptiness was explicitly forbidden on this instance of BindListWithRosetta");
             default:
+              throw new UnsupportedOperationException("OnEmpty behavior: " + bindList.onEmpty() + "is not supported");
           }
         } else {
           List<Object> list = new ArrayList<>(node.size());
