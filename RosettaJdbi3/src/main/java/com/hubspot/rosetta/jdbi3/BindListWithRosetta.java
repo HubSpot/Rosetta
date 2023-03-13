@@ -37,15 +37,16 @@ public @interface BindListWithRosetta {
         int index,
         Type paramType
     ) {
+      String name = ParameterUtil.findParameterName(((BindListWithRosetta) annotation).value(), param)
+          .orElseThrow(() -> new UnsupportedOperationException(
+              "A @BindListWithRosetta parameter was not given a name, " +
+                  "and parameter name data is not present in the class file, for: " +
+                  param.getDeclaringExecutable() + "::" + param
+          ));
+
       return (stmt, arg) -> {
         ObjectMapper objectMapper = stmt.getConfig(RosettaObjectMapper.class).getObjectMapper();
         JsonNode node = objectMapper.valueToTree(arg);
-        String name = ParameterUtil.findParameterName(((BindListWithRosetta) annotation).value(), param)
-            .orElseThrow(() -> new UnsupportedOperationException(
-                "A @BindListWithRosetta parameter was not given a name, " +
-                "and parameter name data is not present in the class file, for: " +
-                param.getDeclaringExecutable() + "::" + param
-            ));
 
         if (!node.isArray()) {
           throw new IllegalArgumentException("Value provided to @BindListWithRosetta was not an iterable!");
