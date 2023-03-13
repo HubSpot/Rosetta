@@ -21,7 +21,7 @@ import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER})
+@Target({ ElementType.PARAMETER })
 @SqlStatementCustomizingAnnotation(RosettaListBinderFactory.class)
 public @interface BindListWithRosetta {
   String value() default "";
