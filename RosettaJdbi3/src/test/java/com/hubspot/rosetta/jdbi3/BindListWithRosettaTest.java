@@ -61,4 +61,24 @@ public class BindListWithRosettaTest extends AbstractJdbiTest {
 
     assertThat(getDao().getWithoutValueEmptyToVoid(Collections.emptyList())).containsExactlyInAnyOrder(one, two);
   }
+
+  @Test
+  public void itThrowsOnBindingListOfLists() {
+    TestListObject one = new TestListObject(1, TestEnum.A, Collections.emptyList());
+    TestListObject two = new TestListObject(2, TestEnum.A, Arrays.asList("a", "b"));
+
+    assertThatThrownBy(() -> getDao().getWithListFieldValue(Collections.singletonList(one)))
+        .isInstanceOf(IllegalArgumentException.class);
+
+    assertThatThrownBy(() -> getDao().getWithListFieldValue(Collections.singletonList(two)))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void itThrowsOnBindingListOfObjects() {
+    TestListObject one = new TestListObject(1, TestEnum.A, null, new TestObject(5, "asdf"));
+
+    assertThatThrownBy(() -> getDao().getWithObjectFieldValue(Collections.singletonList(one)))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
 }
