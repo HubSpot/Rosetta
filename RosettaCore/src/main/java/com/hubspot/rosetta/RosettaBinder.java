@@ -26,8 +26,8 @@ public enum RosettaBinder {
         }
       }
 
-      if (value.isObject() ) {
-        throw new IllegalArgumentException("Binding objects to list is not supported");
+      if (!value.isValueNode()) {
+        throw new IllegalArgumentException("Binding non-value types as a list is not supported");
       } else {
         valueConsumer.accept(unwrapJsonValue(value));
       }

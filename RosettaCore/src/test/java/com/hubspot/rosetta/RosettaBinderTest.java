@@ -1,10 +1,12 @@
 package com.hubspot.rosetta;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.rosetta.RosettaBinder.Callback;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.ListBean;
@@ -18,6 +20,7 @@ import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTy
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,6 +224,18 @@ public class RosettaBinderTest {
     RosettaCreatorConstructorBean three = new RosettaCreatorConstructorBean("three");
 
     assertThat(bindList("stringProperty", Arrays.asList(one, two, three))).containsExactly("one", "two", "three");
+  }
+
+  @Test
+  public void itThrowsForBindListOfList() {
+    assertThatThrownBy(() -> bindList(Arrays.asList(Collections.singleton(1), Arrays.asList(2, 3))))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void itThrowsForBindListOfObjects() {
+    assertThatThrownBy(() -> bindList(Collections.singleton(ImmutableMap.of("a", 1))))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   private static Map<String, Object> map(Object... strings) {

@@ -13,7 +13,10 @@ public enum TestEnum {
   C(3),
   ;
 
-  private static final Map<Integer, TestEnum> LOOKUP = Maps.uniqueIndex(Arrays.asList(values()), TestEnum::getValue);
+  private static final Map<Integer, TestEnum> LOOKUP = Maps.uniqueIndex(
+      Arrays.asList(values()),
+      TestEnum::getValue
+  );
 
   private int value;
 
