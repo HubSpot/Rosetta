@@ -1,18 +1,36 @@
 package com.hubspot.rosetta;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 public enum RosettaBinder {
   INSTANCE;
 
   public interface Callback {
     void bind(String key, Object value);
+  }
+
+  public void bindList(ArrayNode array, String field, Consumer<Object> valueConsumer) {
+    for (JsonNode value : array) {
+      if (!field.isEmpty()) {
+        value = value.path(field);
+        if (value.isMissingNode()) {
+          throw new IllegalArgumentException(String.format("Field %s does not exist in elements of input array", field));
+        }
+      }
+
+      if (!value.isValueNode()) {
+        throw new IllegalArgumentException("Binding non-value types as a list is not supported");
+      } else {
+        valueConsumer.accept(unwrapJsonValue(value));
+      }
+    }
   }
 
   public void bind(String prefix, JsonNode node, Callback callback) {

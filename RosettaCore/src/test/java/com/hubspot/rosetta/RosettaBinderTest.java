@@ -1,19 +1,12 @@
 package com.hubspot.rosetta;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Test;
-
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.hubspot.rosetta.RosettaBinder.Callback;
 import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.ListBean;
@@ -24,6 +17,14 @@ import com.hubspot.rosetta.beans.RosettaNamingBean;
 import com.hubspot.rosetta.beans.ServiceLoaderBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.Test;
 
 public class RosettaBinderTest {
 
@@ -210,6 +211,45 @@ public class RosettaBinderTest {
     assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.id_value", 50, "prefix.name_value", "test"));
   }
 
+  @Test
+  public void itBindsListCorrectly() {
+    assertThat(bindList(Arrays.asList(1, 2, 3))).isEqualTo(Arrays.asList(1, 2, 3));
+    assertThat(bindList(Arrays.asList(1, "test", 3))).isEqualTo(Arrays.asList(1, "test", 3));
+  }
+
+  @Test
+  public void itBindsListFieldCorrectly() {
+    RosettaCreatorConstructorBean one = new RosettaCreatorConstructorBean("one");
+    RosettaCreatorConstructorBean two = new RosettaCreatorConstructorBean("two");
+    RosettaCreatorConstructorBean three = new RosettaCreatorConstructorBean("three");
+
+    assertThat(bindList("stringProperty", Arrays.asList(one, two, three))).containsExactly("one", "two", "three");
+  }
+
+  @Test
+  public void itThrowsForMissingFieldName() {
+    RosettaCreatorConstructorBean one = new RosettaCreatorConstructorBean("one");
+    RosettaCreatorConstructorBean two = new RosettaCreatorConstructorBean("two");
+
+    assertThatThrownBy(() -> bindList("missingProperty", Arrays.asList(one, two)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Field missingProperty does not exist");
+  }
+
+  @Test
+  public void itThrowsForBindListOfList() {
+    assertThatThrownBy(() -> bindList(Arrays.asList(Collections.singleton(1), Arrays.asList(2, 3))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Binding non-value types as a list is not supported");
+  }
+
+  @Test
+  public void itThrowsForBindListOfObjects() {
+    assertThatThrownBy(() -> bindList(Collections.singleton(ImmutableMap.of("a", 1))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Binding non-value types as a list is not supported");
+  }
+
   private static Map<String, Object> map(Object... strings) {
     Map<String, Object> map = new HashMap<String, Object>();
     for (int i = 0; i < strings.length; i += 2) {
@@ -228,6 +268,17 @@ public class RosettaBinderTest {
     MockCallback callback = new MockCallback();
     RosettaBinder.INSTANCE.bind(prefix, node, callback);
     return callback.getBindings();
+  }
+
+  private List<Object> bindList(Iterable<?> values) {
+    return bindList("", values);
+  }
+
+  private List<Object> bindList(String field, Iterable<?> values) {
+    ArrayNode node = Rosetta.getMapper().valueToTree(values);
+    List<Object> list = new ArrayList<>();
+    RosettaBinder.INSTANCE.bindList(node, field, list::add);
+    return list;
   }
 
   private static class MockCallback implements Callback {
