@@ -17,7 +17,7 @@ public enum RosettaBinder {
   }
 
   public void bindList(ArrayNode array, String field, Consumer<Object> valueConsumer) {
-    for (JsonNode value : node) {
+    for (JsonNode value : array) {
       if (!field.isEmpty()) {
         value = value.path(field);
         if (value.isMissingNode()) {
