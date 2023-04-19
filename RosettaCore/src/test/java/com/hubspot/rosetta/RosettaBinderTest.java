@@ -227,15 +227,27 @@ public class RosettaBinderTest {
   }
 
   @Test
+  public void itThrowsForMissingFieldName() {
+    RosettaCreatorConstructorBean one = new RosettaCreatorConstructorBean("one");
+    RosettaCreatorConstructorBean two = new RosettaCreatorConstructorBean("two");
+
+    assertThatThrownBy(() -> bindList("missingProperty", Arrays.asList(one, two)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Field missingProperty does not exist");
+  }
+
+  @Test
   public void itThrowsForBindListOfList() {
     assertThatThrownBy(() -> bindList(Arrays.asList(Collections.singleton(1), Arrays.asList(2, 3))))
-        .isInstanceOf(IllegalArgumentException.class);
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Binding non-value types as a list is not supported");
   }
 
   @Test
   public void itThrowsForBindListOfObjects() {
     assertThatThrownBy(() -> bindList(Collections.singleton(ImmutableMap.of("a", 1))))
-        .isInstanceOf(IllegalArgumentException.class);
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Binding non-value types as a list is not supported");
   }
 
   private static Map<String, Object> map(Object... strings) {

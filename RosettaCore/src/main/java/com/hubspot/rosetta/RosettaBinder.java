@@ -19,10 +19,9 @@ public enum RosettaBinder {
   public void bindList(ArrayNode array, String field, Consumer<Object> valueConsumer) {
     for (JsonNode value : node) {
       if (!field.isEmpty()) {
-        if (!value.has(field)) {
+        value = value.path(field);
+        if (value.isMissingNode()) {
           throw new IllegalArgumentException(String.format("Field %s does not exist in elements of input array", field));
-        } else {
-          value = value.get(field);
         }
       }
 
