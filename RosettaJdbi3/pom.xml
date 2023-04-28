@@ -11,7 +11,7 @@
   <artifactId>RosettaJdbi3</artifactId>
 
   <properties>
-    <dep.slf4j.version>1.7.25</dep.slf4j.version>
+    <dep.slf4j.version>1.7.32</dep.slf4j.version>
   </properties>
 
   <dependencies>
