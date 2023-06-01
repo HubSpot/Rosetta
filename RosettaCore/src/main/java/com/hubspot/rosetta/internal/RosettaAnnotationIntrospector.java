@@ -3,6 +3,7 @@ package com.hubspot.rosetta.internal;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +13,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.hubspot.rosetta.annotations.NestedOptional;
 import com.hubspot.rosetta.annotations.RosettaCreator;
 import com.hubspot.rosetta.annotations.RosettaDeserialize;
 import com.hubspot.rosetta.annotations.RosettaIgnore;
@@ -65,6 +68,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   @SuppressWarnings("unchecked")
   public JsonDeserializer<?> findDeserializer(Annotated a) {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
+    NestedOptional nestedOptional = a.getAnnotation(NestedOptional.class);
     RosettaDeserialize rosettaDeserialize = a.getAnnotation(RosettaDeserialize.class);
     if (storedAsJson != null && rosettaDeserialize != null) {
       throw new IllegalArgumentException("Cannot have @StoredAsJson as well as @RosettaDeserialize annotations on the same entry");
@@ -76,6 +80,16 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
       return new StoredAsJsonDeserializer(a.getRawType(), a.getType(), empty, objectMapper);
+    }
+
+    if (nestedOptional != null && a instanceof AnnotatedMethod) {
+      AnnotatedMethod am = (AnnotatedMethod) a;
+
+      JavaType parameterType = am.getParameterType(0);
+      if (parameterType instanceof ReferenceType) {
+        ReferenceType refType = (ReferenceType) parameterType;
+        return new NestedOptionalDeserializer(refType.getRawClass(), refType.getReferencedType().getRawClass());
+      }
     }
 
     if (rosettaDeserialize != null) {
