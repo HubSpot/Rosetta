@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicate that a field is a nested optional and serde operations will follow nested optional rules.
+ * Indicate that a field is a nested optional and deserialization will follow the nested optional rules.
  */
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
