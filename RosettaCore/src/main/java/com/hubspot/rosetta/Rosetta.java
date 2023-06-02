@@ -48,7 +48,6 @@ public enum Rosetta {
       mapper.registerModule(module);
     }
 
-
     return mapper;
   }
 
