@@ -2,6 +2,7 @@ package com.hubspot.rosetta.internal;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -33,16 +34,16 @@ public class NestedOptionalDeserializer<T> extends StdScalarDeserializer<Optiona
       return Optional.empty();
     }
 
-    Iterator<String> fieldNames = root.fieldNames();
+    Iterator<Entry<String, JsonNode>> it = root.fields();
 
-    if (!fieldNames.hasNext()) {
+    if (!it.hasNext()) {
       throw new IllegalArgumentException("The provided object has no fields: " + root);
     }
 
-    while (fieldNames.hasNext()) {
-      String fieldName = fieldNames.next();
+    while (it.hasNext()) {
+      Entry<String, JsonNode> entry = it.next();
 
-      if (!root.get(fieldName).isNull()) {
+      if (!entry.getValue().isNull()) {
         return Optional.of(
             mapper.treeToValue(root, referencedClazz)
         );
