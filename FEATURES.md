@@ -8,6 +8,7 @@
 * [Fields Stored as JSON](#fields-stored-as-json)
 * [Custom Naming Strategies](#custom-naming-strategies)
 * [Providing your own ObjectMapper](#providing-your-own-objectmapper)
+* [Working with hubspot-immutables](#working-with-hubspot-immutables)
 
 ## How does Rosetta work?
 
@@ -211,3 +212,37 @@ level, you would do the following while setting up your `DBI`:
 To set at the handle or statement level would look similar:  
 `new RosettaObjectMapperOverride(myOtherObjectMapper).override(handle);`  
 `new RosettaObjectMapperOverride(myOtherOtherObjectMapper).override(query);`
+
+### JDBI3
+
+`RosettaObjectMapperOverride` is no longer available when using Jdbi 3.  To override the `ObjectMapper` for all Jdbi instances
+when you are setting up your `JDBI`:
+
+```java
+jdbi.getConfig().get(RosettaObjectMapper.class).setObjectMapper(myObjectMapper);
+```
+
+## Working with hubspot-immutables
+
+`hubspot-immutables` provides a preconfigured [immutables](https://immutables.github.io/) [style](https://immutables.github.io/style.html) for generating immutable pojos, as well as other customizations that make working with immutables easier.  Most of these features will work out of the box with Rosetta, however some depend on customizations of the `ObjectMapper` in order to function properly, which causes problems when interacting with Rosetta.  In order to support these usecases, `RosettaImmutables` provides the [RosettaImmutablesModule](https://github.com/HubSpot/Rosetta/blob/218547991994d631206eff4950f54fe2272c5fd2/RosettaImmutables/src/main/java/com/hubspot/rosetta/immutables/RosettaImmutablesModule.java) that you can use in combination with the `RosettaObjectMapperOverride`.
+
+First add a dependency on the `RosettaImmutables` module
+
+```xml
+<dependency>
+  <groupId>com.hubspot.rosetta</groupId>
+  <artifactId>RosettaImmutables</artifactId>
+  <version>whichever version matches your rosetta version</version>
+</dependency>
+```
+Then configure your `ObjectMapper` override
+
+```java
+ObjectMapper newRosettaMapper = myOtherObjectMapper
+  .copy()
+  .registerModule(new RosettaImmutablesModule());
+
+new RosettaObjectMapperOverride(newRosettaMapper).override(handle)
+new RosettaObjectMapperOverride(newRosettaMapper).override(query)
+```
+

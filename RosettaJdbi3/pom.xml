@@ -11,10 +11,14 @@
   <artifactId>RosettaJdbi3</artifactId>
 
   <properties>
-    <dep.slf4j.version>1.7.25</dep.slf4j.version>
+    <dep.slf4j.version>1.7.32</dep.slf4j.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.hubspot.rosetta</groupId>
+      <artifactId>RosettaAnnotations</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.hubspot.rosetta</groupId>
       <artifactId>RosettaCore</artifactId>
@@ -38,6 +42,11 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
