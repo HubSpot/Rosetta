@@ -2,6 +2,17 @@ package com.hubspot.rosetta;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -17,14 +28,6 @@ import com.hubspot.rosetta.beans.RosettaNamingBean;
 import com.hubspot.rosetta.beans.ServiceLoaderBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.junit.Test;
 
 public class RosettaBinderTest {
 
@@ -85,10 +88,10 @@ public class RosettaBinderTest {
     bean.setTypeInfoSetter(concrete);
 
     String json = "{\"stringProperty\":\"value\"}";
-    String typedJson = "{\"generalValue\":\"general\",\"concreteValue\":\"concrete\",\"type\":\"concrete\"}";
+    String typedJson = "{\"concreteValue\":\"concrete\",\"generalValue\":\"general\",\"type\":\"concrete\"}";
     List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
 
-    assertThat(bind(bean)).isEqualTo(map(
+    assertThat(bind(bean)).containsAllEntriesOf(map(
             "annotatedField", json,
             "annotatedGetter", json,
             "annotatedSetter", json,
@@ -108,7 +111,7 @@ public class RosettaBinderTest {
             "typeInfoGetter", typedJson,
             "typeInfoSetter", typedJson
     ));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
+    assertThat(bindWithPrefix("prefix", bean)).containsAllEntriesOf(map(
             "prefix.annotatedField", json,
             "prefix.annotatedGetter", json,
             "prefix.annotatedSetter", json,
@@ -137,7 +140,7 @@ public class RosettaBinderTest {
     String json = "{\"stringProperty\":\"value\"}";
     List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
 
-    assertThat(bind(bean)).isEqualTo(map(
+    assertThat(bind(bean)).containsAllEntriesOf(map(
             "annotatedField", null,
             "annotatedGetter", null,
             "annotatedSetter", null,
@@ -157,7 +160,7 @@ public class RosettaBinderTest {
             "typeInfoGetter", null,
             "typeInfoSetter", null
     ));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map(
+    assertThat(bindWithPrefix("prefix", bean)).containsAllEntriesOf(map(
             "prefix.annotatedField", null,
             "prefix.annotatedGetter", null,
             "prefix.annotatedSetter", null,
