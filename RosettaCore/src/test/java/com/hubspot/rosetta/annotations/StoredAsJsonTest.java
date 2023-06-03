@@ -2,12 +2,12 @@ package com.hubspot.rosetta.annotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,10 +26,10 @@ import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.ListStoredAsJsonBeanIF.ListStoredAsJsonBean;
 import com.hubspot.rosetta.beans.MapStoredAsJsonBean;
 import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
+import com.hubspot.rosetta.beans.NullPolymorphicBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonBeanIF.OptionalStoredAsJsonBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean.Polymorph;
-import com.hubspot.rosetta.beans.NullPolymorphicBean;
 import com.hubspot.rosetta.beans.PolymorphicBeanA;
 import com.hubspot.rosetta.beans.PolymorphicBeanASubTypeA;
 import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
@@ -373,10 +373,14 @@ public class StoredAsJsonTest {
   }
 
   @Test
-  public void testBinaryFieldWithDefaultSerialization() {
+  public void testBinaryFieldWithDefaultSerialization() throws IOException {
     bean.setBinaryFieldWithDefault(inner);
 
     assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryFieldWithDefault")).isEqualTo(expectedBinary);
+
+    String json = Rosetta.getMapper().writeValueAsString(bean);
+    StoredAsJsonBean deserBean = Rosetta.getMapper().readValue(json, StoredAsJsonBean.class);
+    assertThat(deserBean.getBinaryFieldWithDefault().getStringProperty()).isEqualTo("value");
   }
 
   @Test
@@ -581,7 +585,6 @@ public class StoredAsJsonTest {
   }
 
   @Test
-  @Ignore
   public void testNestedStoredAsJsonBeans() throws JsonProcessingException {
     InnerBean innerBean = new InnerBean();
     innerBean.setStringProperty("value");
@@ -593,7 +596,9 @@ public class StoredAsJsonTest {
     top.setAnnotatedField(storedAsJsonBean);
 
     JsonNode node = Rosetta.getMapper().valueToTree(top);
-    assertThat(Rosetta.getMapper().treeToValue(node, NestedStoredAsJsonBean.class)).isEqualTo(top);
+    NestedStoredAsJsonBean deserializedNested = Rosetta.getMapper().treeToValue(node, NestedStoredAsJsonBean.class);
+
+    assertThat(deserializedNested.getAnnotatedField().getAnnotatedField().getStringProperty()).isEqualTo("value");
   }
 
   @Test
