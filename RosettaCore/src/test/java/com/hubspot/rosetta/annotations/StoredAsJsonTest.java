@@ -26,10 +26,10 @@ import com.hubspot.rosetta.beans.InnerBean;
 import com.hubspot.rosetta.beans.ListStoredAsJsonBeanIF.ListStoredAsJsonBean;
 import com.hubspot.rosetta.beans.MapStoredAsJsonBean;
 import com.hubspot.rosetta.beans.NestedStoredAsJsonBean;
+import com.hubspot.rosetta.beans.NullPolymorphicBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonBeanIF.OptionalStoredAsJsonBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.OptionalStoredAsJsonTypeInfoBean.Polymorph;
-import com.hubspot.rosetta.beans.NullPolymorphicBean;
 import com.hubspot.rosetta.beans.PolymorphicBeanA;
 import com.hubspot.rosetta.beans.PolymorphicBeanASubTypeA;
 import com.hubspot.rosetta.beans.PolymorphicStoredAsJsonBean;
@@ -48,7 +48,7 @@ public class StoredAsJsonTest {
   private final JsonNode expectedBinary = BinaryNode.valueOf(expected.textValue().getBytes(StandardCharsets.UTF_8));
 
   private StoredAsJsonTypeInfoBean typeInfoBean;
-  private final JsonNode expectedTypeInfo = TextNode.valueOf("{\"generalValue\":\"General\",\"concreteValue\":\"internal\",\"type\":\"concrete\"}");
+  private final JsonNode expectedTypeInfo = TextNode.valueOf("{\"concreteValue\":\"internal\",\"generalValue\":\"General\",\"type\":\"concrete\"}");
 
   @Before
   public void setup() {
