@@ -52,6 +52,12 @@ public interface TestDao extends SqlObject {
   @SqlUpdate("INSERT INTO test_list_table (id, value) VALUES (:id, :value)")
   int insert(@BindWithRosetta TestListObject object);
 
-  @SqlUpdate("INSERT INTO test_nested_table (id, relatedId, name, score) VALUES (:id, :relatedId, :name, :score);")
+  @SqlUpdate("INSERT INTO test_nested_table (id, relatedId, otherName, score) VALUES (:id, :relatedId, :otherName, :score);")
   int insert(@BindWithRosetta TestRelatedObject object);
+
+  @SqlUpdate("INSERT INTO test_subtyped_nested_table (color, relatedId, dangerLevel) VALUES (:color, :relatedId, :dangerLevel);")
+  int insert(@BindWithRosetta TestRedNestedObject object);
+
+  @SqlUpdate("INSERT INTO test_subtyped_nested_table (color, relatedId, relaxSong, relaxLevel) VALUES (:color, :relatedId, :relaxSong, :relaxLevel);")
+  int insert(@BindWithRosetta TestGreenNestedObject object);
 }
