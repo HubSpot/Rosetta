@@ -14,7 +14,7 @@ public class AbstractJdbiTest {
     jdbi.registerRowMapper(new RosettaRowMapperFactory());
     jdbi.useHandle(handle -> {
       handle.execute("CREATE TABLE IF NOT EXISTS test_table (id INT, name VARCHAR(255) NOT NULL, PRIMARY KEY (id))");
-      handle.execute("CREATE TABLE IF NOT EXISTS test_list_table (id INT, value INT NOT NULL, PRIMARY KEY (id))");
+      handle.execute("CREATE TABLE IF NOT EXISTS test_list_table (id INT, \"value\" INT NOT NULL, PRIMARY KEY (id))");
       handle.execute("CREATE TABLE IF NOT EXISTS test_nested_table (id INT, relatedId INT, otherName VARCHAR(255), score BIGINT, PRIMARY KEY (id))");
       handle.execute("CREATE TABLE IF NOT EXISTS test_subtyped_nested_table (relatedId INT, color VARCHAR(255), relaxSong VARCHAR(255) DEFAULT NULL, relaxLevel BIGINT DEFAULT NULL, dangerLevel BIGINT DEFAULT NULL, PRIMARY KEY (relatedId))");
       handle.execute("TRUNCATE TABLE test_table");
