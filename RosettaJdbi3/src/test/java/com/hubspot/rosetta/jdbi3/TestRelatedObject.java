@@ -7,14 +7,14 @@ import com.google.common.base.Objects;
 public class TestRelatedObject {
   private final int id;
   private final int relatedId;
-  private final String name;
+  private final String otherName;
   private final long score;
 
   @JsonCreator
-  public TestRelatedObject(@JsonProperty("id") int id, @JsonProperty("relatedId") int relatedId, @JsonProperty("name") String name, @JsonProperty("score") long score) {
+  public TestRelatedObject(@JsonProperty("id") int id, @JsonProperty("relatedId") int relatedId, @JsonProperty("otherName") String otherName, @JsonProperty("score") long score) {
     this.id = id;
     this.relatedId = relatedId;
-    this.name = name;
+    this.otherName = otherName;
     this.score = score;
   }
 
@@ -26,8 +26,8 @@ public class TestRelatedObject {
     return relatedId;
   }
 
-  public String getName() {
-    return name;
+  public String getOtherName() {
+    return otherName;
   }
 
   public long getScore() {
@@ -40,12 +40,12 @@ public class TestRelatedObject {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     TestRelatedObject that = (TestRelatedObject) o;
-    return id == that.id && relatedId == that.relatedId && score == that.score && Objects.equal(name, that.name);
+    return id == that.id && relatedId == that.relatedId && score == that.score && Objects.equal(otherName, that.otherName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, relatedId, name, score);
+    return Objects.hashCode(id, relatedId, otherName, score);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class TestRelatedObject {
     return "TestRelatedObject{" +
         "id=" + id +
         ", relatedId=" + relatedId +
-        ", name='" + name + '\'' +
+        ", name='" + otherName + '\'' +
         ", score=" + score +
         '}';
   }

@@ -40,7 +40,7 @@ public interface TestDao extends SqlObject {
       "test_table.name AS name, " +
       "r.id AS \"related.id\", " +
       "r.relatedId AS \"related.relatedId\", " +
-      "r.name AS \"related.name\", " +
+      "r.otherName AS \"related.otherName\", " +
       "r.score AS \"related.score\" " +
       "FROM test_table LEFT JOIN test_nested_table as r " +
       "ON test_table.id = r.relatedId;")

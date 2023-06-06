@@ -9,7 +9,7 @@ import org.junit.Test;
 public class NestedOptionalTest extends AbstractJdbiTest {
 
   @Test
-  public void itDeserializesNestedObjects() {
+  public void itDeserializesNestedObject() {
     TestObject firstObject = new TestObject(1, "name-1");
     TestRelatedObject relatedObject = new TestRelatedObject(1, 1, "related-name-1", 12);
 
@@ -25,5 +25,10 @@ public class NestedOptionalTest extends AbstractJdbiTest {
     getDao().insert(secondObject);
 
     assertThat(getDao().getAllView()).contains(firstExpectedView, secondExpectedView);
+  }
+
+  @Test
+  public void itDeserializedSubTypedNestedObject() {
+
   }
 }
