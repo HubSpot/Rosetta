@@ -1,6 +1,7 @@
 package com.hubspot.rosetta.jdbi3;
 
 import java.util.List;
+
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 import org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling;
@@ -34,9 +35,23 @@ public interface TestDao extends SqlObject {
   @SqlQuery("SELECT * FROM test_list_table WHERE value IN (<values>)")
   List<TestListObject> getWithObjectFieldValue(@BindListWithRosetta(value = "values", field = "objectValue") List<TestListObject> values);
 
+  @SqlQuery("SELECT " +
+      "test_table.id AS id, " +
+      "test_table.name AS name, " +
+      "r.id AS \"related.id\", " +
+      "r.relatedId AS \"related.relatedId\", " +
+      "r.name AS \"related.name\", " +
+      "r.score AS \"related.score\" " +
+      "FROM test_table LEFT JOIN test_nested_table as r " +
+      "ON test_table.id = r.relatedId;")
+  List<TestViewObject> getAllView();
+
   @SqlUpdate("INSERT INTO test_table (id, name) VALUES (:id, :name)")
   int insert(@BindWithRosetta TestObject object);
 
   @SqlUpdate("INSERT INTO test_list_table (id, value) VALUES (:id, :value)")
   int insert(@BindWithRosetta TestListObject object);
+
+  @SqlUpdate("INSERT INTO test_nested_table (id, relatedId, name, score) VALUES (:id, :relatedId, :name, :score);")
+  int insert(@BindWithRosetta TestRelatedObject object);
 }

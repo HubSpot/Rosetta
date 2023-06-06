@@ -3,7 +3,6 @@ package com.hubspot.rosetta.internal;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -82,14 +82,10 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       return new StoredAsJsonDeserializer(a.getRawType(), a.getType(), empty, objectMapper);
     }
 
-    if (nestedOptional != null && a instanceof AnnotatedMethod) {
-      AnnotatedMethod am = (AnnotatedMethod) a;
+    if (nestedOptional != null && (a instanceof AnnotatedMethod || a instanceof AnnotatedParameter)) {
+      ReferenceType refType = getReferenceType(a);
 
-      JavaType parameterType = am.getParameterType(0);
-      if (parameterType instanceof ReferenceType) {
-        ReferenceType refType = (ReferenceType) parameterType;
-        return new NestedOptionalDeserializer(refType.getRawClass(), refType.getReferencedType().getRawClass());
-      }
+      return new NestedOptionalDeserializer(refType.getRawClass(), refType.getReferencedType().getRawClass());
     }
 
     if (rosettaDeserialize != null) {
@@ -182,6 +178,16 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       return a;
     } else {
       throw new IllegalArgumentException("Cannot have @StoredAsJson on a method with no parameters AND no arguments");
+    }
+  }
+
+  private ReferenceType getReferenceType(Annotated a) {
+    if (a instanceof AnnotatedMethod) {
+      return (ReferenceType) ((AnnotatedMethod) a).getParameterType(0);
+    } else if (a instanceof AnnotatedParameter) {
+      return ReferenceType.upgradeFrom(a.getType(), a.getType().containedType(0));
+    } else {
+      throw new IllegalArgumentException("Could not get ReferencedType.");
     }
   }
 }
