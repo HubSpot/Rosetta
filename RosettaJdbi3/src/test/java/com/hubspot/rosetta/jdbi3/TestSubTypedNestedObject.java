@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
         @Type(value = TestRedNestedObject.class, name = "RED"),
     }
 )
-public interface TestNestedObject {
+public interface TestSubTypedNestedObject {
+  int getRelatedId();
   String getColor();
 }
