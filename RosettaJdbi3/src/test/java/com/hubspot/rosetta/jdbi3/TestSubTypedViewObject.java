@@ -2,6 +2,8 @@ package com.hubspot.rosetta.jdbi3;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.hubspot.rosetta.annotations.NestedOptional;
 
@@ -12,7 +14,8 @@ public class TestSubTypedViewObject {
   @NestedOptional
   private final Optional<TestSubTypedNestedObject> related;
 
-  public TestSubTypedViewObject(int id, String name, Optional<TestSubTypedNestedObject> related) {
+  @JsonCreator
+  public TestSubTypedViewObject(@JsonProperty("id") int id, @JsonProperty("name") String name, @JsonProperty("related") Optional<TestSubTypedNestedObject> related) {
     this.id = id;
     this.name = name;
     this.related = related;

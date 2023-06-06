@@ -46,6 +46,18 @@ public interface TestDao extends SqlObject {
       "ON test_table.id = r.relatedId;")
   List<TestViewObject> getAllView();
 
+  @SqlQuery("SELECT " +
+      "test_table.id AS id, " +
+      "test_table.name AS name, " +
+      "subtyped.relatedId AS \"related.relatedId\", " +
+      "subtyped.color AS \"related.color\", " +
+      "subtyped.dangerLevel AS \"related.dangerLevel\", " +
+      "subtyped.relaxSong AS \"related.relaxSong\", " +
+      "subtyped.relaxLevel AS \"related.relaxLevel\" " +
+      "FROM test_table LEFT JOIN test_subtyped_nested_table as subtyped " +
+      "ON test_table.id = subtyped.relatedId;")
+  List<TestSubTypedViewObject> getAllSubTypedNestedView();
+
   @SqlUpdate("INSERT INTO test_table (id, name) VALUES (:id, :name)")
   int insert(@BindWithRosetta TestObject object);
 
