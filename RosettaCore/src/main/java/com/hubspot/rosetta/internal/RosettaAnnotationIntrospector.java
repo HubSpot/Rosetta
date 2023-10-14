@@ -75,7 +75,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       }
 
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
-      return new StoredAsJsonDeserializer(a.getRawType(), a.getType(), empty, objectMapper);
+      return new StoredAsJsonDeserializer(a.getRawType(), a.getType(), empty, objectMapper, storedAsJson.binary());
     }
 
     if (rosettaDeserialize != null) {

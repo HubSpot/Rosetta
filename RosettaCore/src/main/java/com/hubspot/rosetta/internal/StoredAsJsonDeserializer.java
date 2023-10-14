@@ -20,11 +20,14 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   private final String defaultValue;
   private final ObjectMapper objectMapper;
 
-  public StoredAsJsonDeserializer(Class<T> vc, Type type, String defaultValue, ObjectMapper objectMapper) {
+  private final boolean storedAsBinary;
+
+  public StoredAsJsonDeserializer(Class<T> vc, Type type, String defaultValue, ObjectMapper objectMapper, boolean storedAsBinary) {
     super(vc);
     this.type = type;
     this.defaultValue = defaultValue;
     this.objectMapper = objectMapper;
+    this.storedAsBinary = storedAsBinary;
   }
 
   @Override
@@ -33,15 +36,23 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 
     if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-      return deserialize(mapper, jp.getText(), javaType);
+      if (storedAsBinary) {
+        return deserializeAsBinary(jp, javaType, mapper);
+      } else {
+        return deserialize(mapper, jp.getText(), javaType);
+      }
     } else if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
-      String json = new String(jp.getBinaryValue(Base64Variants.getDefaultVariant()), StandardCharsets.UTF_8);
-      return deserialize(mapper, json, javaType);
-    } else if(jp.getCurrentToken() == JsonToken.START_OBJECT || jp.getCurrentToken() == JsonToken.START_ARRAY) {
+      return deserializeAsBinary(jp, javaType, mapper);
+    } else if (jp.getCurrentToken() == JsonToken.START_OBJECT || jp.getCurrentToken() == JsonToken.START_ARRAY) {
       return mapper.readValue(jp, javaType);
     } else {
       throw ctxt.mappingException("Expected JSON String");
     }
+  }
+
+  private T deserializeAsBinary(JsonParser jp, JavaType javaType, ObjectMapper mapper) throws IOException {
+    String json = new String(jp.getBinaryValue(Base64Variants.getDefaultVariant()), StandardCharsets.UTF_8);
+    return deserialize(mapper, json, javaType);
   }
 
   @Override
