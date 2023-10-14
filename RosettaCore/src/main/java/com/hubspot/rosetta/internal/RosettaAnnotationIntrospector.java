@@ -11,8 +11,11 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.hubspot.rosetta.annotations.NestedOptional;
 import com.hubspot.rosetta.annotations.RosettaCreator;
 import com.hubspot.rosetta.annotations.RosettaDeserialize;
 import com.hubspot.rosetta.annotations.RosettaIgnore;
@@ -65,6 +68,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   @SuppressWarnings("unchecked")
   public JsonDeserializer<?> findDeserializer(Annotated a) {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
+    NestedOptional nestedOptional = a.getAnnotation(NestedOptional.class);
     RosettaDeserialize rosettaDeserialize = a.getAnnotation(RosettaDeserialize.class);
     if (storedAsJson != null && rosettaDeserialize != null) {
       throw new IllegalArgumentException("Cannot have @StoredAsJson as well as @RosettaDeserialize annotations on the same entry");
@@ -76,6 +80,12 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
       String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
       return new StoredAsJsonDeserializer(a.getRawType(), a.getType(), empty, objectMapper);
+    }
+
+    if (nestedOptional != null && (a instanceof AnnotatedMethod || a instanceof AnnotatedParameter)) {
+      ReferenceType refType = getReferenceType(a);
+
+      return new NestedOptionalDeserializer(refType.getRawClass(), refType.getReferencedType().getRawClass());
     }
 
     if (rosettaDeserialize != null) {
@@ -168,6 +178,16 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       return a;
     } else {
       throw new IllegalArgumentException("Cannot have @StoredAsJson on a method with no parameters AND no arguments");
+    }
+  }
+
+  private ReferenceType getReferenceType(Annotated a) {
+    if (a instanceof AnnotatedMethod) {
+      return (ReferenceType) ((AnnotatedMethod) a).getParameterType(0);
+    } else if (a instanceof AnnotatedParameter) {
+      return ReferenceType.upgradeFrom(a.getType(), a.getType().containedType(0));
+    } else {
+      throw new IllegalArgumentException("Could not get ReferencedType.");
     }
   }
 }

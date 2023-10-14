@@ -35,9 +35,41 @@ public interface TestDao extends SqlObject {
   @SqlQuery("SELECT * FROM test_list_table WHERE \"value\" IN (<values>)")
   List<TestListObject> getWithObjectFieldValue(@BindListWithRosetta(value = "values", field = "objectValue") List<TestListObject> values);
 
+  @SqlQuery("SELECT " +
+      "test_table.id AS id, " +
+      "test_table.name AS name, " +
+      "r.id AS \"related.id\", " +
+      "r.relatedId AS \"related.relatedId\", " +
+      "r.otherName AS \"related.otherName\", " +
+      "r.score AS \"related.score\" " +
+      "FROM test_table LEFT JOIN test_nested_table as r " +
+      "ON test_table.id = r.relatedId;")
+  List<TestViewObject> getAllView();
+
+  @SqlQuery("SELECT " +
+      "test_table.id AS id, " +
+      "test_table.name AS name, " +
+      "subtyped.relatedId AS \"related.relatedId\", " +
+      "subtyped.color AS \"related.color\", " +
+      "subtyped.dangerLevel AS \"related.dangerLevel\", " +
+      "subtyped.relaxSong AS \"related.relaxSong\", " +
+      "subtyped.relaxLevel AS \"related.relaxLevel\" " +
+      "FROM test_table LEFT JOIN test_subtyped_nested_table as subtyped " +
+      "ON test_table.id = subtyped.relatedId;")
+  List<TestSubTypedViewObject> getAllSubTypedNestedView();
+
   @SqlUpdate("INSERT INTO test_table (id, name) VALUES (:id, :name)")
   int insert(@BindWithRosetta TestObject object);
 
   @SqlUpdate("INSERT INTO test_list_table (id, \"value\") VALUES (:id, :value)")
   int insert(@BindWithRosetta TestListObject object);
+
+  @SqlUpdate("INSERT INTO test_nested_table (id, relatedId, otherName, score) VALUES (:id, :relatedId, :otherName, :score);")
+  int insert(@BindWithRosetta TestRelatedObject object);
+
+  @SqlUpdate("INSERT INTO test_subtyped_nested_table (color, relatedId, dangerLevel) VALUES (:color, :relatedId, :dangerLevel);")
+  int insert(@BindWithRosetta TestRedNestedObject object);
+
+  @SqlUpdate("INSERT INTO test_subtyped_nested_table (color, relatedId, relaxSong, relaxLevel) VALUES (:color, :relatedId, :relaxSong, :relaxLevel);")
+  int insert(@BindWithRosetta TestGreenNestedObject object);
 }
