@@ -1,10 +1,9 @@
 package com.hubspot.rosetta.beans;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hubspot.rosetta.annotations.StoredAsJson;
+import java.util.Map;
 
 public class MapStoredAsJsonBean {
 

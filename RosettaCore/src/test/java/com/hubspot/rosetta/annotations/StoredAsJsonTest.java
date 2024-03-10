@@ -2,14 +2,6 @@ package com.hubspot.rosetta.annotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
@@ -39,16 +31,30 @@ import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class StoredAsJsonTest {
+
   private StoredAsJsonBean bean;
   private InnerBean inner;
-  private final JsonNode innerJsonNode = Rosetta.getMapper().createObjectNode().set("stringProperty", TextNode.valueOf("value"));
+  private final JsonNode innerJsonNode = Rosetta
+    .getMapper()
+    .createObjectNode()
+    .set("stringProperty", TextNode.valueOf("value"));
   private final JsonNode expected = TextNode.valueOf("{\"stringProperty\":\"value\"}");
-  private final JsonNode expectedBinary = BinaryNode.valueOf(expected.textValue().getBytes(StandardCharsets.UTF_8));
+  private final JsonNode expectedBinary = BinaryNode.valueOf(
+    expected.textValue().getBytes(StandardCharsets.UTF_8)
+  );
 
   private StoredAsJsonTypeInfoBean typeInfoBean;
-  private final JsonNode expectedTypeInfo = TextNode.valueOf("{\"concreteValue\":\"internal\",\"generalValue\":\"General\",\"type\":\"concrete\"}");
+  private final JsonNode expectedTypeInfo = TextNode.valueOf(
+    "{\"concreteValue\":\"internal\",\"generalValue\":\"General\",\"type\":\"concrete\"}"
+  );
 
   @Before
   public void setup() {
@@ -68,7 +74,8 @@ public class StoredAsJsonTest {
   public void testAnnotatedFieldSerialization() {
     bean.setAnnotatedField(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedField")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedField"))
+      .isEqualTo(expected);
   }
 
   @Test
@@ -82,7 +89,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testAnnotatedFieldNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedField")).isEqualTo(NullNode.getInstance());
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedField"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -98,7 +106,8 @@ public class StoredAsJsonTest {
   public void testAnnotatedGetterSerialization() {
     bean.setAnnotatedGetter(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetter")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetter"))
+      .isEqualTo(expected);
   }
 
   @Test
@@ -112,8 +121,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testAnnotatedGetterNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetter")).isEqualTo(NullNode.getInstance());
-
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetter"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -129,7 +138,8 @@ public class StoredAsJsonTest {
   public void testAnnotatedSetterSerialization() {
     bean.setAnnotatedSetter(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetter")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetter"))
+      .isEqualTo(expected);
   }
 
   @Test
@@ -143,7 +153,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testAnnotatedSetterNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetter")).isEqualTo(NullNode.getInstance());
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetter"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -159,97 +170,116 @@ public class StoredAsJsonTest {
   public void testAnnotatedFieldWithDefaultSerialization() {
     bean.setAnnotatedFieldWithDefault(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedFieldWithDefault")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedFieldWithDefault"))
+      .isEqualTo(expected);
   }
 
   @Test
-  public void testAnnotatedFieldWithDefaultDeserialization() throws JsonProcessingException {
+  public void testAnnotatedFieldWithDefaultDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("annotatedFieldWithDefault", expected);
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
-    assertThat(bean.getAnnotatedFieldWithDefault().getStringProperty()).isEqualTo("value");
+    assertThat(bean.getAnnotatedFieldWithDefault().getStringProperty())
+      .isEqualTo("value");
   }
 
   @Test
   public void testAnnotatedFieldWithDefaultNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedFieldWithDefault")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedFieldWithDefault"))
+      .isEqualTo(expected);
   }
 
   @Test
-  public void testAnnotatedFieldWithDefaultNullDeserialization() throws JsonProcessingException {
+  public void testAnnotatedFieldWithDefaultNullDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("annotatedFieldWithDefault", NullNode.getInstance());
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
-    assertThat(bean.getAnnotatedFieldWithDefault().getStringProperty()).isEqualTo("value");
+    assertThat(bean.getAnnotatedFieldWithDefault().getStringProperty())
+      .isEqualTo("value");
   }
 
   @Test
   public void testAnnotatedGetterWithDefaultSerialization() {
     bean.setAnnotatedGetterWithDefault(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetterWithDefault")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetterWithDefault"))
+      .isEqualTo(expected);
   }
 
   @Test
-  public void testAnnotatedGetterWithDefaultDeserialization() throws JsonProcessingException {
+  public void testAnnotatedGetterWithDefaultDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("annotatedGetterWithDefault", expected);
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
-    assertThat(bean.getAnnotatedGetterWithDefault().getStringProperty()).isEqualTo("value");
+    assertThat(bean.getAnnotatedGetterWithDefault().getStringProperty())
+      .isEqualTo("value");
   }
 
   @Test
   public void testAnnotatedGetterWithDefaultNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetterWithDefault")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedGetterWithDefault"))
+      .isEqualTo(expected);
   }
 
   @Test
-  public void testAnnotatedGetterWithDefaultNullDeserialization() throws JsonProcessingException {
+  public void testAnnotatedGetterWithDefaultNullDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("annotatedGetterWithDefault", NullNode.getInstance());
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
-    assertThat(bean.getAnnotatedGetterWithDefault().getStringProperty()).isEqualTo("value");
+    assertThat(bean.getAnnotatedGetterWithDefault().getStringProperty())
+      .isEqualTo("value");
   }
 
   @Test
   public void testAnnotatedSetterWithDefaultSerialization() {
     bean.setAnnotatedSetterWithDefault(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetterWithDefault")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetterWithDefault"))
+      .isEqualTo(expected);
   }
 
   @Test
-  public void testAnnotatedSetterWithDefaultDeserialization() throws JsonProcessingException {
+  public void testAnnotatedSetterWithDefaultDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("annotatedSetterWithDefault", expected);
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
-    assertThat(bean.getAnnotatedSetterWithDefault().getStringProperty()).isEqualTo("value");
+    assertThat(bean.getAnnotatedSetterWithDefault().getStringProperty())
+      .isEqualTo("value");
   }
 
   @Test
   public void testAnnotatedSetterWithDefaultNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetterWithDefault")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("annotatedSetterWithDefault"))
+      .isEqualTo(expected);
   }
 
   @Test
-  public void testAnnotatedSetterWithDefaultNullDeserialization() throws JsonProcessingException {
+  public void testAnnotatedSetterWithDefaultNullDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("annotatedSetterWithDefault", NullNode.getInstance());
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
-    assertThat(bean.getAnnotatedSetterWithDefault().getStringProperty()).isEqualTo("value");
+    assertThat(bean.getAnnotatedSetterWithDefault().getStringProperty())
+      .isEqualTo("value");
   }
 
   @Test
   public void testOptionalFieldSerialization() {
     bean.setOptionalField(Optional.of(inner));
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalField")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalField"))
+      .isEqualTo(expected);
   }
 
   @Test
@@ -264,7 +294,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testOptionalFieldNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalField")).isEqualTo(NullNode.getInstance());
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalField"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -281,7 +312,8 @@ public class StoredAsJsonTest {
   public void testOptionalGetterSerialization() {
     bean.setOptionalGetter(Optional.of(inner));
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalGetter")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalGetter"))
+      .isEqualTo(expected);
   }
 
   @Test
@@ -296,8 +328,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testOptionalGetterNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalGetter")).isEqualTo(NullNode.getInstance());
-
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalGetter"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -314,7 +346,8 @@ public class StoredAsJsonTest {
   public void testOptionalSetterSerialization() {
     bean.setOptionalSetter(Optional.of(inner));
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalSetter")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalSetter"))
+      .isEqualTo(expected);
   }
 
   @Test
@@ -329,7 +362,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testOptionalSetterNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalSetter")).isEqualTo(NullNode.getInstance());
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalSetter"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -346,7 +380,8 @@ public class StoredAsJsonTest {
   public void testBinaryFieldSerialization() {
     bean.setBinaryField(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryField")).isEqualTo(expectedBinary);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryField"))
+      .isEqualTo(expectedBinary);
   }
 
   @Test
@@ -360,7 +395,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testBinaryFieldNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryField")).isEqualTo(NullNode.getInstance());
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryField"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -376,7 +412,8 @@ public class StoredAsJsonTest {
   public void testBinaryFieldWithDefaultSerialization() {
     bean.setBinaryFieldWithDefault(inner);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryFieldWithDefault")).isEqualTo(expectedBinary);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryFieldWithDefault"))
+      .isEqualTo(expectedBinary);
   }
 
   @Test
@@ -390,11 +427,13 @@ public class StoredAsJsonTest {
 
   @Test
   public void testBinaryFieldWithDefaultNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryFieldWithDefault")).isEqualTo(expectedBinary);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("binaryFieldWithDefault"))
+      .isEqualTo(expectedBinary);
   }
 
   @Test
-  public void testBinaryFieldWithDefaultNullDeserialization() throws JsonProcessingException {
+  public void testBinaryFieldWithDefaultNullDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("binaryFieldWithDefault", NullNode.getInstance());
 
@@ -406,7 +445,8 @@ public class StoredAsJsonTest {
   public void testJsonNodeFieldSerialization() {
     bean.setJsonNodeField(innerJsonNode);
 
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("jsonNodeField")).isEqualTo(expected);
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("jsonNodeField"))
+      .isEqualTo(expected);
   }
 
   @Test
@@ -420,7 +460,8 @@ public class StoredAsJsonTest {
 
   @Test
   public void testJsonNodeNullSerialization() {
-    assertThat(Rosetta.getMapper().valueToTree(bean).get("jsonNodeField")).isEqualTo(NullNode.getInstance());
+    assertThat(Rosetta.getMapper().valueToTree(bean).get("jsonNodeField"))
+      .isEqualTo(NullNode.getInstance());
   }
 
   @Test
@@ -441,17 +482,25 @@ public class StoredAsJsonTest {
     JsonNode node = Rosetta.getMapper().valueToTree(typeInfoBean);
     assertThat(node.get("innerBeans")).isEqualTo(expectedList);
 
-    assertThat(Rosetta.getMapper().treeToValue(node, StoredAsJsonListTypeInfoBean.class)
-                   .getInnerBeans()
-                   .get(0)
-                   .getStringProperty())
-        .isEqualTo("value");
+    assertThat(
+      Rosetta
+        .getMapper()
+        .treeToValue(node, StoredAsJsonListTypeInfoBean.class)
+        .getInnerBeans()
+        .get(0)
+        .getStringProperty()
+    )
+      .isEqualTo("value");
 
-    assertThat(Rosetta.getMapper().treeToValue(node, ConcreteStoredAsJsonList.class)
-                   .getInnerBeans()
-                   .get(0)
-                   .getStringProperty())
-        .isEqualTo("value");
+    assertThat(
+      Rosetta
+        .getMapper()
+        .treeToValue(node, ConcreteStoredAsJsonList.class)
+        .getInnerBeans()
+        .get(0)
+        .getStringProperty()
+    )
+      .isEqualTo("value");
   }
 
   @Test
@@ -459,20 +508,27 @@ public class StoredAsJsonTest {
     bean.setOptionalTypeInfoField(Optional.of(typeInfoBean));
 
     assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoField"))
-        .isEqualTo(expectedTypeInfo);
+      .isEqualTo(expectedTypeInfo);
   }
 
   @Test
-  public void itHandlesAnnotatedOptionalGenericFieldDeserialization() throws JsonProcessingException {
+  public void itHandlesAnnotatedOptionalGenericFieldDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("optionalTypeInfoField", expectedTypeInfo);
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
     assertThat(bean.getOptionalTypeInfoField().isPresent()).isTrue();
-    assertThat(bean.getOptionalTypeInfoField().get()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
-    assertThat(bean.getOptionalTypeInfoField().get().getGeneralValue()).isEqualTo("General");
-    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoField().get()).getConcreteValue())
-        .isEqualTo("internal");
+    assertThat(bean.getOptionalTypeInfoField().get())
+      .isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getOptionalTypeInfoField().get().getGeneralValue())
+      .isEqualTo("General");
+    assertThat(
+      (
+        (ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoField().get()
+      ).getConcreteValue()
+    )
+      .isEqualTo("internal");
   }
 
   @Test
@@ -480,20 +536,27 @@ public class StoredAsJsonTest {
     bean.setOptionalTypeInfoGetter(Optional.of(typeInfoBean));
 
     assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoGetter"))
-        .isEqualTo(expectedTypeInfo);
+      .isEqualTo(expectedTypeInfo);
   }
 
   @Test
-  public void itHandlesAnnotatedOptionalGenericGetterDeserialization() throws JsonProcessingException {
+  public void itHandlesAnnotatedOptionalGenericGetterDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("optionalTypeInfoGetter", expectedTypeInfo);
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
     assertThat(bean.getOptionalTypeInfoGetter().isPresent()).isTrue();
-    assertThat(bean.getOptionalTypeInfoGetter().get()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
-    assertThat(bean.getOptionalTypeInfoGetter().get().getGeneralValue()).isEqualTo("General");
-    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoGetter().get()).getConcreteValue())
-        .isEqualTo("internal");
+    assertThat(bean.getOptionalTypeInfoGetter().get())
+      .isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getOptionalTypeInfoGetter().get().getGeneralValue())
+      .isEqualTo("General");
+    assertThat(
+      (
+        (ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoGetter().get()
+      ).getConcreteValue()
+    )
+      .isEqualTo("internal");
   }
 
   @Test
@@ -501,20 +564,27 @@ public class StoredAsJsonTest {
     bean.setOptionalTypeInfoSetter(Optional.of(typeInfoBean));
 
     assertThat(Rosetta.getMapper().valueToTree(bean).get("optionalTypeInfoSetter"))
-        .isEqualTo(expectedTypeInfo);
+      .isEqualTo(expectedTypeInfo);
   }
 
   @Test
-  public void itHandlesAnnotatedOptionalGenericSetterDeserialization() throws JsonProcessingException {
+  public void itHandlesAnnotatedOptionalGenericSetterDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("optionalTypeInfoSetter", expectedTypeInfo);
 
     StoredAsJsonBean bean = Rosetta.getMapper().treeToValue(node, StoredAsJsonBean.class);
     assertThat(bean.getOptionalTypeInfoSetter().isPresent()).isTrue();
-    assertThat(bean.getOptionalTypeInfoSetter().get()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
-    assertThat(bean.getOptionalTypeInfoSetter().get().getGeneralValue()).isEqualTo("General");
-    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoSetter().get()).getConcreteValue())
-        .isEqualTo("internal");
+    assertThat(bean.getOptionalTypeInfoSetter().get())
+      .isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
+    assertThat(bean.getOptionalTypeInfoSetter().get().getGeneralValue())
+      .isEqualTo("General");
+    assertThat(
+      (
+        (ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoSetter().get()
+      ).getConcreteValue()
+    )
+      .isEqualTo("internal");
   }
 
   @Test
@@ -522,11 +592,12 @@ public class StoredAsJsonTest {
     bean.setTypeInfoField(typeInfoBean);
 
     assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoField"))
-        .isEqualTo(expectedTypeInfo);
+      .isEqualTo(expectedTypeInfo);
   }
 
   @Test
-  public void itHandlesAnnotatedGenericFieldDeserialization() throws JsonProcessingException {
+  public void itHandlesAnnotatedGenericFieldDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("typeInfoField", expectedTypeInfo);
 
@@ -534,8 +605,10 @@ public class StoredAsJsonTest {
     assertThat(bean.getTypeInfoField()).isNotNull();
     assertThat(bean.getTypeInfoField()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
     assertThat(bean.getTypeInfoField().getGeneralValue()).isEqualTo("General");
-    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoField()).getConcreteValue())
-        .isEqualTo("internal");
+    assertThat(
+      ((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoField()).getConcreteValue()
+    )
+      .isEqualTo("internal");
   }
 
   @Test
@@ -543,11 +616,12 @@ public class StoredAsJsonTest {
     bean.setTypeInfoGetter(typeInfoBean);
 
     assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoGetter"))
-        .isEqualTo(expectedTypeInfo);
+      .isEqualTo(expectedTypeInfo);
   }
 
   @Test
-  public void itHandlesAnnotatedGenericGetterDeserialization() throws JsonProcessingException {
+  public void itHandlesAnnotatedGenericGetterDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("typeInfoGetter", expectedTypeInfo);
 
@@ -555,8 +629,10 @@ public class StoredAsJsonTest {
     assertThat(bean.getTypeInfoGetter()).isNotNull();
     assertThat(bean.getTypeInfoGetter()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
     assertThat(bean.getTypeInfoGetter().getGeneralValue()).isEqualTo("General");
-    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoGetter()).getConcreteValue())
-        .isEqualTo("internal");
+    assertThat(
+      ((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoGetter()).getConcreteValue()
+    )
+      .isEqualTo("internal");
   }
 
   @Test
@@ -564,11 +640,12 @@ public class StoredAsJsonTest {
     bean.setTypeInfoSetter(typeInfoBean);
 
     assertThat(Rosetta.getMapper().valueToTree(bean).get("typeInfoSetter"))
-        .isEqualTo(expectedTypeInfo);
+      .isEqualTo(expectedTypeInfo);
   }
 
   @Test
-  public void itHandlesAnnotatedGenericSetterDeserialization() throws JsonProcessingException {
+  public void itHandlesAnnotatedGenericSetterDeserialization()
+    throws JsonProcessingException {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.put("typeInfoSetter", expectedTypeInfo);
 
@@ -576,8 +653,10 @@ public class StoredAsJsonTest {
     assertThat(bean.getTypeInfoSetter()).isNotNull();
     assertThat(bean.getTypeInfoSetter()).isInstanceOf(ConcreteStoredAsJsonTypeInfo.class);
     assertThat(bean.getTypeInfoSetter().getGeneralValue()).isEqualTo("General");
-    assertThat(((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoSetter()).getConcreteValue())
-        .isEqualTo("internal");
+    assertThat(
+      ((ConcreteStoredAsJsonTypeInfo) bean.getTypeInfoSetter()).getConcreteValue()
+    )
+      .isEqualTo("internal");
   }
 
   @Test
@@ -593,7 +672,8 @@ public class StoredAsJsonTest {
     top.setAnnotatedField(storedAsJsonBean);
 
     JsonNode node = Rosetta.getMapper().valueToTree(top);
-    assertThat(Rosetta.getMapper().treeToValue(node, NestedStoredAsJsonBean.class)).isEqualTo(top);
+    assertThat(Rosetta.getMapper().treeToValue(node, NestedStoredAsJsonBean.class))
+      .isEqualTo(top);
   }
 
   @Test
@@ -605,7 +685,13 @@ public class StoredAsJsonTest {
     assertThat(node.get("annotatedField")).isNotNull();
     assertThat(node.get("annotatedField").hasNonNull("beanType"));
 
-    assertThat(Rosetta.getMapper().treeToValue(node, PolymorphicStoredAsJsonBean.class).getAnnotatedField()).isInstanceOf(PolymorphicBeanA.class);
+    assertThat(
+      Rosetta
+        .getMapper()
+        .treeToValue(node, PolymorphicStoredAsJsonBean.class)
+        .getAnnotatedField()
+    )
+      .isInstanceOf(PolymorphicBeanA.class);
   }
 
   @Test
@@ -620,7 +706,9 @@ public class StoredAsJsonTest {
 
   @Test
   public void testSerializingOptionalStoredAsJsonBean() {
-    OptionalStoredAsJsonBean bean = new OptionalStoredAsJsonBean(java.util.Optional.of(new PolymorphicBeanA()));
+    OptionalStoredAsJsonBean bean = new OptionalStoredAsJsonBean(
+      java.util.Optional.of(new PolymorphicBeanA())
+    );
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("bean")).isNotNull();
@@ -629,7 +717,9 @@ public class StoredAsJsonTest {
 
   @Test
   public void testSerializingOptionalStoredAsJsonSubtypeBean() {
-    OptionalStoredAsJsonBean bean = new OptionalStoredAsJsonBean(java.util.Optional.of(new PolymorphicBeanASubTypeA()));
+    OptionalStoredAsJsonBean bean = new OptionalStoredAsJsonBean(
+      java.util.Optional.of(new PolymorphicBeanASubTypeA())
+    );
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("bean")).isNotNull();
@@ -638,7 +728,9 @@ public class StoredAsJsonTest {
 
   @Test
   public void testSerializingListStoredAsJsonBean() {
-    ListStoredAsJsonBean bean = new ListStoredAsJsonBean(Arrays.asList(new PolymorphicBeanA()));
+    ListStoredAsJsonBean bean = new ListStoredAsJsonBean(
+      Arrays.asList(new PolymorphicBeanA())
+    );
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("beans")).isNotNull();
@@ -647,7 +739,9 @@ public class StoredAsJsonTest {
 
   @Test
   public void testSerializingMapStoredAsJsonBean() {
-    MapStoredAsJsonBean bean = new MapStoredAsJsonBean(ImmutableMap.of("A", new PolymorphicBeanA()));
+    MapStoredAsJsonBean bean = new MapStoredAsJsonBean(
+      ImmutableMap.of("A", new PolymorphicBeanA())
+    );
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("beans")).isNotNull();
@@ -656,7 +750,9 @@ public class StoredAsJsonTest {
 
   @Test
   public void testSerializingSetStoredAsJsonBean() {
-    SetStoredAsJsonBean bean = new SetStoredAsJsonBean(ImmutableSet.of(new PolymorphicBeanA()));
+    SetStoredAsJsonBean bean = new SetStoredAsJsonBean(
+      ImmutableSet.of(new PolymorphicBeanA())
+    );
 
     JsonNode node = Rosetta.getMapper().valueToTree(bean);
     assertThat(node.get("beans")).isNotNull();
@@ -666,9 +762,15 @@ public class StoredAsJsonTest {
   @Test
   public void testSerializingOptionalStoredAsJsonTypeInfoBean() throws Exception {
     Polymorph polymorph = () -> "lambda";
-    OptionalStoredAsJsonTypeInfoBean bean = new OptionalStoredAsJsonTypeInfoBean(polymorph);
+    OptionalStoredAsJsonTypeInfoBean bean = new OptionalStoredAsJsonTypeInfoBean(
+      polymorph
+    );
 
-    String actual = Rosetta.getMapper().valueToTree(bean).get("polymorphicField").textValue();
+    String actual = Rosetta
+      .getMapper()
+      .valueToTree(bean)
+      .get("polymorphicField")
+      .textValue();
     String expected = Rosetta.getMapper().valueToTree(polymorph).toString();
 
     assertThat(actual).isEqualTo(expected);
@@ -679,6 +781,8 @@ public class StoredAsJsonTest {
     ObjectNode node = Rosetta.getMapper().createObjectNode();
     node.putObject("bean").put("beanType", "C").put("value", "test");
 
-    FieldBeanStoredAsJson res = Rosetta.getMapper().readValue(node.toString(), FieldBeanStoredAsJson.class);
+    FieldBeanStoredAsJson res = Rosetta
+      .getMapper()
+      .readValue(node.toString(), FieldBeanStoredAsJson.class);
   }
 }

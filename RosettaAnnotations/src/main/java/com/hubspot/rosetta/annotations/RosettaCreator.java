@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * expose that same representation to the outside via normal JSON serialization.
  *
  */
-@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
 public @interface RosettaCreator {

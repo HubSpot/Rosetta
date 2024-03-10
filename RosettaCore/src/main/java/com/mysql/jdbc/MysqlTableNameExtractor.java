@@ -1,7 +1,6 @@
 package com.mysql.jdbc;
 
 import com.hubspot.rosetta.internal.TableNameExtractor;
-
 import java.sql.SQLException;
 
 /**
@@ -14,7 +13,8 @@ import java.sql.SQLException;
 public class MysqlTableNameExtractor implements TableNameExtractor {
 
   @Override
-  public String getTableName(java.sql.ResultSetMetaData metaData, int columnIndex) throws SQLException {
+  public String getTableName(java.sql.ResultSetMetaData metaData, int columnIndex)
+    throws SQLException {
     if (metaData instanceof ResultSetMetaData) {
       ResultSetMetaData mysqlMetaData = (ResultSetMetaData) metaData;
       try {

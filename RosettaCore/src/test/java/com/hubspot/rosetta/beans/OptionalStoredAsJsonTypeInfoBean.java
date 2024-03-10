@@ -7,6 +7,7 @@ import com.google.common.base.Optional;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 
 public class OptionalStoredAsJsonTypeInfoBean {
+
   private final Optional<Polymorph> polymorphicField;
 
   public OptionalStoredAsJsonTypeInfoBean(Polymorph polymorphicField) {

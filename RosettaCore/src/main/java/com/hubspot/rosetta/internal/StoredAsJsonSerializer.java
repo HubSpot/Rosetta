@@ -1,8 +1,5 @@
 package com.hubspot.rosetta.internal;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
@@ -15,8 +12,13 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import java.io.IOException;
+import java.lang.reflect.Type;
 
-public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> implements ContextualSerializer {
+public class StoredAsJsonSerializer<T>
+  extends NonTypedScalarSerializerBase<T>
+  implements ContextualSerializer {
+
   private static final StringSerializer DELEGATE = new StringSerializer();
 
   public StoredAsJsonSerializer(Class<T> t) {
@@ -24,7 +26,8 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
   }
 
   @Override
-  public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+  public void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
+    throws IOException {
     ObjectMapper mapper = (ObjectMapper) jgen.getCodec();
     JsonNode tree = mapper.valueToTree(value);
     if (tree.isNull()) {
@@ -40,7 +43,10 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
   }
 
   @Override
-  public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+  public void acceptJsonFormatVisitor(
+    JsonFormatVisitorWrapper visitor,
+    JavaType typeHint
+  ) {
     // try/catch is for 2.1.x compatibility
     try {
       DELEGATE.acceptJsonFormatVisitor(visitor, typeHint);
@@ -50,13 +56,17 @@ public class StoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> i
   }
 
   @Override
-  public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
+  public JsonSerializer<?> createContextual(
+    SerializerProvider prov,
+    BeanProperty property
+  ) throws JsonMappingException {
     if (property == null) {
       return this;
     } else {
       return new ContextualStoredAsJsonSerializer<T>(handledType(), property) {
         @Override
-        public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
+          throws IOException {
           serializeAsString(value, gen, provider);
         }
       };

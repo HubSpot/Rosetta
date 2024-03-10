@@ -8,12 +8,13 @@ import java.lang.annotation.Target;
 /**
  * Indicate that a field is stored as a JSON blob that should be deserialized individually.
  */
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
 public @interface StoredAsJson {
   String NULL = "___null___";
 
   String empty() default NULL;
+
   boolean binary() default false;
 }

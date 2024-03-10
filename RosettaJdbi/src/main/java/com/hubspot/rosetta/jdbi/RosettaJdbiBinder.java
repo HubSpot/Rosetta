@@ -1,11 +1,10 @@
 package com.hubspot.rosetta.jdbi;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.RosettaBinder;
 import com.hubspot.rosetta.RosettaBinder.Callback;
 import org.skife.jdbi.v2.SQLStatement;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import org.skife.jdbi.v2.sqlobject.Binder;
 
 public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
@@ -23,12 +22,15 @@ public enum RosettaJdbiBinder implements Binder<BindWithRosetta, Object> {
       prefix = "";
     }
 
-    RosettaBinder.INSTANCE.bind(prefix, node, new Callback() {
-
-      @Override
-      public void bind(String key, Object value) {
-        q.bind(key, value);
+    RosettaBinder.INSTANCE.bind(
+      prefix,
+      node,
+      new Callback() {
+        @Override
+        public void bind(String key, Object value) {
+          q.bind(key, value);
+        }
       }
-    });
+    );
   }
 }

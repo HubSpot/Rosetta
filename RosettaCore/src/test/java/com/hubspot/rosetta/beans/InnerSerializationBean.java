@@ -1,7 +1,5 @@
 package com.hubspot.rosetta.beans;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -11,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.hubspot.rosetta.annotations.RosettaDeserialize;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
+import java.io.IOException;
 
 @RosettaSerialize(using = InnerSerializationBean.InnerBeanSeralizer.class)
 @RosettaDeserialize(using = InnerSerializationBean.InnerBeanDeserializer.class)
@@ -46,18 +45,21 @@ public class InnerSerializationBean {
   public static class InnerBeanSeralizer extends JsonSerializer<InnerSerializationBean> {
 
     @Override
-    public void serialize(InnerSerializationBean value,
-                          JsonGenerator gen,
-                          SerializerProvider serializers) throws IOException {
+    public void serialize(
+      InnerSerializationBean value,
+      JsonGenerator gen,
+      SerializerProvider serializers
+    ) throws IOException {
       gen.writeString(String.format("%s:%s", value.getPrefix(), value.getSuffix()));
     }
   }
 
-  public static class InnerBeanDeserializer extends JsonDeserializer<InnerSerializationBean> {
+  public static class InnerBeanDeserializer
+    extends JsonDeserializer<InnerSerializationBean> {
 
     @Override
-    public InnerSerializationBean deserialize(JsonParser p,
-                                              DeserializationContext ctxt) throws IOException {
+    public InnerSerializationBean deserialize(JsonParser p, DeserializationContext ctxt)
+      throws IOException {
       if (p.hasToken(JsonToken.VALUE_STRING)) {
         String[] values = p.getText().split(":");
         return new InnerSerializationBean(values[0], values[1]);

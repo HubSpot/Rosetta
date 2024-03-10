@@ -5,6 +5,7 @@ import com.hubspot.rosetta.annotations.RosettaNaming;
 
 @RosettaNaming(LowerCaseWithUnderscoresStrategy.class)
 public class RosettaNamingBean {
+
   private String stringProperty;
 
   public String getStringProperty() {

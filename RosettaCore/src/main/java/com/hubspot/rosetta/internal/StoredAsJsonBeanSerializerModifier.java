@@ -1,13 +1,12 @@
 package com.hubspot.rosetta.internal;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.hubspot.rosetta.annotations.StoredAsJson;
+import java.util.List;
 
 /**
  * Handles empty serialization for properties annotated with {@link com.hubspot.rosetta.annotations.StoredAsJson}
@@ -16,7 +15,11 @@ import com.hubspot.rosetta.annotations.StoredAsJson;
 public class StoredAsJsonBeanSerializerModifier extends BeanSerializerModifier {
 
   @Override
-  public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+  public List<BeanPropertyWriter> changeProperties(
+    SerializationConfig config,
+    BeanDescription beanDesc,
+    List<BeanPropertyWriter> beanProperties
+  ) {
     for (BeanPropertyWriter beanProperty : beanProperties) {
       StoredAsJson storedAsJson = beanProperty.getAnnotation(StoredAsJson.class);
       if (storedAsJson != null && !StoredAsJson.NULL.equals(storedAsJson.empty())) {

@@ -6,25 +6,30 @@ import com.google.common.base.Optional;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 
 public class StoredAsJsonBean {
+
   private static final CastToSuper CAST_TO_SUPER = new CastToSuper();
 
   @StoredAsJson
   private InnerBean annotatedField;
+
   private InnerBean annotatedGetter;
   private InnerBean annotatedSetter;
 
   @StoredAsJson(empty = "{\"stringProperty\":\"value\"}")
   private InnerBean annotatedFieldWithDefault;
+
   private InnerBean annotatedGetterWithDefault;
   private InnerBean annotatedSetterWithDefault;
 
   @StoredAsJson
   private Optional<InnerBean> optionalField;
+
   private Optional<InnerBean> optionalGetter;
   private Optional<InnerBean> optionalSetter;
 
   @StoredAsJson(binary = true)
   private InnerBean binaryField;
+
   @StoredAsJson(binary = true, empty = "{\"stringProperty\":\"value\"}")
   private InnerBean binaryFieldWithDefault;
 
@@ -33,11 +38,13 @@ public class StoredAsJsonBean {
 
   @StoredAsJson
   private Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoField;
+
   private Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoGetter;
   private Optional<StoredAsJsonTypeInfoBean> optionalTypeInfoSetter;
 
   @StoredAsJson
   private StoredAsJsonTypeInfoBean typeInfoField;
+
   private StoredAsJsonTypeInfoBean typeInfoGetter;
   private StoredAsJsonTypeInfoBean typeInfoSetter;
 
@@ -150,7 +157,9 @@ public class StoredAsJsonBean {
     return optionalTypeInfoField;
   }
 
-  public void setOptionalTypeInfoField(Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoField) {
+  public void setOptionalTypeInfoField(
+    Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoField
+  ) {
     this.optionalTypeInfoField = optionalTypeInfoField.transform(CAST_TO_SUPER);
   }
 
@@ -159,7 +168,9 @@ public class StoredAsJsonBean {
     return optionalTypeInfoGetter;
   }
 
-  public void setOptionalTypeInfoGetter(Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoGetter) {
+  public void setOptionalTypeInfoGetter(
+    Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoGetter
+  ) {
     this.optionalTypeInfoGetter = optionalTypeInfoGetter.transform(CAST_TO_SUPER);
   }
 
@@ -168,7 +179,9 @@ public class StoredAsJsonBean {
   }
 
   @StoredAsJson
-  public void setOptionalTypeInfoSetter(Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoSetter) {
+  public void setOptionalTypeInfoSetter(
+    Optional<? extends StoredAsJsonTypeInfoBean> optionalTypeInfoSetter
+  ) {
     this.optionalTypeInfoSetter = optionalTypeInfoSetter.transform(CAST_TO_SUPER);
   }
 
@@ -199,6 +212,7 @@ public class StoredAsJsonBean {
   }
 
   private static class CastToSuper<U extends T, T> implements Function<U, T> {
+
     @Override
     public T apply(U input) {
       return input;

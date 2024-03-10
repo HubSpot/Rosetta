@@ -1,12 +1,12 @@
 package com.hubspot.rosetta.jdbi3;
 
-import org.jdbi.v3.core.config.JdbiConfig;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.Rosetta;
 import com.hubspot.rosetta.internal.RosettaModule;
+import org.jdbi.v3.core.config.JdbiConfig;
 
 public class RosettaObjectMapper implements JdbiConfig<RosettaObjectMapper> {
+
   private ObjectMapper objectMapper;
 
   public RosettaObjectMapper() {
