@@ -1,7 +1,10 @@
 package com.hubspot.rosetta.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class SqlTableNameExtractor {
 
+  @SuppressFBWarnings("CT_CONSTRUCTOR_THROW")
   private SqlTableNameExtractor() {
     throw new AssertionError();
   }
