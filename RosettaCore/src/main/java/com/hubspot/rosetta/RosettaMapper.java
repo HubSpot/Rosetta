@@ -1,5 +1,8 @@
 package com.hubspot.rosetta;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hubspot.rosetta.internal.TableNameExtractor;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -8,10 +11,6 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hubspot.rosetta.internal.TableNameExtractor;
-
 /**
  * Core mapping functionality.
  *
@@ -19,6 +18,7 @@ import com.hubspot.rosetta.internal.TableNameExtractor;
  * those values to a * <code>type</code> instance.
  */
 public class RosettaMapper<T> {
+
   private static TableNameExtractor TABLE_NAME_EXTRACTOR = chooseTableNameExtractor();
 
   private final JavaType type;
@@ -73,7 +73,8 @@ public class RosettaMapper<T> {
       }
 
       // don't use table name extractor because we don't want aliased table name
-      boolean overwrite = this.tableName != null && this.tableName.equals(metadata.getTableName(i));
+      boolean overwrite =
+        this.tableName != null && this.tableName.equals(metadata.getTableName(i));
       String tableName = TABLE_NAME_EXTRACTOR.getTableName(metadata, i);
       if (tableName != null && !tableName.isEmpty()) {
         String qualifiedName = tableName + "." + metadata.getColumnName(i);
@@ -86,7 +87,12 @@ public class RosettaMapper<T> {
     return objectMapper.convertValue(map, type);
   }
 
-  private void add(Map<String, Object> map, String label, Object value, boolean overwrite) {
+  private void add(
+    Map<String, Object> map,
+    String label,
+    Object value,
+    boolean overwrite
+  ) {
     if (label.contains(".")) {
       int periodIndex = label.indexOf('.');
       String prefix = label.substring(0, periodIndex);
@@ -110,7 +116,9 @@ public class RosettaMapper<T> {
   private static TableNameExtractor chooseTableNameExtractor() {
     try {
       Class.forName("com.mysql.jdbc.ResultSetMetaData");
-      return (TableNameExtractor) Class.forName("com.mysql.jdbc.MysqlTableNameExtractor").newInstance();
+      return (TableNameExtractor) Class
+        .forName("com.mysql.jdbc.MysqlTableNameExtractor")
+        .newInstance();
     } catch (Exception e) {
       return new TableNameExtractor.Default();
     }

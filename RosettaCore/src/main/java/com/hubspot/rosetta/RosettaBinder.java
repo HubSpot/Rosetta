@@ -21,12 +21,16 @@ public enum RosettaBinder {
       if (!field.isEmpty()) {
         value = value.path(field);
         if (value.isMissingNode()) {
-          throw new IllegalArgumentException(String.format("Field %s does not exist in elements of input array", field));
+          throw new IllegalArgumentException(
+            String.format("Field %s does not exist in elements of input array", field)
+          );
         }
       }
 
       if (!value.isValueNode()) {
-        throw new IllegalArgumentException("Binding non-value types as a list is not supported");
+        throw new IllegalArgumentException(
+          "Binding non-value types as a list is not supported"
+        );
       } else {
         valueConsumer.accept(unwrapJsonValue(value));
       }
@@ -34,7 +38,10 @@ public enum RosettaBinder {
   }
 
   public void bind(String prefix, JsonNode node, Callback callback) {
-    for (Iterator<Entry<String, JsonNode>> iterator = node.fields(); iterator.hasNext(); ) {
+    for (
+      Iterator<Entry<String, JsonNode>> iterator = node.fields();
+      iterator.hasNext();
+    ) {
       Entry<String, JsonNode> field = iterator.next();
       String key = prefix.isEmpty() ? field.getKey() : prefix + "." + field.getKey();
       JsonNode value = field.getValue();

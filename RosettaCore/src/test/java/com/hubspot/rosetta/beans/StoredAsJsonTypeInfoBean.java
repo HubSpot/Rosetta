@@ -8,16 +8,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
 
 @JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = ConcreteStoredAsJsonTypeInfo.class, name = "concrete")
-})
+@JsonSubTypes(
+  { @JsonSubTypes.Type(value = ConcreteStoredAsJsonTypeInfo.class, name = "concrete") }
+)
 @JsonPropertyOrder(alphabetic = true)
 public interface StoredAsJsonTypeInfoBean {
-
   String getType();
   String getGeneralValue();
 
   class ConcreteStoredAsJsonTypeInfo implements StoredAsJsonTypeInfoBean {
+
     private String generalValue;
     private String concreteValue;
 

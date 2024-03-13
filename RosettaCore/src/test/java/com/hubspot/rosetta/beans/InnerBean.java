@@ -1,6 +1,7 @@
 package com.hubspot.rosetta.beans;
 
 public class InnerBean {
+
   private String stringProperty;
 
   public String getStringProperty() {

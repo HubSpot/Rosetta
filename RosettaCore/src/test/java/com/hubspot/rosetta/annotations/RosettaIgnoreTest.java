@@ -2,53 +2,50 @@ package com.hubspot.rosetta.annotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
-
-import org.junit.Test;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.hubspot.rosetta.Rosetta;
+import java.io.IOException;
+import org.junit.Test;
 
 public class RosettaIgnoreTest {
+
   private static final String JSON = JsonNodeFactory.instance
-      .objectNode()
-      .put("stringProperty", "value")
-      .toString();
+    .objectNode()
+    .put("stringProperty", "value")
+    .toString();
   private static final String JSON_WITH_IGNORED = JsonNodeFactory.instance
-      .objectNode()
-      .put("stringProperty", "value")
-      .put("ignoredProperty", "ignored")
-      .toString();
+    .objectNode()
+    .put("stringProperty", "value")
+    .put("ignoredProperty", "ignored")
+    .toString();
 
   @Test
   public void itIgnoresMethodsWhenSerializing() throws JsonProcessingException {
     IgnoreMethodBean bean = new IgnoreMethodBean();
-    assertThat(Rosetta.getMapper().writeValueAsString(bean))
-        .isEqualTo(JSON);
+    assertThat(Rosetta.getMapper().writeValueAsString(bean)).isEqualTo(JSON);
   }
 
   @Test
   public void itIgnoresFieldsWhenSerializing() throws JsonProcessingException {
     IgnoreFieldBean bean = new IgnoreFieldBean();
-    assertThat(Rosetta.getMapper().writeValueAsString(bean))
-        .isEqualTo(JSON);
+    assertThat(Rosetta.getMapper().writeValueAsString(bean)).isEqualTo(JSON);
   }
 
   @Test
   public void itIgnoresIdenticallyNamedProperties() throws JsonProcessingException {
     DuplicatePropertiesBean bean = new DuplicatePropertiesBean();
-    assertThat(Rosetta.getMapper().writeValueAsString(bean))
-        .isEqualTo(JSON);
+    assertThat(Rosetta.getMapper().writeValueAsString(bean)).isEqualTo(JSON);
   }
 
   @Test
   public void itIgnoresMethodsWhenDeserializing() throws IOException {
-    IgnoreFieldMethodSetterBean bean = Rosetta.getMapper()
-        .readValue(JSON_WITH_IGNORED, IgnoreFieldMethodSetterBean.class);
+    IgnoreFieldMethodSetterBean bean = Rosetta
+      .getMapper()
+      .readValue(JSON_WITH_IGNORED, IgnoreFieldMethodSetterBean.class);
     assertThat(bean).isNotNull();
     assertThat(bean.stringProperty).isEqualTo("value");
     assertThat(bean.ignoredProperty).isNull();
@@ -56,8 +53,9 @@ public class RosettaIgnoreTest {
 
   @Test
   public void itIgnoresFieldsWhenDeserializing() throws IOException {
-    IgnoreFieldSetterBean bean = Rosetta.getMapper()
-        .readValue(JSON_WITH_IGNORED, IgnoreFieldSetterBean.class);
+    IgnoreFieldSetterBean bean = Rosetta
+      .getMapper()
+      .readValue(JSON_WITH_IGNORED, IgnoreFieldSetterBean.class);
     assertThat(bean).isNotNull();
     assertThat(bean.stringProperty).isEqualTo("value");
     assertThat(bean.ignoredProperty).isNull();
@@ -65,8 +63,9 @@ public class RosettaIgnoreTest {
 
   @Test
   public void itIgnoresConstructorsWhenDeserializing() throws IOException {
-    IgnoreConstructorBean bean = Rosetta.getMapper()
-        .readValue(JSON_WITH_IGNORED, IgnoreConstructorBean.class);
+    IgnoreConstructorBean bean = Rosetta
+      .getMapper()
+      .readValue(JSON_WITH_IGNORED, IgnoreConstructorBean.class);
     assertThat(bean).isNotNull();
     assertThat(bean.stringProperty).isEqualTo("value");
     assertThat(bean.ignoredProperty).isNull();
@@ -76,7 +75,7 @@ public class RosettaIgnoreTest {
   public void itIgnoresJsonValueWhenSerializing() throws JsonProcessingException {
     IgnoreJsonValueBean bean = new IgnoreJsonValueBean();
     assertThat(Rosetta.getMapper().writeValueAsString(bean))
-        .isEqualTo(Integer.toString(bean.getId()));
+      .isEqualTo(Integer.toString(bean.getId()));
   }
 
   private static class IgnoreMethodBean {
@@ -92,6 +91,7 @@ public class RosettaIgnoreTest {
   }
 
   private static class IgnoreFieldBean {
+
     @JsonProperty
     private final String stringProperty = "value";
 
@@ -101,6 +101,7 @@ public class RosettaIgnoreTest {
   }
 
   private static class DuplicatePropertiesBean {
+
     @RosettaProperty("stringProperty")
     private final String includedProperty = "value";
 
@@ -110,6 +111,7 @@ public class RosettaIgnoreTest {
   }
 
   private static class IgnoreFieldMethodSetterBean {
+
     private String stringProperty;
     private String ignoredProperty;
 
@@ -124,6 +126,7 @@ public class RosettaIgnoreTest {
   }
 
   private static class IgnoreFieldSetterBean {
+
     @JsonProperty
     private String stringProperty;
 
@@ -133,6 +136,7 @@ public class RosettaIgnoreTest {
   }
 
   private static class IgnoreConstructorBean {
+
     @JsonProperty
     private String stringProperty;
 
@@ -145,8 +149,8 @@ public class RosettaIgnoreTest {
     @JsonCreator
     @RosettaIgnore
     IgnoreConstructorBean(
-        @JsonProperty("stringProperty") String stringProperty,
-        @JsonProperty("ignoredProperty") String ignoredProperty
+      @JsonProperty("stringProperty") String stringProperty,
+      @JsonProperty("ignoredProperty") String ignoredProperty
     ) {
       this.stringProperty = stringProperty;
       this.ignoredProperty = ignoredProperty;

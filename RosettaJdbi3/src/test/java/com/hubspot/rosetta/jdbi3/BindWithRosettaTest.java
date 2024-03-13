@@ -3,7 +3,6 @@ package com.hubspot.rosetta.jdbi3;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-
 import org.junit.Test;
 
 public class BindWithRosettaTest extends AbstractJdbiTest {
@@ -14,8 +13,9 @@ public class BindWithRosettaTest extends AbstractJdbiTest {
 
     getDao().insert(expected);
 
-    TestObject actual = getDao().withHandle(handle -> {
-      List<TestObject> results = handle
+    TestObject actual = getDao()
+      .withHandle(handle -> {
+        List<TestObject> results = handle
           .createQuery("SELECT * FROM test_table")
           .map((rs, ctx) -> {
             int id = rs.getInt("id");
@@ -25,9 +25,9 @@ public class BindWithRosettaTest extends AbstractJdbiTest {
           })
           .list();
 
-      assertThat(results).hasSize(1);
-      return results.get(0);
-    });
+        assertThat(results).hasSize(1);
+        return results.get(0);
+      });
 
     assertThat(actual).isEqualTo(expected);
   }

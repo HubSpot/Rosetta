@@ -1,92 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.hubspot</groupId>
-    <artifactId>basepom</artifactId>
-    <version>25.4</version>
-  </parent>
+    <parent>
+        <groupId>com.hubspot</groupId>
+        <artifactId>basepom</artifactId>
+        <version>59.4</version>
+    </parent>
 
-  <groupId>com.hubspot.rosetta</groupId>
-  <artifactId>Rosetta</artifactId>
-  <version>3.12.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <description>
-    Rosetta is a Java library that leverages Jackson to take the pain out of
-    mapping objects to/from the DB, designed to integrate seamlessly with jDBI.
-  </description>
+    <groupId>com.hubspot.rosetta</groupId>
+    <artifactId>Rosetta</artifactId>
+    <version>3.12.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <description>
+        Rosetta is a Java library that leverages Jackson to take the pain out of
+        mapping objects to/from the DB, designed to integrate seamlessly with jDBI.
+    </description>
 
-  <modules>
-    <module>RosettaAnnotations</module>
-    <module>RosettaCore</module>
-    <module>RosettaJdbi</module>
-    <module>RosettaJdbi3</module>
-    <module>RosettaImmutables</module>
-  </modules>
+    <modules>
+        <module>RosettaAnnotations</module>
+        <module>RosettaCore</module>
+        <module>RosettaJdbi</module>
+        <module>RosettaJdbi3</module>
+        <module>RosettaImmutables</module>
+    </modules>
 
-  <properties>
-    <dep.jackson.version>2.9.10</dep.jackson.version>
-    <dep.jackson-databind.version>2.9.10.4</dep.jackson-databind.version>
-  </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.hubspot.rosetta</groupId>
+                <artifactId>RosettaAnnotations</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hubspot.rosetta</groupId>
+                <artifactId>RosettaCore</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hubspot.rosetta</groupId>
+                <artifactId>RosettaCore</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.hubspot.rosetta</groupId>
+                <artifactId>RosettaJdbi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hubspot.rosetta</groupId>
+                <artifactId>RosettaJdbi3</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-core</artifactId>
+                <version>3.28.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-sqlobject</artifactId>
+                <version>3.28.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>2.1.210</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.hubspot.rosetta</groupId>
-        <artifactId>RosettaAnnotations</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.hubspot.rosetta</groupId>
-        <artifactId>RosettaCore</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.hubspot.rosetta</groupId>
-        <artifactId>RosettaCore</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-      </dependency>
-      <dependency>
-        <groupId>com.hubspot.rosetta</groupId>
-        <artifactId>RosettaJdbi</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.hubspot.rosetta</groupId>
-        <artifactId>RosettaJdbi3</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-core</artifactId>
-        <version>3.28.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-sqlobject</artifactId>
-        <version>3.28.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>2.1.210</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+    <developers>
+        <developer>
+            <name>Jonathan Haber</name>
+            <email>jhaber@hubspot.com</email>
+        </developer>
+    </developers>
 
-  <developers>
-    <developer>
-      <name>Jonathan Haber</name>
-      <email>jhaber@hubspot.com</email>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:git:git@github.com:HubSpot/Rosetta.git</connection>
-    <developerConnection>scm:git:git@github.com:HubSpot/Rosetta.git</developerConnection>
-    <url>git@github.com:HubSpot/Rosetta.git</url>
-    <tag>HEAD</tag>
-  </scm>
+    <scm>
+        <connection>scm:git:git@github.com:HubSpot/Rosetta.git</connection>
+        <developerConnection>scm:git:git@github.com:HubSpot/Rosetta.git</developerConnection>
+        <url>git@github.com:HubSpot/Rosetta.git</url>
+        <tag>HEAD</tag>
+    </scm>
 </project>

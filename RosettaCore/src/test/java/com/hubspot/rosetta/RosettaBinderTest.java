@@ -3,16 +3,6 @@ package com.hubspot.rosetta;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -28,6 +18,14 @@ import com.hubspot.rosetta.beans.RosettaNamingBean;
 import com.hubspot.rosetta.beans.ServiceLoaderBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.Test;
 
 public class RosettaBinderTest {
 
@@ -36,7 +34,8 @@ public class RosettaBinderTest {
     RosettaCreatorConstructorBean bean = new RosettaCreatorConstructorBean("value");
 
     assertThat(bind(bean)).isEqualTo(map("stringProperty", "value"));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.stringProperty", "value"));
+    assertThat(bindWithPrefix("prefix", bean))
+      .isEqualTo(map("prefix.stringProperty", "value"));
   }
 
   @Test
@@ -44,7 +43,8 @@ public class RosettaBinderTest {
     RosettaCreatorMethodBean bean = RosettaCreatorMethodBean.fromString("value");
 
     assertThat(bind(bean)).isEqualTo(map("stringProperty", "value"));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.stringProperty", "value"));
+    assertThat(bindWithPrefix("prefix", bean))
+      .isEqualTo(map("prefix.stringProperty", "value"));
   }
 
   @Test
@@ -53,7 +53,8 @@ public class RosettaBinderTest {
     bean.setStringProperty("value");
 
     assertThat(bind(bean)).isEqualTo(map("string_property", "value"));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.string_property", "value"));
+    assertThat(bindWithPrefix("prefix", bean))
+      .isEqualTo(map("prefix.string_property", "value"));
   }
 
   @Test
@@ -65,7 +66,10 @@ public class RosettaBinderTest {
     concrete.setGeneralValue("general");
     concrete.setConcreteValue("concrete");
 
-    JsonNode innerJsonNode = Rosetta.getMapper().createObjectNode().set("stringProperty", TextNode.valueOf("value"));
+    JsonNode innerJsonNode = Rosetta
+      .getMapper()
+      .createObjectNode()
+      .set("stringProperty", TextNode.valueOf("value"));
 
     StoredAsJsonBean bean = new StoredAsJsonBean();
     bean.setAnnotatedField(inner);
@@ -88,49 +92,92 @@ public class RosettaBinderTest {
     bean.setTypeInfoSetter(concrete);
 
     String json = "{\"stringProperty\":\"value\"}";
-    String typedJson = "{\"concreteValue\":\"concrete\",\"generalValue\":\"general\",\"type\":\"concrete\"}";
+    String typedJson =
+      "{\"concreteValue\":\"concrete\",\"generalValue\":\"general\",\"type\":\"concrete\"}";
     List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
 
-    assertThat(bind(bean)).containsAllEntriesOf(map(
-            "annotatedField", json,
-            "annotatedGetter", json,
-            "annotatedSetter", json,
-            "annotatedFieldWithDefault", json,
-            "annotatedGetterWithDefault", json,
-            "annotatedSetterWithDefault", json,
-            "optionalField", json,
-            "optionalGetter", json,
-            "optionalSetter", json,
-            "binaryField", bytes,
-            "binaryFieldWithDefault", bytes,
-            "jsonNodeField", json,
-            "optionalTypeInfoField", typedJson,
-            "optionalTypeInfoGetter", typedJson,
-            "optionalTypeInfoSetter", typedJson,
-            "typeInfoField", typedJson,
-            "typeInfoGetter", typedJson,
-            "typeInfoSetter", typedJson
-    ));
-    assertThat(bindWithPrefix("prefix", bean)).containsAllEntriesOf(map(
-            "prefix.annotatedField", json,
-            "prefix.annotatedGetter", json,
-            "prefix.annotatedSetter", json,
-            "prefix.annotatedFieldWithDefault", json,
-            "prefix.annotatedGetterWithDefault", json,
-            "prefix.annotatedSetterWithDefault", json,
-            "prefix.optionalField", json,
-            "prefix.optionalGetter", json,
-            "prefix.optionalSetter", json,
-            "prefix.binaryField", bytes,
-            "prefix.binaryFieldWithDefault", bytes,
-            "prefix.jsonNodeField", json,
-            "prefix.optionalTypeInfoField", typedJson,
-            "prefix.optionalTypeInfoGetter", typedJson,
-            "prefix.optionalTypeInfoSetter", typedJson,
-            "prefix.typeInfoField", typedJson,
-            "prefix.typeInfoGetter", typedJson,
-            "prefix.typeInfoSetter", typedJson
-    ));
+    assertThat(bind(bean))
+      .containsAllEntriesOf(
+        map(
+          "annotatedField",
+          json,
+          "annotatedGetter",
+          json,
+          "annotatedSetter",
+          json,
+          "annotatedFieldWithDefault",
+          json,
+          "annotatedGetterWithDefault",
+          json,
+          "annotatedSetterWithDefault",
+          json,
+          "optionalField",
+          json,
+          "optionalGetter",
+          json,
+          "optionalSetter",
+          json,
+          "binaryField",
+          bytes,
+          "binaryFieldWithDefault",
+          bytes,
+          "jsonNodeField",
+          json,
+          "optionalTypeInfoField",
+          typedJson,
+          "optionalTypeInfoGetter",
+          typedJson,
+          "optionalTypeInfoSetter",
+          typedJson,
+          "typeInfoField",
+          typedJson,
+          "typeInfoGetter",
+          typedJson,
+          "typeInfoSetter",
+          typedJson
+        )
+      );
+    assertThat(bindWithPrefix("prefix", bean))
+      .containsAllEntriesOf(
+        map(
+          "prefix.annotatedField",
+          json,
+          "prefix.annotatedGetter",
+          json,
+          "prefix.annotatedSetter",
+          json,
+          "prefix.annotatedFieldWithDefault",
+          json,
+          "prefix.annotatedGetterWithDefault",
+          json,
+          "prefix.annotatedSetterWithDefault",
+          json,
+          "prefix.optionalField",
+          json,
+          "prefix.optionalGetter",
+          json,
+          "prefix.optionalSetter",
+          json,
+          "prefix.binaryField",
+          bytes,
+          "prefix.binaryFieldWithDefault",
+          bytes,
+          "prefix.jsonNodeField",
+          json,
+          "prefix.optionalTypeInfoField",
+          typedJson,
+          "prefix.optionalTypeInfoGetter",
+          typedJson,
+          "prefix.optionalTypeInfoSetter",
+          typedJson,
+          "prefix.typeInfoField",
+          typedJson,
+          "prefix.typeInfoGetter",
+          typedJson,
+          "prefix.typeInfoSetter",
+          typedJson
+        )
+      );
   }
 
   @Test
@@ -140,46 +187,88 @@ public class RosettaBinderTest {
     String json = "{\"stringProperty\":\"value\"}";
     List<Byte> bytes = toList(json.getBytes(StandardCharsets.UTF_8));
 
-    assertThat(bind(bean)).containsAllEntriesOf(map(
-            "annotatedField", null,
-            "annotatedGetter", null,
-            "annotatedSetter", null,
-            "annotatedFieldWithDefault", json,
-            "annotatedGetterWithDefault", json,
-            "annotatedSetterWithDefault", json,
-            "optionalField", null,
-            "optionalGetter", null,
-            "optionalSetter", null,
-            "binaryField", null,
-            "binaryFieldWithDefault", bytes,
-            "jsonNodeField", null,
-            "optionalTypeInfoField", null,
-            "optionalTypeInfoGetter", null,
-            "optionalTypeInfoSetter", null,
-            "typeInfoField", null,
-            "typeInfoGetter", null,
-            "typeInfoSetter", null
-    ));
-    assertThat(bindWithPrefix("prefix", bean)).containsAllEntriesOf(map(
-            "prefix.annotatedField", null,
-            "prefix.annotatedGetter", null,
-            "prefix.annotatedSetter", null,
-            "prefix.annotatedFieldWithDefault", json,
-            "prefix.annotatedGetterWithDefault", json,
-            "prefix.annotatedSetterWithDefault", json,
-            "prefix.optionalField", null,
-            "prefix.optionalGetter", null,
-            "prefix.optionalSetter", null,
-            "prefix.binaryField", null,
-            "prefix.binaryFieldWithDefault", bytes,
-            "prefix.jsonNodeField", null,
-            "prefix.optionalTypeInfoField", null,
-            "prefix.optionalTypeInfoGetter", null,
-            "prefix.optionalTypeInfoSetter", null,
-            "prefix.typeInfoField", null,
-            "prefix.typeInfoGetter", null,
-            "prefix.typeInfoSetter", null
-    ));
+    assertThat(bind(bean))
+      .containsAllEntriesOf(
+        map(
+          "annotatedField",
+          null,
+          "annotatedGetter",
+          null,
+          "annotatedSetter",
+          null,
+          "annotatedFieldWithDefault",
+          json,
+          "annotatedGetterWithDefault",
+          json,
+          "annotatedSetterWithDefault",
+          json,
+          "optionalField",
+          null,
+          "optionalGetter",
+          null,
+          "optionalSetter",
+          null,
+          "binaryField",
+          null,
+          "binaryFieldWithDefault",
+          bytes,
+          "jsonNodeField",
+          null,
+          "optionalTypeInfoField",
+          null,
+          "optionalTypeInfoGetter",
+          null,
+          "optionalTypeInfoSetter",
+          null,
+          "typeInfoField",
+          null,
+          "typeInfoGetter",
+          null,
+          "typeInfoSetter",
+          null
+        )
+      );
+    assertThat(bindWithPrefix("prefix", bean))
+      .containsAllEntriesOf(
+        map(
+          "prefix.annotatedField",
+          null,
+          "prefix.annotatedGetter",
+          null,
+          "prefix.annotatedSetter",
+          null,
+          "prefix.annotatedFieldWithDefault",
+          json,
+          "prefix.annotatedGetterWithDefault",
+          json,
+          "prefix.annotatedSetterWithDefault",
+          json,
+          "prefix.optionalField",
+          null,
+          "prefix.optionalGetter",
+          null,
+          "prefix.optionalSetter",
+          null,
+          "prefix.binaryField",
+          null,
+          "prefix.binaryFieldWithDefault",
+          bytes,
+          "prefix.jsonNodeField",
+          null,
+          "prefix.optionalTypeInfoField",
+          null,
+          "prefix.optionalTypeInfoGetter",
+          null,
+          "prefix.optionalTypeInfoSetter",
+          null,
+          "prefix.typeInfoField",
+          null,
+          "prefix.typeInfoGetter",
+          null,
+          "prefix.typeInfoSetter",
+          null
+        )
+      );
   }
 
   @Test
@@ -191,7 +280,8 @@ public class RosettaBinderTest {
     bean.setInner(inner);
 
     assertThat(bind(bean)).isEqualTo(map("inner.stringProperty", "value"));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.inner.stringProperty", "value"));
+    assertThat(bindWithPrefix("prefix", bean))
+      .isEqualTo(map("prefix.inner.stringProperty", "value"));
   }
 
   @Test
@@ -211,13 +301,15 @@ public class RosettaBinderTest {
     bean.setName("test");
 
     assertThat(bind(bean)).isEqualTo(map("id_value", 50, "name_value", "test"));
-    assertThat(bindWithPrefix("prefix", bean)).isEqualTo(map("prefix.id_value", 50, "prefix.name_value", "test"));
+    assertThat(bindWithPrefix("prefix", bean))
+      .isEqualTo(map("prefix.id_value", 50, "prefix.name_value", "test"));
   }
 
   @Test
   public void itBindsListCorrectly() {
     assertThat(bindList(Arrays.asList(1, 2, 3))).isEqualTo(Arrays.asList(1, 2, 3));
-    assertThat(bindList(Arrays.asList(1, "test", 3))).isEqualTo(Arrays.asList(1, "test", 3));
+    assertThat(bindList(Arrays.asList(1, "test", 3)))
+      .isEqualTo(Arrays.asList(1, "test", 3));
   }
 
   @Test
@@ -226,7 +318,8 @@ public class RosettaBinderTest {
     RosettaCreatorConstructorBean two = new RosettaCreatorConstructorBean("two");
     RosettaCreatorConstructorBean three = new RosettaCreatorConstructorBean("three");
 
-    assertThat(bindList("stringProperty", Arrays.asList(one, two, three))).containsExactly("one", "two", "three");
+    assertThat(bindList("stringProperty", Arrays.asList(one, two, three)))
+      .containsExactly("one", "two", "three");
   }
 
   @Test
@@ -235,22 +328,24 @@ public class RosettaBinderTest {
     RosettaCreatorConstructorBean two = new RosettaCreatorConstructorBean("two");
 
     assertThatThrownBy(() -> bindList("missingProperty", Arrays.asList(one, two)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Field missingProperty does not exist");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Field missingProperty does not exist");
   }
 
   @Test
   public void itThrowsForBindListOfList() {
-    assertThatThrownBy(() -> bindList(Arrays.asList(Collections.singleton(1), Arrays.asList(2, 3))))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Binding non-value types as a list is not supported");
+    assertThatThrownBy(() ->
+        bindList(Arrays.asList(Collections.singleton(1), Arrays.asList(2, 3)))
+      )
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Binding non-value types as a list is not supported");
   }
 
   @Test
   public void itThrowsForBindListOfObjects() {
     assertThatThrownBy(() -> bindList(Collections.singleton(ImmutableMap.of("a", 1))))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Binding non-value types as a list is not supported");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Binding non-value types as a list is not supported");
   }
 
   private static Map<String, Object> map(Object... strings) {
@@ -285,6 +380,7 @@ public class RosettaBinderTest {
   }
 
   private static class MockCallback implements Callback {
+
     private final Map<String, Object> bindings = new HashMap<String, Object>();
 
     @Override

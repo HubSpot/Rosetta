@@ -25,7 +25,6 @@ import org.jdbi.v3.sqlobject.internal.ParameterUtil;
 @Target({ ElementType.PARAMETER })
 @SqlStatementCustomizingAnnotation(RosettaListBinderFactory.class)
 public @interface BindListWithRosetta {
-
   String value() default "";
 
   String field() default "";
@@ -36,28 +35,37 @@ public @interface BindListWithRosetta {
 
     @Override
     public SqlStatementParameterCustomizer createForParameter(
-        Annotation annotation,
-        Class<?> sqlObjectType,
-        Method method,
-        Parameter param,
-        int index,
-        Type paramType
+      Annotation annotation,
+      Class<?> sqlObjectType,
+      Method method,
+      Parameter param,
+      int index,
+      Type paramType
     ) {
       BindListWithRosetta bindList = (BindListWithRosetta) annotation;
-      String name = ParameterUtil.findParameterName(bindList.value(), param)
-          .orElseThrow(() -> new UnsupportedOperationException(
-              "A @BindListWithRosetta parameter was not given a name, " +
-                  "and parameter name data is not present in the class file, for: " +
-                  param.getDeclaringExecutable() + "::" + param
-          ));
+      String name = ParameterUtil
+        .findParameterName(bindList.value(), param)
+        .orElseThrow(() ->
+          new UnsupportedOperationException(
+            "A @BindListWithRosetta parameter was not given a name, " +
+            "and parameter name data is not present in the class file, for: " +
+            param.getDeclaringExecutable() +
+            "::" +
+            param
+          )
+        );
 
       return (stmt, arg) -> {
-        ObjectMapper objectMapper = stmt.getConfig(RosettaObjectMapper.class).getObjectMapper();
+        ObjectMapper objectMapper = stmt
+          .getConfig(RosettaObjectMapper.class)
+          .getObjectMapper();
         JsonNode node = objectMapper.valueToTree(arg);
 
         // if we got a non-null argument that isn't a list
         if (node != null && !node.isArray()) {
-          throw new IllegalArgumentException("Value provided to @BindListWithRosetta was not an iterable!");
+          throw new IllegalArgumentException(
+            "Value provided to @BindListWithRosetta was not an iterable!"
+          );
         }
 
         if (node == null || node.size() == 0) {
@@ -69,11 +77,15 @@ public @interface BindListWithRosetta {
               stmt.define(name, "null");
               return;
             case THROW:
-              throw new IllegalArgumentException(arg == null
+              throw new IllegalArgumentException(
+                arg == null
                   ? "argument is null; null was explicitly forbidden on this instance of BindListWithRosetta"
-                  : "argument is empty; emptiness was explicitly forbidden on this instance of BindListWithRosetta");
+                  : "argument is empty; emptiness was explicitly forbidden on this instance of BindListWithRosetta"
+              );
             default:
-              throw new UnsupportedOperationException("OnEmpty behavior: " + bindList.onEmpty() + "is not supported");
+              throw new UnsupportedOperationException(
+                "OnEmpty behavior: " + bindList.onEmpty() + "is not supported"
+              );
           }
         } else {
           List<Object> list = new ArrayList<>(node.size());

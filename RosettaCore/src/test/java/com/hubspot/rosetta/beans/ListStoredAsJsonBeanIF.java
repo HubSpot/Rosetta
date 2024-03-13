@@ -1,13 +1,11 @@
 package com.hubspot.rosetta.beans;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hubspot.rosetta.annotations.StoredAsJson;
+import java.util.List;
 
 public interface ListStoredAsJsonBeanIF {
-
   @StoredAsJson
   @JsonProperty
   List<PolymorphicBean> getBeans();

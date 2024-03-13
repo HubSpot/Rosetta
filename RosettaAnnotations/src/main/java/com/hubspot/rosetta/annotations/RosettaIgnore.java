@@ -11,7 +11,14 @@ import java.lang.annotation.Target;
  * If you want Rosetta to not include a certain element when serializing,
  * you can use this annotation.
  */
-@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD})
+@Target(
+  {
+    ElementType.ANNOTATION_TYPE,
+    ElementType.METHOD,
+    ElementType.CONSTRUCTOR,
+    ElementType.FIELD,
+  }
+)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RosettaIgnore {
 }

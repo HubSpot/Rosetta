@@ -1,8 +1,5 @@
 package com.hubspot.rosetta.internal;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -15,8 +12,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import java.io.IOException;
+import java.io.Writer;
 
-abstract class ContextualStoredAsJsonSerializer<T> extends NonTypedScalarSerializerBase<T> {
+abstract class ContextualStoredAsJsonSerializer<T>
+  extends NonTypedScalarSerializerBase<T> {
+
   private final BeanProperty property;
 
   ContextualStoredAsJsonSerializer(Class<T> t, BeanProperty property) {
@@ -24,11 +25,24 @@ abstract class ContextualStoredAsJsonSerializer<T> extends NonTypedScalarSeriali
     this.property = property;
   }
 
-  protected void serializeAsBytes(T value, JsonGenerator generator, SerializerProvider provider, StdSerializer<byte[]> delegate) throws IOException {
-    delegate.serialize(serializeToBytes(value, getMapper(generator), provider), generator, provider);
+  protected void serializeAsBytes(
+    T value,
+    JsonGenerator generator,
+    SerializerProvider provider,
+    StdSerializer<byte[]> delegate
+  ) throws IOException {
+    delegate.serialize(
+      serializeToBytes(value, getMapper(generator), provider),
+      generator,
+      provider
+    );
   }
 
-  protected void serializeAsString(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+  protected void serializeAsString(
+    T value,
+    JsonGenerator gen,
+    SerializerProvider provider
+  ) throws IOException {
     String res = serializeToString(value, getMapper(gen), provider);
     if ("null".equals(res)) {
       gen.writeNull();
@@ -37,7 +51,11 @@ abstract class ContextualStoredAsJsonSerializer<T> extends NonTypedScalarSeriali
     }
   }
 
-  private byte[] serializeToBytes(T value, ObjectMapper mapper, SerializerProvider provider) throws IOException {
+  private byte[] serializeToBytes(
+    T value,
+    ObjectMapper mapper,
+    SerializerProvider provider
+  ) throws IOException {
     try (ByteArrayBuilder array = new ByteArrayBuilder(new BufferRecycler())) {
       if (trySerialzieToArray(value, mapper, provider, array)) {
         byte[] result = array.toByteArray();
@@ -50,7 +68,11 @@ abstract class ContextualStoredAsJsonSerializer<T> extends NonTypedScalarSeriali
     return mapper.writeValueAsBytes(value);
   }
 
-  private String serializeToString(T value, ObjectMapper mapper, SerializerProvider provider) throws IOException {
+  private String serializeToString(
+    T value,
+    ObjectMapper mapper,
+    SerializerProvider provider
+  ) throws IOException {
     try (SegmentedStringWriter sw = new SegmentedStringWriter(new BufferRecycler())) {
       if (trySerializeToWriter(value, mapper, provider, sw)) {
         return sw.getAndClear();
@@ -66,23 +88,43 @@ abstract class ContextualStoredAsJsonSerializer<T> extends NonTypedScalarSeriali
     }
   }
 
-  private boolean trySerialzieToArray(T value, ObjectMapper mapper, SerializerProvider provider, ByteArrayBuilder builder) throws IOException {
-    try (JsonGenerator gen = mapper.getFactory().createGenerator(builder, JsonEncoding.UTF8)) {
+  private boolean trySerialzieToArray(
+    T value,
+    ObjectMapper mapper,
+    SerializerProvider provider,
+    ByteArrayBuilder builder
+  ) throws IOException {
+    try (
+      JsonGenerator gen = mapper.getFactory().createGenerator(builder, JsonEncoding.UTF8)
+    ) {
       return trySerializeToGenerator(value, mapper, provider, gen);
     }
   }
 
-  private boolean trySerializeToWriter(T value, ObjectMapper mapper, SerializerProvider provider, Writer writer) throws IOException {
+  private boolean trySerializeToWriter(
+    T value,
+    ObjectMapper mapper,
+    SerializerProvider provider,
+    Writer writer
+  ) throws IOException {
     try (JsonGenerator gen = mapper.getFactory().createGenerator(writer)) {
       return trySerializeToGenerator(value, mapper, provider, gen);
     }
   }
 
-  private boolean trySerializeToGenerator(T value, ObjectMapper mapper, SerializerProvider provider, JsonGenerator gen) throws IOException {
+  private boolean trySerializeToGenerator(
+    T value,
+    ObjectMapper mapper,
+    SerializerProvider provider,
+    JsonGenerator gen
+  ) throws IOException {
     JsonSerializer<Object> serializer = provider.findTypedValueSerializer(
-        mapper.getTypeFactory().constructSpecializedType(property.getType(), value.getClass()),
-        false,
-        null);
+      mapper
+        .getTypeFactory()
+        .constructSpecializedType(property.getType(), value.getClass()),
+      false,
+      null
+    );
 
     if (serializer == null) {
       return false;

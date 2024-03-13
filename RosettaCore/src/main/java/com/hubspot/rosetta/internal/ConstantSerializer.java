@@ -1,8 +1,5 @@
 package com.hubspot.rosetta.internal;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,8 +7,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import java.io.IOException;
+import java.lang.reflect.Type;
 
 public class ConstantSerializer extends NonTypedScalarSerializerBase<Object> {
+
   private static final StringSerializer DELEGATE = new StringSerializer();
 
   private final String value;
@@ -22,7 +22,8 @@ public class ConstantSerializer extends NonTypedScalarSerializerBase<Object> {
   }
 
   @Override
-  public void serialize(Object ignored, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+  public void serialize(Object ignored, JsonGenerator jgen, SerializerProvider provider)
+    throws IOException {
     jgen.writeString(value);
   }
 
@@ -32,7 +33,10 @@ public class ConstantSerializer extends NonTypedScalarSerializerBase<Object> {
   }
 
   @Override
-  public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+  public void acceptJsonFormatVisitor(
+    JsonFormatVisitorWrapper visitor,
+    JavaType typeHint
+  ) {
     // try/catch is for 2.1.x compatibility
     try {
       DELEGATE.acceptJsonFormatVisitor(visitor, typeHint);

@@ -1,9 +1,8 @@
 package com.hubspot.rosetta.beans;
 
-import java.util.Objects;
-
 import com.google.common.base.MoreObjects;
 import com.hubspot.rosetta.annotations.StoredAsJson;
+import java.util.Objects;
 
 public class NestedStoredAsJsonBean {
 
@@ -39,8 +38,9 @@ public class NestedStoredAsJsonBean {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("annotatedField", annotatedField)
-        .toString();
+    return MoreObjects
+      .toStringHelper(this)
+      .add("annotatedField", annotatedField)
+      .toString();
   }
 }

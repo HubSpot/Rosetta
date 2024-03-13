@@ -6,6 +6,7 @@ import com.google.common.base.MoreObjects;
 import java.util.Objects;
 
 public class TestObject {
+
   private int id;
   private String name;
 
@@ -44,9 +45,6 @@ public class TestObject {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("id", id)
-        .add("name", name)
-        .toString();
+    return MoreObjects.toStringHelper(this).add("id", id).add("name", name).toString();
   }
 }

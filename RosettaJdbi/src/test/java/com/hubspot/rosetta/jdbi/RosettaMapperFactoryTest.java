@@ -3,18 +3,16 @@ package com.hubspot.rosetta.jdbi;
 import static com.hubspot.rosetta.jdbi.RosettaMapperFactory.determineGenericReturnType;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.List;
-
-import org.junit.Test;
-
 import com.hubspot.rosetta.beans.NestedBean;
 import com.hubspot.rosetta.beans.RosettaCreatorConstructorBean;
 import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
 import com.hubspot.rosetta.beans.RosettaNamingBean;
 import com.hubspot.rosetta.beans.RosettaValueBean;
 import com.hubspot.rosetta.beans.StoredAsJsonBean;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+import org.junit.Test;
 
 public class RosettaMapperFactoryTest {
 
@@ -38,7 +36,7 @@ public class RosettaMapperFactoryTest {
   @Test
   public void itAcceptsRosettaCreatorMethodBean() {
     assertThat(mapperFactory.accepts(RosettaCreatorMethodBean.class, null)).isTrue();
- }
+  }
 
   @Test
   public void itAcceptsRosettaNamingBean() {
@@ -67,13 +65,19 @@ public class RosettaMapperFactoryTest {
 
   @Test
   public void itHandlesConcreteType() {
-    Type type = determineGenericReturnType(CircularBean.class, returnTypeForMethod("concreteType"));
+    Type type = determineGenericReturnType(
+      CircularBean.class,
+      returnTypeForMethod("concreteType")
+    );
     assertThat(type).isEqualTo(CircularBean.class);
   }
 
   @Test
   public void itHandlesGenericType() {
-    Type type = determineGenericReturnType(GenericBean.class, returnTypeForMethod("genericType"));
+    Type type = determineGenericReturnType(
+      GenericBean.class,
+      returnTypeForMethod("genericType")
+    );
     assertThat(type).isInstanceOf(ParameterizedType.class);
 
     ParameterizedType genericType = (ParameterizedType) type;
@@ -89,19 +93,28 @@ public class RosettaMapperFactoryTest {
 
   @Test
   public void itHandlesPrimitiveWrappers() {
-    Type type = determineGenericReturnType(Integer.class, returnTypeForMethod("primitiveWrapper"));
+    Type type = determineGenericReturnType(
+      Integer.class,
+      returnTypeForMethod("primitiveWrapper")
+    );
     assertThat(type).isEqualTo(Integer.class);
   }
 
   @Test
   public void itHandlesListOfConcreteType() {
-    Type type = determineGenericReturnType(CircularBean.class, returnTypeForMethod("listOfConcreteType"));
+    Type type = determineGenericReturnType(
+      CircularBean.class,
+      returnTypeForMethod("listOfConcreteType")
+    );
     assertThat(type).isEqualTo(CircularBean.class);
   }
 
   @Test
   public void itHandlesListOfGenericType() {
-    Type type = determineGenericReturnType(GenericBean.class, returnTypeForMethod("listOfGenericType"));
+    Type type = determineGenericReturnType(
+      GenericBean.class,
+      returnTypeForMethod("listOfGenericType")
+    );
     assertThat(type).isInstanceOf(ParameterizedType.class);
 
     ParameterizedType genericType = (ParameterizedType) type;
@@ -111,7 +124,10 @@ public class RosettaMapperFactoryTest {
 
   @Test
   public void itHandlesListOfPrimitiveWrappers() {
-    Type type = determineGenericReturnType(Integer.class, returnTypeForMethod("listOfPrimitiveWrapper"));
+    Type type = determineGenericReturnType(
+      Integer.class,
+      returnTypeForMethod("listOfPrimitiveWrapper")
+    );
     assertThat(type).isEqualTo(Integer.class);
   }
 

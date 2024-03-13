@@ -1,6 +1,7 @@
 package com.hubspot.rosetta.beans;
 
 public class ServiceLoaderBean {
+
   private int id;
   private String name;
 

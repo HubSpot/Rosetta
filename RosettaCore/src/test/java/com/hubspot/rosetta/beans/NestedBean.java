@@ -1,6 +1,7 @@
 package com.hubspot.rosetta.beans;
 
 public class NestedBean {
+
   private InnerBean inner;
 
   public InnerBean getInner() {

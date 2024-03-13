@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
  * Rosetta annotations generically, and in future also for
  * passing other generic annotation configuration.
  */
-@Target({ElementType.ANNOTATION_TYPE})
+@Target({ ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RosettaAnnotation {}
+public @interface RosettaAnnotation {
+}

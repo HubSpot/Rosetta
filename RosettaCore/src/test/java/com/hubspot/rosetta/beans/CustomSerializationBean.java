@@ -1,9 +1,5 @@
 package com.hubspot.rosetta.beans;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -15,12 +11,16 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.hubspot.rosetta.annotations.RosettaDeserialize;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public class CustomSerializationBean {
 
   @RosettaSerialize(using = StringListSerializer.class)
   @RosettaDeserialize(using = StringListDeserializer.class)
   private List<String> annotatedField;
+
   private List<String> annotatedGetter;
   private List<String> annotatedSetter;
 
@@ -67,9 +67,11 @@ public class CustomSerializationBean {
     private static final Joiner JOINER = Joiner.on(";");
 
     @Override
-    public void serialize(List<String> value,
-                          JsonGenerator gen,
-                          SerializerProvider serializers) throws IOException {
+    public void serialize(
+      List<String> value,
+      JsonGenerator gen,
+      SerializerProvider serializers
+    ) throws IOException {
       gen.writeString(JOINER.join(value));
     }
   }
@@ -79,8 +81,8 @@ public class CustomSerializationBean {
     private static final Splitter SPLITTER = Splitter.on(";");
 
     @Override
-    public List<String> deserialize(JsonParser p,
-                                    DeserializationContext ctxt) throws IOException {
+    public List<String> deserialize(JsonParser p, DeserializationContext ctxt)
+      throws IOException {
       if (p.hasToken(JsonToken.VALUE_STRING)) {
         String value = p.getText();
         return SPLITTER.splitToList(value);

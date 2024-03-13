@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hubspot.rosetta.annotations.RosettaProperty;
 
 public class RosettaPropertyBean {
+
   @RosettaProperty("mccartney_song_title")
   private String mcCartneySongTitle;
 

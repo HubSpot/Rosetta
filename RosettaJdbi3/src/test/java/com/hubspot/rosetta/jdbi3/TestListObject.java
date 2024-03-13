@@ -7,25 +7,27 @@ import java.util.List;
 import java.util.Objects;
 
 public class TestListObject {
+
   private int id;
   private TestEnum value;
   private List<String> stringValues;
   private TestObject objectValue;
 
   public TestListObject(int id, TestEnum value) {
-    this (id, value, null);
+    this(id, value, null);
   }
 
   public TestListObject(int id, TestEnum value, List<String> stringValues) {
-    this (id, value, stringValues, null);
+    this(id, value, stringValues, null);
   }
 
   @JsonCreator
   public TestListObject(
-      @JsonProperty("id") int id,
-      @JsonProperty("value") TestEnum value,
-      @JsonProperty("stringValues") List<String> stringValues,
-      @JsonProperty("objectValue") TestObject objectValue) {
+    @JsonProperty("id") int id,
+    @JsonProperty("value") TestEnum value,
+    @JsonProperty("stringValues") List<String> stringValues,
+    @JsonProperty("objectValue") TestObject objectValue
+  ) {
     this.id = id;
     this.value = value;
     this.stringValues = stringValues;
@@ -59,10 +61,12 @@ public class TestListObject {
     }
 
     TestListObject that = (TestListObject) o;
-    return id == that.id &&
-        Objects.equals(value, that.value) &&
-        Objects.equals(stringValues, that.stringValues) &&
-        Objects.equals(objectValue, that.objectValue);
+    return (
+      id == that.id &&
+      Objects.equals(value, that.value) &&
+      Objects.equals(stringValues, that.stringValues) &&
+      Objects.equals(objectValue, that.objectValue)
+    );
   }
 
   @Override
@@ -72,11 +76,12 @@ public class TestListObject {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("id", id)
-        .add("value", value)
-        .add("stringValues", stringValues)
-        .add("objectValue", objectValue)
-        .toString();
+    return MoreObjects
+      .toStringHelper(this)
+      .add("id", id)
+      .add("value", value)
+      .add("stringValues", stringValues)
+      .add("objectValue", objectValue)
+      .toString();
   }
 }

@@ -1,14 +1,14 @@
 package com.hubspot.rosetta.immutables.beans;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+import com.hubspot.immutables.utils.WireSafeEnum;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.hubspot.immutables.utils.WireSafeEnum;
-
 public class WireSafeBean {
+
   private WireSafeEnum<SimpleEnum> simple;
   private Optional<WireSafeEnum<SimpleEnum>> simpleMaybe;
   private List<WireSafeEnum<SimpleEnum>> simpleList;
@@ -45,7 +45,6 @@ public class WireSafeBean {
   public List<WireSafeEnum<CustomEnum>> getCustomList() {
     return customList;
   }
-
 
   public Map<String, WireSafeEnum<CustomEnum>> getCustomMap() {
     return customMap;
@@ -86,16 +85,16 @@ public class WireSafeBean {
   @Override
   public String toString() {
     return MoreObjects
-        .toStringHelper(WireSafeBean.class)
-        .add("simple", simple)
-        .add("simpleMaybe", simpleMaybe)
-        .add("simpleList", simpleList)
-        .add("simpleMap", simpleMap)
-        .add("custom", custom)
-        .add("customMaybe", customMaybe)
-        .add("customList", customList)
-        .add("customMap", customMap)
-        .toString();
+      .toStringHelper(WireSafeBean.class)
+      .add("simple", simple)
+      .add("simpleMaybe", simpleMaybe)
+      .add("simpleList", simpleList)
+      .add("simpleMap", simpleMap)
+      .add("custom", custom)
+      .add("customMaybe", customMaybe)
+      .add("customList", customList)
+      .add("customMap", customMap)
+      .toString();
   }
 
   @Override
@@ -109,18 +108,29 @@ public class WireSafeBean {
     }
 
     WireSafeBean bean = (WireSafeBean) o;
-    return Objects.equal(simple, bean.simple) &&
-        Objects.equal(simpleMaybe, bean.simpleMaybe) &&
-        Objects.equal(simpleList, bean.simpleList) &&
-        Objects.equal(simpleMap, bean.simpleMap) &&
-        Objects.equal(custom, bean.custom) &&
-        Objects.equal(customMaybe, bean.customMaybe) &&
-        Objects.equal(customList, bean.customList) &&
-        Objects.equal(customMap, bean.customMap);
+    return (
+      Objects.equal(simple, bean.simple) &&
+      Objects.equal(simpleMaybe, bean.simpleMaybe) &&
+      Objects.equal(simpleList, bean.simpleList) &&
+      Objects.equal(simpleMap, bean.simpleMap) &&
+      Objects.equal(custom, bean.custom) &&
+      Objects.equal(customMaybe, bean.customMaybe) &&
+      Objects.equal(customList, bean.customList) &&
+      Objects.equal(customMap, bean.customMap)
+    );
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(simple, simpleMaybe, simpleList, simpleMap, custom, customMaybe, customList, customMap);
+    return Objects.hashCode(
+      simple,
+      simpleMaybe,
+      simpleList,
+      simpleMap,
+      custom,
+      customMaybe,
+      customList,
+      customMap
+    );
   }
 }

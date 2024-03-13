@@ -1,4 +1,3 @@
 package com.hubspot.rosetta.util;
 
-public class MockResultSet {
-}
+public class MockResultSet {}

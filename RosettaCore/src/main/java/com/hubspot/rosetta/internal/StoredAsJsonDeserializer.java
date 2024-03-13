@@ -1,9 +1,5 @@
 package com.hubspot.rosetta.internal;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
-
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -12,15 +8,24 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
+
   private static final long serialVersionUID = 1L;
 
   private final Type type;
   private final String defaultValue;
   private final ObjectMapper objectMapper;
 
-  public StoredAsJsonDeserializer(Class<T> vc, Type type, String defaultValue, ObjectMapper objectMapper) {
+  public StoredAsJsonDeserializer(
+    Class<T> vc,
+    Type type,
+    String defaultValue,
+    ObjectMapper objectMapper
+  ) {
     super(vc);
     this.type = type;
     this.defaultValue = defaultValue;
@@ -35,9 +40,15 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
       return deserialize(mapper, jp.getText(), javaType);
     } else if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
-      String json = new String(jp.getBinaryValue(Base64Variants.getDefaultVariant()), StandardCharsets.UTF_8);
+      String json = new String(
+        jp.getBinaryValue(Base64Variants.getDefaultVariant()),
+        StandardCharsets.UTF_8
+      );
       return deserialize(mapper, json, javaType);
-    } else if(jp.getCurrentToken() == JsonToken.START_OBJECT || jp.getCurrentToken() == JsonToken.START_ARRAY) {
+    } else if (
+      jp.getCurrentToken() == JsonToken.START_OBJECT ||
+      jp.getCurrentToken() == JsonToken.START_ARRAY
+    ) {
       return mapper.readValue(jp, javaType);
     } else {
       throw ctxt.mappingException("Expected JSON String");
@@ -45,7 +56,11 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   }
 
   @Override
-  public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+  public Object deserializeWithType(
+    JsonParser jp,
+    DeserializationContext ctxt,
+    TypeDeserializer typeDeserializer
+  ) throws IOException {
     // we're delegating to the our parent object mapper, so the TypeDeserializer doesn't matter
     return deserialize(jp, ctxt);
   }
@@ -59,7 +74,8 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     }
   }
 
-  private T deserialize(ObjectMapper mapper, String json, JavaType javaType) throws IOException {
+  private T deserialize(ObjectMapper mapper, String json, JavaType javaType)
+    throws IOException {
     if (json == null || json.isEmpty()) {
       json = defaultValue;
     }

@@ -23,6 +23,7 @@ import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 
 public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
+
   private static final long serialVersionUID = 1L;
 
   private final ObjectMapper objectMapper;
@@ -43,19 +44,24 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
     RosettaSerialize rosettaSerialize = a.getAnnotation(RosettaSerialize.class);
     if (storedAsJson != null && rosettaSerialize != null) {
-      throw new IllegalArgumentException("Cannot have @StoredAsJson as well as @RosettaSerialize annotations on the same entry");
+      throw new IllegalArgumentException(
+        "Cannot have @StoredAsJson as well as @RosettaSerialize annotations on the same entry"
+      );
     }
     if (storedAsJson != null) {
       Class<?> type = a.getRawType();
-      return storedAsJson.binary() ? new StoredAsJsonBinarySerializer(type) : new StoredAsJsonSerializer(type);
+      return storedAsJson.binary()
+        ? new StoredAsJsonBinarySerializer(type)
+        : new StoredAsJsonSerializer(type);
     }
 
     if (rosettaSerialize != null) {
       Class<? extends JsonSerializer> klass = rosettaSerialize.using();
       if (klass != JsonSerializer.None.class) {
         return ClassUtil.createInstance(
-            klass,
-            objectMapper.getSerializationConfig().canOverrideAccessModifiers());
+          klass,
+          objectMapper.getSerializationConfig().canOverrideAccessModifiers()
+        );
       }
     }
     return null;
@@ -67,23 +73,33 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
     RosettaDeserialize rosettaDeserialize = a.getAnnotation(RosettaDeserialize.class);
     if (storedAsJson != null && rosettaDeserialize != null) {
-      throw new IllegalArgumentException("Cannot have @StoredAsJson as well as @RosettaDeserialize annotations on the same entry");
+      throw new IllegalArgumentException(
+        "Cannot have @StoredAsJson as well as @RosettaDeserialize annotations on the same entry"
+      );
     }
     if (storedAsJson != null) {
       if (a instanceof AnnotatedMethod) {
         a = getAnnotatedTypeFromAnnotatedMethod((AnnotatedMethod) a);
       }
 
-      String empty = StoredAsJson.NULL.equals(storedAsJson.empty()) ? "null" : storedAsJson.empty();
-      return new StoredAsJsonDeserializer(a.getRawType(), a.getType(), empty, objectMapper);
+      String empty = StoredAsJson.NULL.equals(storedAsJson.empty())
+        ? "null"
+        : storedAsJson.empty();
+      return new StoredAsJsonDeserializer(
+        a.getRawType(),
+        a.getType(),
+        empty,
+        objectMapper
+      );
     }
 
     if (rosettaDeserialize != null) {
       Class<? extends JsonDeserializer> klass = rosettaDeserialize.using();
       if (klass != JsonDeserializer.None.class) {
         return ClassUtil.createInstance(
-            klass,
-            objectMapper.getDeserializationConfig().canOverrideAccessModifiers());
+          klass,
+          objectMapper.getDeserializationConfig().canOverrideAccessModifiers()
+        );
       }
     }
 
@@ -156,7 +172,9 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   private PropertyName findRosettaPropertyName(Annotated a) {
     RosettaProperty ann = a.getAnnotation(RosettaProperty.class);
     if (ann != null) {
-      return ann.value().isEmpty() ? PropertyName.USE_DEFAULT : new PropertyName(ann.value());
+      return ann.value().isEmpty()
+        ? PropertyName.USE_DEFAULT
+        : new PropertyName(ann.value());
     }
     return null;
   }
@@ -167,7 +185,9 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     } else if (a.hasReturnType()) {
       return a;
     } else {
-      throw new IllegalArgumentException("Cannot have @StoredAsJson on a method with no parameters AND no arguments");
+      throw new IllegalArgumentException(
+        "Cannot have @StoredAsJson on a method with no parameters AND no arguments"
+      );
     }
   }
 }
