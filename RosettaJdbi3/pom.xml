@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot.rosetta</groupId>
     <artifactId>Rosetta</artifactId>
-    <version>3.11.11</version>
+    <version>3.11.12-SNAPSHOT</version>
   </parent>
 
   <artifactId>RosettaJdbi3</artifactId>
