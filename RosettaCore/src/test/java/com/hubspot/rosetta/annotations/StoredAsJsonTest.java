@@ -524,9 +524,9 @@ public class StoredAsJsonTest {
     assertThat(bean.getOptionalTypeInfoField().get().getGeneralValue())
       .isEqualTo("General");
     assertThat(
-      (
-        (ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoField().get()
-      ).getConcreteValue()
+      ((ConcreteStoredAsJsonTypeInfo) bean
+          .getOptionalTypeInfoField()
+          .get()).getConcreteValue()
     )
       .isEqualTo("internal");
   }
@@ -552,9 +552,9 @@ public class StoredAsJsonTest {
     assertThat(bean.getOptionalTypeInfoGetter().get().getGeneralValue())
       .isEqualTo("General");
     assertThat(
-      (
-        (ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoGetter().get()
-      ).getConcreteValue()
+      ((ConcreteStoredAsJsonTypeInfo) bean
+          .getOptionalTypeInfoGetter()
+          .get()).getConcreteValue()
     )
       .isEqualTo("internal");
   }
@@ -580,9 +580,9 @@ public class StoredAsJsonTest {
     assertThat(bean.getOptionalTypeInfoSetter().get().getGeneralValue())
       .isEqualTo("General");
     assertThat(
-      (
-        (ConcreteStoredAsJsonTypeInfo) bean.getOptionalTypeInfoSetter().get()
-      ).getConcreteValue()
+      ((ConcreteStoredAsJsonTypeInfo) bean
+          .getOptionalTypeInfoSetter()
+          .get()).getConcreteValue()
     )
       .isEqualTo("internal");
   }
