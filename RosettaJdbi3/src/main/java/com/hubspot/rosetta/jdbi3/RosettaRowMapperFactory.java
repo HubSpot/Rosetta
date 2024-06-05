@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hubspot.rosetta.RosettaMapper;
 import com.hubspot.rosetta.util.SqlTableNameExtractor;
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
@@ -35,7 +36,12 @@ public class RosettaRowMapperFactory implements RowMapperFactory {
   private static boolean accepts(Type type, ConfigRegistry config) {
     Class<?> rawType = GenericTypes.getErasedType(type);
 
-    if (rawType.isPrimitive() || rawType.isArray() || rawType.isAnnotation()) {
+    if (
+      rawType.isPrimitive() ||
+      rawType.isArray() ||
+      rawType.isAnnotation() ||
+      rawType.equals(Map.Entry.class)
+    ) {
       return false;
     } else if (rawType == Optional.class) {
       Optional<Type> optionalType = GenericTypes.findGenericParameter(
