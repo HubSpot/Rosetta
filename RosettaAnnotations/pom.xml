@@ -17,8 +17,8 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.immutables</groupId>
-      <artifactId>annotate</artifactId>
+      <groupId>com.hubspot.immutables</groupId>
+      <artifactId>hubspot-style</artifactId>
     </dependency>
   </dependencies>
 </project>

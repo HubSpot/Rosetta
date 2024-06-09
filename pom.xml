@@ -70,9 +70,9 @@
                 <version>2.1.210</version>
             </dependency>
             <dependency>
-                <groupId>org.immutables</groupId>
-                <artifactId>annotate</artifactId>
-                <version>${dep.immutables.version}</version>
+                <groupId>com.hubspot.immutables</groupId>
+                <artifactId>hubspot-style</artifactId>
+                <version>${dep.hubspot-immutables.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
