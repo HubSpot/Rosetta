@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import org.immutables.annotate.InjectAnnotation;
 import org.immutables.annotate.InjectAnnotation.Where;
 
@@ -25,7 +26,7 @@ import org.immutables.annotate.InjectAnnotation.Where;
 )
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
-@InjectAnnotation(type = RosettaProperty.class, target = Where.FIELD)
+@InjectAnnotation(type = RosettaProperty.class, target = Where.SYNTHETIC_FIELDS)
 public @interface RosettaProperty {
   String USE_DEFAULT_NAME = "";
 
