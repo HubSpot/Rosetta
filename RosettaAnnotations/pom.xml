@@ -16,5 +16,10 @@
       <artifactId>jackson-databind</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.immutables</groupId>
+      <artifactId>annotate</artifactId>
+      <version>${dep.immutables.version}</version>
+    </dependency>
   </dependencies>
 </project>

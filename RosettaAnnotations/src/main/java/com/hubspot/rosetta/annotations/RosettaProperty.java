@@ -5,6 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.immutables.annotate.InjectAnnotation;
+import org.immutables.annotate.InjectAnnotation.Where;
+
 /**
  * like @JsonProperty only limited to Rosetta mapping/binding
  *
@@ -23,6 +26,7 @@ import java.lang.annotation.Target;
 )
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
+@InjectAnnotation(type = RosettaProperty.class, target = Where.FIELD)
 public @interface RosettaProperty {
   String USE_DEFAULT_NAME = "";
 
