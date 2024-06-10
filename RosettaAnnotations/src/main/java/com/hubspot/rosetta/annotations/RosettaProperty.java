@@ -1,6 +1,7 @@
 package com.hubspot.rosetta.annotations;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -23,6 +24,7 @@ import java.lang.annotation.Target;
 )
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
+@Inherited
 public @interface RosettaProperty {
   String USE_DEFAULT_NAME = "";
 
