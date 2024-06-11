@@ -2,19 +2,19 @@ package com.hubspot.rosetta.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hubspot.rosetta.annotations.RosettaSetter;
+import com.hubspot.rosetta.annotations.RosettaDeserializationProperty;
 
 public class RosettaSetterBean {
 
-  @RosettaSetter("mccartney_song_title")
+  @RosettaDeserializationProperty("mccartney_song_title")
   private String mcCartneySongTitle;
 
-  @RosettaSetter
+  @RosettaDeserializationProperty
   @JsonIgnore
   private String jsonIgnoreRosettaUse;
 
   @JsonProperty("otherValue")
-  @RosettaSetter("other_value")
+  @RosettaDeserializationProperty("other_value")
   private String someOtherValue;
 
   public String getMcCartneySongTitle() {

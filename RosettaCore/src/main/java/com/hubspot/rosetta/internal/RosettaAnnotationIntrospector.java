@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.hubspot.rosetta.annotations.RosettaCreator;
+import com.hubspot.rosetta.annotations.RosettaDeserializationProperty;
 import com.hubspot.rosetta.annotations.RosettaDeserialize;
-import com.hubspot.rosetta.annotations.RosettaGetter;
 import com.hubspot.rosetta.annotations.RosettaIgnore;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 import com.hubspot.rosetta.annotations.RosettaProperty;
+import com.hubspot.rosetta.annotations.RosettaSerializationProperty;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
-import com.hubspot.rosetta.annotations.RosettaSetter;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 import java.util.Optional;
@@ -182,7 +182,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
   private Optional<PropertyName> findRosettaGetterName(Annotated a) {
     return Optional
-      .ofNullable(a.getAnnotation(RosettaGetter.class))
+      .ofNullable(a.getAnnotation(RosettaSerializationProperty.class))
       .map(annotation ->
         annotation.value().isEmpty()
           ? PropertyName.USE_DEFAULT
@@ -192,7 +192,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
   private Optional<PropertyName> findRosettaSetterName(Annotated a) {
     return Optional
-      .ofNullable(a.getAnnotation(RosettaSetter.class))
+      .ofNullable(a.getAnnotation(RosettaDeserializationProperty.class))
       .map(annotation ->
         annotation.value().isEmpty()
           ? PropertyName.USE_DEFAULT

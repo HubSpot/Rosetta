@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 )
 @Retention(RetentionPolicy.RUNTIME)
 @RosettaAnnotation
-public @interface RosettaSetter {
+public @interface RosettaDeserializationProperty {
   String USE_DEFAULT_NAME = "";
 
   String value() default USE_DEFAULT_NAME;
