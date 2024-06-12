@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.hubspot.rosetta</groupId>
     <artifactId>Rosetta</artifactId>
-    <version>3.12.0</version>
+    <version>3.12.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>RosettaAnnotations</artifactId>
