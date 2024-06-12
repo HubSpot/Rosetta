@@ -14,13 +14,16 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.hubspot.rosetta.annotations.RosettaCreator;
+import com.hubspot.rosetta.annotations.RosettaDeserializationProperty;
 import com.hubspot.rosetta.annotations.RosettaDeserialize;
 import com.hubspot.rosetta.annotations.RosettaIgnore;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 import com.hubspot.rosetta.annotations.RosettaProperty;
+import com.hubspot.rosetta.annotations.RosettaSerializationProperty;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
+import java.util.Optional;
 
 public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
@@ -118,20 +121,18 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
   @Override
   public PropertyName findNameForSerialization(Annotated a) {
-    PropertyName propertyName = findRosettaPropertyName(a);
-    if (propertyName == null) {
-      propertyName = super.findNameForSerialization(a);
-    }
-    return propertyName;
+    return findRosettaGetterName(a)
+      .or(() -> findRosettaPropertyName(a))
+      .or(() -> Optional.ofNullable(super.findNameForSerialization(a)))
+      .orElse(null);
   }
 
   @Override
   public PropertyName findNameForDeserialization(Annotated a) {
-    PropertyName propertyName = findRosettaPropertyName(a);
-    if (propertyName == null) {
-      propertyName = super.findNameForDeserialization(a);
-    }
-    return propertyName;
+    return findRosettaSetterName(a)
+      .or(() -> findRosettaPropertyName(a))
+      .or(() -> Optional.ofNullable(super.findNameForDeserialization(a)))
+      .orElse(null);
   }
 
   @Override
@@ -169,14 +170,34 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     return Version.unknownVersion();
   }
 
-  private PropertyName findRosettaPropertyName(Annotated a) {
-    RosettaProperty ann = a.getAnnotation(RosettaProperty.class);
-    if (ann != null) {
-      return ann.value().isEmpty()
-        ? PropertyName.USE_DEFAULT
-        : new PropertyName(ann.value());
-    }
-    return null;
+  private Optional<PropertyName> findRosettaPropertyName(Annotated a) {
+    return Optional
+      .ofNullable(a.getAnnotation(RosettaProperty.class))
+      .map(annotation ->
+        annotation.value().isEmpty()
+          ? PropertyName.USE_DEFAULT
+          : new PropertyName(annotation.value())
+      );
+  }
+
+  private Optional<PropertyName> findRosettaGetterName(Annotated a) {
+    return Optional
+      .ofNullable(a.getAnnotation(RosettaSerializationProperty.class))
+      .map(annotation ->
+        annotation.value().isEmpty()
+          ? PropertyName.USE_DEFAULT
+          : new PropertyName(annotation.value())
+      );
+  }
+
+  private Optional<PropertyName> findRosettaSetterName(Annotated a) {
+    return Optional
+      .ofNullable(a.getAnnotation(RosettaDeserializationProperty.class))
+      .map(annotation ->
+        annotation.value().isEmpty()
+          ? PropertyName.USE_DEFAULT
+          : new PropertyName(annotation.value())
+      );
   }
 
   private Annotated getAnnotatedTypeFromAnnotatedMethod(AnnotatedMethod a) {
