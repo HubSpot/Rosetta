@@ -24,6 +24,7 @@ import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
@@ -121,17 +122,21 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
   @Override
   public PropertyName findNameForSerialization(Annotated a) {
-    return findRosettaGetterName(a)
-      .or(() -> findRosettaPropertyName(a))
-      .or(() -> Optional.ofNullable(super.findNameForSerialization(a)))
+    return getFirstNonEmpty(
+        () -> findRosettaGetterName(a),
+        () -> findRosettaPropertyName(a),
+        () -> Optional.ofNullable(super.findNameForSerialization(a))
+      )
       .orElse(null);
   }
 
   @Override
   public PropertyName findNameForDeserialization(Annotated a) {
-    return findRosettaSetterName(a)
-      .or(() -> findRosettaPropertyName(a))
-      .or(() -> Optional.ofNullable(super.findNameForDeserialization(a)))
+    return getFirstNonEmpty(
+        () -> findRosettaSetterName(a),
+        () -> findRosettaPropertyName(a),
+        () -> Optional.ofNullable(super.findNameForDeserialization(a))
+      )
       .orElse(null);
   }
 
@@ -210,5 +215,15 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
         "Cannot have @StoredAsJson on a method with no parameters AND no arguments"
       );
     }
+  }
+
+  private <T> Optional<T> getFirstNonEmpty(Supplier<Optional<T>>... suppliers) {
+    for (Supplier<Optional<T>> supplier : suppliers) {
+      Optional<T> maybeValue = supplier.get();
+      if (maybeValue.isPresent()) {
+        return maybeValue;
+      }
+    }
+    return Optional.empty();
   }
 }
