@@ -26,6 +26,11 @@
         <module>RosettaImmutables</module>
     </modules>
 
+   <properties>
+        <project.build.releaseJdk>8</project.build.releaseJdk>
+        <project.build.targetJdk>8</project.build.targetJdk>
+   </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
