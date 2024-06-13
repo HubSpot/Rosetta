@@ -2,6 +2,7 @@ package com.hubspot.rosetta.jdbi3;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -24,6 +25,6 @@ public class RosettaRowMapperFactoryTest extends AbstractJdbiTest {
     assertThat(actual).isEqualTo(expected);
 
     Map<Integer, TestObject> map = getDao().getAllMap();
-    assertThat(map).containsOnly(Map.entry(1, expected));
+    assertThat(map).containsAllEntriesOf(Collections.singletonMap(1, expected));
   }
 }
