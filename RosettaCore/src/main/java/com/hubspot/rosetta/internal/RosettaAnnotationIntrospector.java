@@ -23,7 +23,6 @@ import com.hubspot.rosetta.annotations.RosettaSerializationProperty;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -219,11 +218,12 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   }
 
   private <T> Optional<T> getFirstNonEmpty(Supplier<Optional<T>>... suppliers) {
-    return Arrays
-      .stream(suppliers)
-      .map(Supplier::get)
-      .filter(Optional::isPresent)
-      .findFirst()
-      .orElse(Optional.empty());
+    for (Supplier<Optional<T>> supplier : suppliers) {
+      Optional<T> maybeValue = supplier.get();
+      if (maybeValue.isPresent()) {
+        return maybeValue;
+      }
+    }
+    return Optional.empty();
   }
 }
