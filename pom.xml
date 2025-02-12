@@ -26,8 +26,11 @@
     </modules>
 
    <properties>
-        <project.build.releaseJdk>8</project.build.releaseJdk>
-        <project.build.targetJdk>8</project.build.targetJdk>
+       <project.build.releaseJdk>8</project.build.releaseJdk>
+       <project.build.targetJdk>8</project.build.targetJdk>
+
+       <dep.jackson-databind.version>${dep.jackson.version}</dep.jackson-databind.version>
+       <dep.jackson.version>2.18.2</dep.jackson.version>
    </properties>
 
     <dependencyManagement>

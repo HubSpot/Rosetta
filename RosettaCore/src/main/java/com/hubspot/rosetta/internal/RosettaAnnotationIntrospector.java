@@ -1,5 +1,9 @@
 package com.hubspot.rosetta.internal;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.Version;
@@ -7,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -23,8 +28,6 @@ import com.hubspot.rosetta.annotations.RosettaSerializationProperty;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
@@ -111,13 +114,11 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   }
 
   @Override
-  public boolean hasAsValueAnnotation(AnnotatedMethod am) {
-    return am.hasAnnotation(RosettaValue.class);
-  }
-
-  @Override
-  public boolean hasCreatorAnnotation(Annotated a) {
-    return a.hasAnnotation(RosettaCreator.class);
+  public Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
+    if (ann.hasAnnotation(RosettaCreator.class)) {
+      return Mode.DEFAULT;
+    }
+    return null;
   }
 
   @Override
@@ -141,16 +142,6 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   }
 
   @Override
-  public Include findSerializationInclusion(Annotated a, Include defValue) {
-    return Include.ALWAYS;
-  }
-
-  @Override
-  public Include findSerializationInclusionForContent(Annotated a, Include defValue) {
-    return Include.ALWAYS;
-  }
-
-  @Override
   public Value findPropertyInclusion(Annotated a) {
     return Value.construct(Include.ALWAYS, Include.ALWAYS);
   }
@@ -166,7 +157,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       // The super method can return null, so we can't use && here
       return false;
     } else {
-      return super.hasAsValue(a);
+      return a.hasAnnotation(RosettaValue.class);
     }
   }
 
