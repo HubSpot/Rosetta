@@ -29,7 +29,29 @@ public class RosettaModule extends Module {
     if (codec instanceof ObjectMapper) {
       ObjectMapper mapper = (ObjectMapper) codec;
 
-      context.insertAnnotationIntrospector(new RosettaAnnotationIntrospector(mapper));
+      mapper.setConfig(
+        mapper
+          .getDeserializationConfig()
+          .with(
+            new RosettaAnnotationIntrospectorPair(
+              new RosettaAnnotationIntrospector(mapper),
+              mapper.getDeserializationConfig().getAnnotationIntrospector()
+            )
+          )
+      );
+
+      mapper.setConfig(
+        mapper
+          .getSerializationConfig()
+          .with(
+            new RosettaAnnotationIntrospectorPair(
+              new RosettaAnnotationIntrospector(mapper),
+              mapper.getSerializationConfig().getAnnotationIntrospector()
+            )
+          )
+      );
+
+      mapper.getSerializationConfig().with(new RosettaAnnotationIntrospector(mapper));
 
       mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
       mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);

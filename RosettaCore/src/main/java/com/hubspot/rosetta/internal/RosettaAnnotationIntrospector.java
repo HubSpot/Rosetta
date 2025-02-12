@@ -1,8 +1,5 @@
 package com.hubspot.rosetta.internal;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude.Value;
@@ -28,6 +25,8 @@ import com.hubspot.rosetta.annotations.RosettaSerializationProperty;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
 
