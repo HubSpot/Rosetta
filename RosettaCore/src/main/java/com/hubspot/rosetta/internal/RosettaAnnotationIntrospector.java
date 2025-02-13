@@ -25,6 +25,7 @@ import com.hubspot.rosetta.annotations.RosettaSerializationProperty;
 import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -151,6 +152,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   }
 
   @Override
+  @SuppressFBWarnings("NP_BOOLEAN_RETURN_NULL")
   public Boolean hasAsValue(Annotated a) {
     if (a.hasAnnotation(RosettaIgnore.class)) {
       // The super method can return null, so we can't use && here
