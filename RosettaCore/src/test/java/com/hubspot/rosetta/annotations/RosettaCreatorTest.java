@@ -3,6 +3,7 @@ package com.hubspot.rosetta.annotations;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hubspot.rosetta.Rosetta;
+import com.hubspot.rosetta.beans.HasSingleValueWrapperPropBean;
 import com.hubspot.rosetta.beans.RosettaCreatorConstructorBean;
 import com.hubspot.rosetta.beans.RosettaCreatorMethodBean;
 import java.io.IOException;
@@ -26,5 +27,13 @@ public class RosettaCreatorTest {
       .getMapper()
       .readValue(JSON, RosettaCreatorMethodBean.class);
     assertThat(bean.getStringProperty()).isEqualTo("value");
+  }
+
+  @Test
+  public void itWorksOnJacksonMethods() throws IOException {
+    HasSingleValueWrapperPropBean bean = Rosetta
+      .getMapper()
+      .readValue("{\"singleValueWrapper\":\"foo\"}", HasSingleValueWrapperPropBean.class);
+    assertThat(bean.getSingleValueWrapper().get()).isEqualTo("foo");
   }
 }

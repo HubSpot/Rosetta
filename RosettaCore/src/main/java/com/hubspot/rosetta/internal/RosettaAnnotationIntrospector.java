@@ -156,7 +156,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       // The super method can return null, so we can't use && here
       return false;
     } else {
-      return a.hasAnnotation(RosettaValue.class);
+      return a.hasAnnotation(RosettaValue.class) ? true : null;
     }
   }
 
