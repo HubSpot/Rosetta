@@ -1,9 +1,9 @@
 package com.hubspot.rosetta.beans;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.hubspot.rosetta.annotations.RosettaNaming;
 
-@RosettaNaming(LowerCaseWithUnderscoresStrategy.class)
+@RosettaNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RosettaNamingBean {
 
   private String stringProperty;

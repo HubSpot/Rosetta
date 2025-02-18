@@ -10,7 +10,7 @@
 
     <groupId>com.hubspot.rosetta</groupId>
     <artifactId>Rosetta</artifactId>
-    <version>3.12.3-SNAPSHOT</version>
+    <version>3.13.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>
         Rosetta is a Java library that leverages Jackson to take the pain out of
@@ -26,8 +26,11 @@
     </modules>
 
    <properties>
-        <project.build.releaseJdk>8</project.build.releaseJdk>
-        <project.build.targetJdk>8</project.build.targetJdk>
+       <project.build.releaseJdk>8</project.build.releaseJdk>
+       <project.build.targetJdk>8</project.build.targetJdk>
+
+       <dep.jackson-databind.version>${dep.jackson.version}</dep.jackson-databind.version>
+       <dep.jackson.version>2.18.2</dep.jackson.version>
    </properties>
 
     <dependencyManagement>

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -51,7 +52,12 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     ) {
       return mapper.readValue(jp, javaType);
     } else {
-      throw ctxt.mappingException("Expected JSON String");
+      throw ctxt.wrongTokenException(
+        jp,
+        javaType,
+        JsonToken.START_OBJECT,
+        "Expected JSON String"
+      );
     }
   }
 
@@ -66,7 +72,7 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   }
 
   @Override
-  public T getNullValue() {
+  public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
     try {
       return deserialize(objectMapper, null, objectMapper.constructType(type));
     } catch (IOException e) {

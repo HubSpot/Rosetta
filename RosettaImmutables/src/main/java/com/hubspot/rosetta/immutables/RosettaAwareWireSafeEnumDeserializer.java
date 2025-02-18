@@ -31,7 +31,7 @@ public class RosettaAwareWireSafeEnumDeserializer
   @Override
   public WireSafeEnum<?> deserialize(JsonParser p, DeserializationContext ctxt)
     throws IOException {
-    throw ctxt.mappingException("Expected createContextual to be called");
+    throw JsonMappingException.from(p, "Expected createContextual to be called");
   }
 
   @SuppressWarnings("unchecked")
@@ -67,18 +67,20 @@ public class RosettaAwareWireSafeEnumDeserializer
     JavaType javaType = context.getContextualType();
 
     if (!WireSafeEnum.class.equals(javaType.getRawClass())) {
-      context.reportMappingException(
+      throw JsonMappingException.from(
+        context.getParser(),
         "Expected contextual type to be WireSafeEnum, got: " + javaType
       );
     } else {
       JavaType typeParameter = javaType.findTypeParameters(WireSafeEnum.class)[0];
       if (!typeParameter.isEnumType()) {
-        context.reportMappingException("Can not handle non-enum type: " + typeParameter);
+        throw JsonMappingException.from(
+          context.getParser(),
+          "Can not handle non-enum type: " + typeParameter
+        );
       } else {
         return typeParameter.getRawClass();
       }
     }
-
-    throw new IllegalStateException(); // should never get here
   }
 }

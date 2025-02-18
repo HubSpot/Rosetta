@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.hubspot.rosetta.annotations.RosettaDeserializationProperty;
+import com.hubspot.rosetta.annotations.RosettaProperty;
+import com.hubspot.rosetta.annotations.RosettaSerializationProperty;
 
 @SuppressWarnings("serial")
 public class RosettaModule extends Module {
@@ -29,7 +32,31 @@ public class RosettaModule extends Module {
     if (codec instanceof ObjectMapper) {
       ObjectMapper mapper = (ObjectMapper) codec;
 
-      context.insertAnnotationIntrospector(new RosettaAnnotationIntrospector(mapper));
+      mapper.setConfig(
+        mapper
+          .getDeserializationConfig()
+          .with(
+            new RosettaAnnotationIntrospectorPair(
+              new RosettaAnnotationIntrospector(mapper),
+              mapper.getDeserializationConfig().getAnnotationIntrospector(),
+              RosettaDeserializationProperty.class,
+              RosettaProperty.class
+            )
+          )
+      );
+
+      mapper.setConfig(
+        mapper
+          .getSerializationConfig()
+          .with(
+            new RosettaAnnotationIntrospectorPair(
+              new RosettaAnnotationIntrospector(mapper),
+              mapper.getSerializationConfig().getAnnotationIntrospector(),
+              RosettaSerializationProperty.class,
+              RosettaProperty.class
+            )
+          )
+      );
 
       mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
       mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
