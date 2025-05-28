@@ -5,13 +5,15 @@
     <parent>
         <groupId>com.hubspot</groupId>
         <artifactId>basepom</artifactId>
-        <version>61.2</version>
+        <version>63.0</version>
     </parent>
 
     <groupId>com.hubspot.rosetta</groupId>
     <artifactId>Rosetta</artifactId>
     <version>3.13.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <name>${project.groupId}:${project.artifactId}</name>
     <description>
         Rosetta is a Java library that leverages Jackson to take the pain out of
         mapping objects to/from the DB, designed to integrate seamlessly with jDBI.
@@ -78,6 +80,15 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <url>https://github.com/HubSpot/Rosetta</url>
+
+    <licenses>
+        <license>
+        <name>The Apache License, Version 2.0</name>
+        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
