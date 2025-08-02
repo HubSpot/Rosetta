@@ -5,11 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.hubspot.rosetta.RosettaBinder;
 import com.hubspot.rosetta.jdbi3.BindListWithRosetta.RosettaListBinderFactory;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
@@ -68,14 +64,17 @@ public @interface BindListWithRosetta {
           );
         }
 
-        if (node == null || node.size() == 0) {
+        if (node == null || node.isEmpty()) {
           switch (bindList.onEmpty()) {
             case VOID:
               stmt.define(name, "");
               return;
             case NULL:
+            case NULL_STRING:
               stmt.define(name, "null");
               return;
+            case NULL_VALUE:
+              stmt.define(name, null);
             case THROW:
               throw new IllegalArgumentException(
                 arg == null
