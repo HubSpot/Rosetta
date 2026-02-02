@@ -21,8 +21,11 @@ public class StoredAsJsonSerializer<T>
 
   private static final StringSerializer DELEGATE = new StringSerializer();
 
-  public StoredAsJsonSerializer(Class<T> t) {
+  private final ObjectMapper mapper;
+
+  public StoredAsJsonSerializer(Class<T> t, ObjectMapper mapper) {
     super(t);
+    this.mapper = mapper;
   }
 
   @Override
@@ -63,7 +66,7 @@ public class StoredAsJsonSerializer<T>
     if (property == null) {
       return this;
     } else {
-      return new ContextualStoredAsJsonSerializer<T>(handledType(), property) {
+      return new ContextualStoredAsJsonSerializer<T>(handledType(), property, mapper) {
         @Override
         public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
           throws IOException {

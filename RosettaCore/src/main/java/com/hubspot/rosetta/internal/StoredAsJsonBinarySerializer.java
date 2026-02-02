@@ -21,8 +21,11 @@ public class StoredAsJsonBinarySerializer<T>
 
   private static final StdSerializer<byte[]> DELEGATE = findDelegate();
 
-  public StoredAsJsonBinarySerializer(Class<T> t) {
+  private final ObjectMapper mapper;
+
+  public StoredAsJsonBinarySerializer(Class<T> t, ObjectMapper mapper) {
     super(t);
+    this.mapper = mapper;
   }
 
   @Override
@@ -59,7 +62,7 @@ public class StoredAsJsonBinarySerializer<T>
     if (property == null) {
       return this;
     } else {
-      return new ContextualStoredAsJsonSerializer<T>(handledType(), property) {
+      return new ContextualStoredAsJsonSerializer<T>(handledType(), property, mapper) {
         @Override
         public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
           throws IOException {

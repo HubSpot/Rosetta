@@ -1,6 +1,5 @@
 package com.hubspot.rosetta.internal;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -11,91 +10,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.AnnotatedElement;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 abstract class ContextualStoredAsJsonSerializer<T>
   extends NonTypedScalarSerializerBase<T> {
 
-  private static final ConcurrentHashMap<InclusionCacheKey, ObjectMapper> MAPPER_CACHE =
-    new ConcurrentHashMap<>();
-
   private final BeanProperty property;
-  private final JsonInclude.Include inclusion;
+  private final ObjectMapper mapper;
 
-  ContextualStoredAsJsonSerializer(Class<T> t, BeanProperty property) {
+  ContextualStoredAsJsonSerializer(
+    Class<T> t,
+    BeanProperty property,
+    ObjectMapper mapper
+  ) {
     super(t);
     this.property = property;
-    this.inclusion = findInclusion(property);
-  }
-
-  private static JsonInclude.Include findInclusion(BeanProperty property) {
-    if (property == null) {
-      return null;
-    }
-    AnnotatedMember member = property.getMember();
-    if (member != null) {
-      AnnotatedElement annotated = member.getAnnotated();
-      if (annotated != null) {
-        JsonInclude annotation = annotated.getAnnotation(JsonInclude.class);
-        if (
-          annotation != null && annotation.value() != JsonInclude.Include.USE_DEFAULTS
-        ) {
-          return annotation.value();
-        }
-      }
-    }
-    return null;
-  }
-
-  private ObjectMapper getConfiguredMapper(ObjectMapper baseMapper) {
-    if (inclusion == null) {
-      return baseMapper;
-    }
-    return MAPPER_CACHE.computeIfAbsent(
-      new InclusionCacheKey(baseMapper, inclusion),
-      key -> {
-        ObjectMapper nestedMapper = baseMapper.copy();
-        nestedMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
-        nestedMapper.setSerializationInclusion(key.inclusion);
-        return nestedMapper;
-      }
-    );
-  }
-
-  private static class InclusionCacheKey {
-
-    final int mapperIdentity;
-    final JsonInclude.Include inclusion;
-
-    InclusionCacheKey(ObjectMapper mapper, JsonInclude.Include inclusion) {
-      this.mapperIdentity = System.identityHashCode(mapper);
-      this.inclusion = inclusion;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof InclusionCacheKey)) {
-        return false;
-      }
-      InclusionCacheKey that = (InclusionCacheKey) o;
-      return mapperIdentity == that.mapperIdentity && inclusion == that.inclusion;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(mapperIdentity, inclusion);
-    }
+    this.mapper = mapper;
   }
 
   protected void serializeAsBytes(
@@ -104,11 +37,7 @@ abstract class ContextualStoredAsJsonSerializer<T>
     SerializerProvider provider,
     StdSerializer<byte[]> delegate
   ) throws IOException {
-    delegate.serialize(
-      serializeToBytes(value, getMapper(generator), provider),
-      generator,
-      provider
-    );
+    delegate.serialize(serializeToBytes(value), generator, provider);
   }
 
   protected void serializeAsString(
@@ -116,7 +45,7 @@ abstract class ContextualStoredAsJsonSerializer<T>
     JsonGenerator gen,
     SerializerProvider provider
   ) throws IOException {
-    String res = serializeToString(value, getMapper(gen), provider);
+    String res = serializeToString(value);
     if ("null".equals(res)) {
       gen.writeNull();
     } else {
@@ -124,41 +53,27 @@ abstract class ContextualStoredAsJsonSerializer<T>
     }
   }
 
-  private byte[] serializeToBytes(
-    T value,
-    ObjectMapper mapper,
-    SerializerProvider provider
-  ) throws IOException {
-    if (inclusion != null) {
-      return mapper.writeValueAsBytes(value);
-    }
-
+  private byte[] serializeToBytes(T value) throws IOException {
     try (ByteArrayBuilder array = new ByteArrayBuilder(new BufferRecycler())) {
-      if (trySerialzieToArray(value, mapper, provider, array)) {
+      if (trySerialzieToArray(value, array)) {
         byte[] result = array.toByteArray();
         array.release();
         return result;
       }
     }
 
+    // fallback on old behavior
     return mapper.writeValueAsBytes(value);
   }
 
-  private String serializeToString(
-    T value,
-    ObjectMapper mapper,
-    SerializerProvider provider
-  ) throws IOException {
-    if (inclusion != null) {
-      return mapper.writeValueAsString(value);
-    }
-
+  private String serializeToString(T value) throws IOException {
     try (SegmentedStringWriter sw = new SegmentedStringWriter(new BufferRecycler())) {
-      if (trySerializeToWriter(value, mapper, provider, sw)) {
+      if (trySerializeToWriter(value, sw)) {
         return sw.getAndClear();
       }
     }
 
+    // fallback on old behavior
     JsonNode tree = mapper.valueToTree(value);
     if (tree.isNull()) {
       return tree.asText();
@@ -167,36 +82,24 @@ abstract class ContextualStoredAsJsonSerializer<T>
     }
   }
 
-  private boolean trySerialzieToArray(
-    T value,
-    ObjectMapper mapper,
-    SerializerProvider provider,
-    ByteArrayBuilder builder
-  ) throws IOException {
+  private boolean trySerialzieToArray(T value, ByteArrayBuilder builder)
+    throws IOException {
     try (
       JsonGenerator gen = mapper.getFactory().createGenerator(builder, JsonEncoding.UTF8)
     ) {
-      return trySerializeToGenerator(value, mapper, provider, gen);
+      return trySerializeToGenerator(value, gen);
     }
   }
 
-  private boolean trySerializeToWriter(
-    T value,
-    ObjectMapper mapper,
-    SerializerProvider provider,
-    Writer writer
-  ) throws IOException {
+  private boolean trySerializeToWriter(T value, Writer writer) throws IOException {
     try (JsonGenerator gen = mapper.getFactory().createGenerator(writer)) {
-      return trySerializeToGenerator(value, mapper, provider, gen);
+      return trySerializeToGenerator(value, gen);
     }
   }
 
-  private boolean trySerializeToGenerator(
-    T value,
-    ObjectMapper mapper,
-    SerializerProvider provider,
-    JsonGenerator gen
-  ) throws IOException {
+  private boolean trySerializeToGenerator(T value, JsonGenerator gen) throws IOException {
+    SerializerProvider provider = mapper.getSerializerProviderInstance();
+
     JsonSerializer<Object> serializer = provider.findTypedValueSerializer(
       mapper
         .getTypeFactory()
@@ -212,10 +115,5 @@ abstract class ContextualStoredAsJsonSerializer<T>
     mapper.getSerializationConfig().initialize(gen);
     serializer.serialize(value, gen, provider);
     return true;
-  }
-
-  private ObjectMapper getMapper(JsonGenerator generator) {
-    ObjectMapper baseMapper = (ObjectMapper) generator.getCodec();
-    return getConfiguredMapper(baseMapper);
   }
 }

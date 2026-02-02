@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -62,8 +61,6 @@ public class StoredAsJsonTest {
 
   @Before
   public void setup() {
-    Rosetta.addModule(new Jdk8Module());
-
     bean = new StoredAsJsonBean();
     inner = new InnerBean();
     inner.setStringProperty("value");
@@ -807,7 +804,7 @@ public class StoredAsJsonTest {
   }
 
   @Test
-  public void itIgnoresMapperLevelInclusionForStoredAsJsonFields()
+  public void itRespectsMapperLevelInclusionForStoredAsJsonFields()
     throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper()
       .registerModule(new RosettaModule())
@@ -821,11 +818,9 @@ public class StoredAsJsonTest {
 
     JsonNode node = mapper.valueToTree(bean);
 
-    assertThat(node.get("inner").isTextual()).isTrue();
     String innerJson = node.get("inner").textValue();
-    assertThat(innerJson)
-      .as("Mapper-level NON_EMPTY should NOT affect @StoredAsJson without @JsonInclude")
-      .contains("\"values\":[]");
+    assertThat(mapper.readTree(innerJson))
+      .isEqualTo(mapper.readTree("{\"name\": \"test\"}"));
   }
 
   @Test
@@ -851,7 +846,6 @@ public class StoredAsJsonTest {
   public static class BeanWithListStoredAsJson {
 
     @StoredAsJson
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public InnerBeanWithList inner;
   }
 
@@ -864,6 +858,8 @@ public class StoredAsJsonTest {
   public static class InnerBeanWithList {
 
     public String name;
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public List<String> values;
   }
 }
