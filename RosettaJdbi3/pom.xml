@@ -9,6 +9,7 @@
   </parent>
 
   <artifactId>RosettaJdbi3</artifactId>
+  <name>${project.groupId}:${project.artifactId}</name>
 
   <properties>
     <dep.slf4j.version>1.7.32</dep.slf4j.version>
