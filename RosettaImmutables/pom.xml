@@ -9,6 +9,7 @@
   </parent>
 
   <artifactId>RosettaImmutables</artifactId>
+  <name>${project.groupId}:${project.artifactId}</name>
 
   <properties>
     <hubspot.module.type>CORE</hubspot.module.type>
