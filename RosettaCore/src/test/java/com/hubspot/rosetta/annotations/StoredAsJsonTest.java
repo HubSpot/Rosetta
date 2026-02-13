@@ -843,6 +843,76 @@ public class StoredAsJsonTest {
       .doesNotContain("values");
   }
 
+  @Test
+  public void itSerializesRosettaValueEnumsCorrectlyInStoredAsJson() throws Exception {
+    InnerBeanWithEnum inner = new InnerBeanWithEnum();
+    inner.type = TestEnumWithRosettaValue.B;
+    inner.name = "test";
+
+    BeanWithEnumStoredAsJson bean = new BeanWithEnumStoredAsJson();
+    bean.inner = inner;
+
+    JsonNode node = Rosetta.getMapper().valueToTree(bean);
+    String innerJson = node.get("inner").textValue();
+    JsonNode innerNode = Rosetta.getMapper().readTree(innerJson);
+
+    assertThat(innerNode.get("type").isNumber()).isTrue();
+    assertThat(innerNode.get("type").intValue()).isEqualTo(1);
+  }
+
+  @Test
+  public void itDeserializesRosettaCreatorEnumsCorrectlyInStoredAsJson()
+    throws Exception {
+    ObjectMapper mapper = Rosetta.getMapper();
+
+    ObjectNode outerNode = mapper.createObjectNode();
+    outerNode.put("inner", "{\"type\":1,\"name\":\"test\"}");
+
+    BeanWithEnumStoredAsJson result = mapper.convertValue(
+      outerNode,
+      BeanWithEnumStoredAsJson.class
+    );
+
+    assertThat(result.inner.type).isEqualTo(TestEnumWithRosettaValue.B);
+    assertThat(result.inner.name).isEqualTo("test");
+  }
+
+  public enum TestEnumWithRosettaValue {
+    A(0),
+    B(1);
+
+    private final int value;
+
+    TestEnumWithRosettaValue(int v) {
+      this.value = v;
+    }
+
+    @RosettaValue
+    public int getValue() {
+      return value;
+    }
+
+    @RosettaCreator
+    public static TestEnumWithRosettaValue fromValue(int v) {
+      for (TestEnumWithRosettaValue e : values()) {
+        if (e.value == v) return e;
+      }
+      throw new IllegalArgumentException("Unknown value: " + v);
+    }
+  }
+
+  public static class BeanWithEnumStoredAsJson {
+
+    @StoredAsJson
+    public InnerBeanWithEnum inner;
+  }
+
+  public static class InnerBeanWithEnum {
+
+    public TestEnumWithRosettaValue type;
+    public String name;
+  }
+
   public static class BeanWithListStoredAsJson {
 
     @StoredAsJson

@@ -1,5 +1,6 @@
 package com.hubspot.rosetta.internal;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -57,6 +58,7 @@ public class RosettaModule extends Module {
           )
       );
 
+      mapper.setSerializationInclusion(Include.ALWAYS);
       mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
       mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

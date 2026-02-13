@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -226,10 +227,58 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     if (storedAsJsonMapper == null) {
       synchronized (this) {
         if (storedAsJsonMapper == null) {
+          NopAnnotationIntrospector rosettaOnly = new RosettaAnnotationIntrospector(
+            objectMapper
+          ) {
+            @Override
+            public Value findPropertyInclusion(Annotated a) {
+              return null;
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public JsonSerializer<?> findSerializer(Annotated a) {
+              RosettaSerialize rosettaSerialize = a.getAnnotation(RosettaSerialize.class);
+              if (rosettaSerialize != null) {
+                Class<? extends JsonSerializer> klass = rosettaSerialize.using();
+                if (klass != JsonSerializer.None.class) {
+                  return ClassUtil.createInstance(
+                    klass,
+                    objectMapper.getSerializationConfig().canOverrideAccessModifiers()
+                  );
+                }
+              }
+              return null;
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public JsonDeserializer<?> findDeserializer(Annotated a) {
+              RosettaDeserialize rosettaDeserialize = a.getAnnotation(
+                RosettaDeserialize.class
+              );
+              if (rosettaDeserialize != null) {
+                Class<? extends JsonDeserializer> klass = rosettaDeserialize.using();
+                if (klass != JsonDeserializer.None.class) {
+                  return ClassUtil.createInstance(
+                    klass,
+                    objectMapper.getDeserializationConfig().canOverrideAccessModifiers()
+                  );
+                }
+              }
+              return null;
+            }
+          };
+
           storedAsJsonMapper =
             objectMapper
               .copy()
-              .setAnnotationIntrospector(new JacksonAnnotationIntrospector());
+              .setAnnotationIntrospector(
+                AnnotationIntrospector.pair(
+                  rosettaOnly,
+                  new JacksonAnnotationIntrospector()
+                )
+              );
         }
       }
     }
