@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.hubspot.rosetta.annotations.RosettaCreator;
 import com.hubspot.rosetta.annotations.RosettaDeserializationProperty;
@@ -28,6 +29,9 @@ import com.hubspot.rosetta.annotations.RosettaSerialize;
 import com.hubspot.rosetta.annotations.RosettaValue;
 import com.hubspot.rosetta.annotations.StoredAsJson;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -270,19 +274,42 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
             }
           };
 
-          storedAsJsonMapper =
-            objectMapper
-              .copy()
-              .setAnnotationIntrospector(
-                AnnotationIntrospector.pair(
-                  rosettaOnly,
-                  new JacksonAnnotationIntrospector()
-                )
-              );
+          AnnotationIntrospector existing = objectMapper
+            .getSerializationConfig()
+            .getAnnotationIntrospector();
+          AnnotationIntrospector secondary = extractSecondaryIntrospector(existing);
+
+          ObjectMapper mapper = objectMapper
+            .copy()
+            .setAnnotationIntrospector(
+              AnnotationIntrospector.pair(rosettaOnly, secondary)
+            );
+          mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
+          storedAsJsonMapper = mapper;
         }
       }
     }
 
     return storedAsJsonMapper;
+  }
+
+  private static AnnotationIntrospector extractSecondaryIntrospector(
+    AnnotationIntrospector existing
+  ) {
+    Collection<AnnotationIntrospector> all = existing.allIntrospectors();
+    List<AnnotationIntrospector> nonRosetta = new ArrayList<>();
+    for (AnnotationIntrospector ai : all) {
+      if (!(ai instanceof RosettaAnnotationIntrospector)) {
+        nonRosetta.add(ai);
+      }
+    }
+    if (nonRosetta.isEmpty()) {
+      return new JacksonAnnotationIntrospector();
+    }
+    AnnotationIntrospector result = nonRosetta.get(nonRosetta.size() - 1);
+    for (int i = nonRosetta.size() - 2; i >= 0; i--) {
+      result = AnnotationIntrospector.pair(nonRosetta.get(i), result);
+    }
+    return result;
   }
 }
