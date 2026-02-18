@@ -34,10 +34,13 @@ import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJs
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
 import com.hubspot.rosetta.internal.RosettaModule;
+import com.hubspot.rosetta.internal.StoredAsJsonSerializer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -969,6 +972,39 @@ public class StoredAsJsonTest {
       )
       .isTrue();
     assertThat(innerNode.get("description").isNull()).isTrue();
+  }
+
+  @Test
+  public void itRoundTripsStoredAsJsonViaConvertValue() {
+    ObjectMapper mapper = Rosetta.getMapper();
+
+    InnerBean inner = new InnerBean();
+    inner.setStringProperty("value");
+
+    StoredAsJsonBean bean = new StoredAsJsonBean();
+    bean.setAnnotatedField(inner);
+
+    JsonNode tree = mapper.valueToTree(bean);
+
+    Map<String, Object> rowMap = new HashMap<>();
+    rowMap.put("annotatedField", tree.get("annotatedField").textValue());
+
+    StoredAsJsonBean result = mapper.convertValue(rowMap, StoredAsJsonBean.class);
+    assertThat(result.getAnnotatedField().getStringProperty()).isEqualTo("value");
+  }
+
+  @SuppressWarnings("deprecation")
+  public static class CustomSerializer extends StoredAsJsonSerializer<InnerBean> {
+
+    public CustomSerializer(Class<InnerBean> t) {
+      super(t);
+    }
+  }
+
+  @Test
+  public void itSupportsDeprecatedSingleArgConstructor() {
+    CustomSerializer serializer = new CustomSerializer(InnerBean.class);
+    assertThat(serializer).isNotNull();
   }
 
   @Test

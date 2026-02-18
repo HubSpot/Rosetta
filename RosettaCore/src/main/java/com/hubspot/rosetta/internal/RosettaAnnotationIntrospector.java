@@ -66,8 +66,8 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     if (storedAsJson != null) {
       Class<?> type = a.getRawType();
       return storedAsJson.binary()
-        ? new StoredAsJsonBinarySerializer(type, getStoredAsJsonMapper())
-        : new StoredAsJsonSerializer(type, getStoredAsJsonMapper());
+        ? new StoredAsJsonBinarySerializer(type, getStoredAsJsonMapper(), objectMapper)
+        : new StoredAsJsonSerializer(type, getStoredAsJsonMapper(), objectMapper);
     }
 
     if (rosettaSerialize != null) {
@@ -104,7 +104,8 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
         a.getRawType(),
         a.getType(),
         empty,
-        getStoredAsJsonMapper()
+        getStoredAsJsonMapper(),
+        objectMapper
       );
     }
 
@@ -231,69 +232,69 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     if (storedAsJsonMapper == null) {
       synchronized (this) {
         if (storedAsJsonMapper == null) {
-          NopAnnotationIntrospector rosettaOnly = new RosettaAnnotationIntrospector(
-            objectMapper
-          ) {
-            @Override
-            public Value findPropertyInclusion(Annotated a) {
-              if (a instanceof AnnotatedClass) {
-                return Value.construct(Include.ALWAYS, Include.ALWAYS);
-              }
-              return null;
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public JsonSerializer<?> findSerializer(Annotated a) {
-              RosettaSerialize rosettaSerialize = a.getAnnotation(RosettaSerialize.class);
-              if (rosettaSerialize != null) {
-                Class<? extends JsonSerializer> klass = rosettaSerialize.using();
-                if (klass != JsonSerializer.None.class) {
-                  return ClassUtil.createInstance(
-                    klass,
-                    objectMapper.getSerializationConfig().canOverrideAccessModifiers()
-                  );
-                }
-              }
-              return null;
-            }
-
-            @Override
-            @SuppressWarnings("unchecked")
-            public JsonDeserializer<?> findDeserializer(Annotated a) {
-              RosettaDeserialize rosettaDeserialize = a.getAnnotation(
-                RosettaDeserialize.class
-              );
-              if (rosettaDeserialize != null) {
-                Class<? extends JsonDeserializer> klass = rosettaDeserialize.using();
-                if (klass != JsonDeserializer.None.class) {
-                  return ClassUtil.createInstance(
-                    klass,
-                    objectMapper.getDeserializationConfig().canOverrideAccessModifiers()
-                  );
-                }
-              }
-              return null;
-            }
-          };
-
-          AnnotationIntrospector existing = objectMapper
-            .getSerializationConfig()
-            .getAnnotationIntrospector();
-          AnnotationIntrospector secondary = extractSecondaryIntrospector(existing);
-
-          ObjectMapper mapper = objectMapper
-            .copy()
-            .setAnnotationIntrospector(
-              AnnotationIntrospector.pair(rosettaOnly, secondary)
-            );
-          mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
-          storedAsJsonMapper = mapper;
+          storedAsJsonMapper = createSafeMapper(objectMapper);
         }
       }
     }
 
     return storedAsJsonMapper;
+  }
+
+  static ObjectMapper createSafeMapper(ObjectMapper sourceMapper) {
+    NopAnnotationIntrospector rosettaOnly = new RosettaAnnotationIntrospector(
+      sourceMapper
+    ) {
+      @Override
+      public Value findPropertyInclusion(Annotated a) {
+        if (a instanceof AnnotatedClass) {
+          return Value.construct(Include.ALWAYS, Include.ALWAYS);
+        }
+        return null;
+      }
+
+      @Override
+      @SuppressWarnings("unchecked")
+      public JsonSerializer<?> findSerializer(Annotated a) {
+        RosettaSerialize rosettaSerialize = a.getAnnotation(RosettaSerialize.class);
+        if (rosettaSerialize != null) {
+          Class<? extends JsonSerializer> klass = rosettaSerialize.using();
+          if (klass != JsonSerializer.None.class) {
+            return ClassUtil.createInstance(
+              klass,
+              sourceMapper.getSerializationConfig().canOverrideAccessModifiers()
+            );
+          }
+        }
+        return null;
+      }
+
+      @Override
+      @SuppressWarnings("unchecked")
+      public JsonDeserializer<?> findDeserializer(Annotated a) {
+        RosettaDeserialize rosettaDeserialize = a.getAnnotation(RosettaDeserialize.class);
+        if (rosettaDeserialize != null) {
+          Class<? extends JsonDeserializer> klass = rosettaDeserialize.using();
+          if (klass != JsonDeserializer.None.class) {
+            return ClassUtil.createInstance(
+              klass,
+              sourceMapper.getDeserializationConfig().canOverrideAccessModifiers()
+            );
+          }
+        }
+        return null;
+      }
+    };
+
+    AnnotationIntrospector existing = sourceMapper
+      .getSerializationConfig()
+      .getAnnotationIntrospector();
+    AnnotationIntrospector secondary = extractSecondaryIntrospector(existing);
+
+    ObjectMapper mapper = sourceMapper
+      .copy()
+      .setAnnotationIntrospector(AnnotationIntrospector.pair(rosettaOnly, secondary));
+    mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
+    return mapper;
   }
 
   private static AnnotationIntrospector extractSecondaryIntrospector(

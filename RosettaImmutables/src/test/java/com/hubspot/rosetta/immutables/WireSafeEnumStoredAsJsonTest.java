@@ -12,6 +12,8 @@ import com.hubspot.rosetta.immutables.beans.SimpleEnum;
 import com.hubspot.rosetta.immutables.beans.WireSafeEnumStoredAsJsonBean;
 import com.hubspot.rosetta.immutables.beans.WireSafeEnumStoredAsJsonBean.InnerWireSafeEnumBean;
 import com.hubspot.rosetta.internal.RosettaModule;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class WireSafeEnumStoredAsJsonTest {
@@ -88,5 +90,51 @@ public class WireSafeEnumStoredAsJsonTest {
     assertThat(result.getInner().getSimpleEnum())
       .isEqualTo(WireSafeEnum.of(SimpleEnum.ONE));
     assertThat(result.getInner().getName()).isEqualTo("deser");
+  }
+
+  @Test
+  public void itDeserializesWireSafeEnumViaConvertValueWithCustomMapperCopy() {
+    ObjectMapper base = new ObjectMapper()
+      .registerModules(new Jdk8Module(), new RosettaModule());
+
+    ObjectMapper customCopy = base.copy().registerModule(new RosettaImmutablesModule());
+
+    Map<String, Object> rowMap = new HashMap<>();
+    rowMap.put("inner", "{\"customEnum\":1,\"simpleEnum\":\"ONE\",\"name\":\"test\"}");
+
+    WireSafeEnumStoredAsJsonBean result = customCopy.convertValue(
+      rowMap,
+      WireSafeEnumStoredAsJsonBean.class
+    );
+
+    assertThat(result.getInner().getCustomEnum())
+      .isEqualTo(WireSafeEnum.of(CustomEnum.ONE));
+    assertThat(result.getInner().getSimpleEnum())
+      .isEqualTo(WireSafeEnum.of(SimpleEnum.ONE));
+    assertThat(result.getInner().getName()).isEqualTo("test");
+  }
+
+  @Test
+  public void itSerializesWireSafeEnumViaValueToTreeWithCustomMapperCopy()
+    throws Exception {
+    ObjectMapper base = new ObjectMapper()
+      .registerModules(new Jdk8Module(), new RosettaModule());
+
+    ObjectMapper customCopy = base.copy().registerModule(new RosettaImmutablesModule());
+
+    InnerWireSafeEnumBean inner = new InnerWireSafeEnumBean();
+    inner.setCustomEnum(WireSafeEnum.of(CustomEnum.TWO));
+    inner.setSimpleEnum(WireSafeEnum.of(SimpleEnum.ONE));
+    inner.setName("test");
+
+    WireSafeEnumStoredAsJsonBean bean = new WireSafeEnumStoredAsJsonBean();
+    bean.setInner(inner);
+
+    JsonNode node = customCopy.valueToTree(bean);
+    String innerJson = node.get("inner").textValue();
+    JsonNode innerNode = customCopy.readTree(innerJson);
+
+    assertThat(innerNode.get("customEnum").isNumber()).isTrue();
+    assertThat(innerNode.get("customEnum").intValue()).isEqualTo(2);
   }
 }

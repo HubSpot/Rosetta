@@ -20,15 +20,49 @@ abstract class ContextualStoredAsJsonSerializer<T>
 
   private final BeanProperty property;
   private final ObjectMapper mapper;
+  private final ObjectMapper baseMapper;
+  private volatile ObjectMapper cachedOuterMapper;
+  private volatile ObjectMapper cachedSafeMapper;
 
   ContextualStoredAsJsonSerializer(
     Class<T> t,
     BeanProperty property,
     ObjectMapper mapper
   ) {
+    this(t, property, mapper, null);
+  }
+
+  ContextualStoredAsJsonSerializer(
+    Class<T> t,
+    BeanProperty property,
+    ObjectMapper mapper,
+    ObjectMapper baseMapper
+  ) {
     super(t);
     this.property = property;
     this.mapper = mapper;
+    this.baseMapper = baseMapper;
+  }
+
+  private ObjectMapper resolveMapper(JsonGenerator gen) {
+    if (mapper == null) {
+      return (ObjectMapper) gen.getCodec();
+    }
+    if (baseMapper == null) {
+      return mapper;
+    }
+    ObjectMapper outerMapper = (ObjectMapper) gen.getCodec();
+    if (outerMapper == baseMapper) {
+      return mapper;
+    }
+    ObjectMapper cached = cachedSafeMapper;
+    if (cached != null && cachedOuterMapper == outerMapper) {
+      return cached;
+    }
+    ObjectMapper safe = RosettaAnnotationIntrospector.createSafeMapper(outerMapper);
+    cachedOuterMapper = outerMapper;
+    cachedSafeMapper = safe;
+    return safe;
   }
 
   protected void serializeAsBytes(
@@ -37,7 +71,8 @@ abstract class ContextualStoredAsJsonSerializer<T>
     SerializerProvider provider,
     StdSerializer<byte[]> delegate
   ) throws IOException {
-    delegate.serialize(serializeToBytes(value), generator, provider);
+    ObjectMapper effectiveMapper = resolveMapper(generator);
+    delegate.serialize(serializeToBytes(value, effectiveMapper), generator, provider);
   }
 
   protected void serializeAsString(
@@ -45,7 +80,8 @@ abstract class ContextualStoredAsJsonSerializer<T>
     JsonGenerator gen,
     SerializerProvider provider
   ) throws IOException {
-    String res = serializeToString(value);
+    ObjectMapper effectiveMapper = resolveMapper(gen);
+    String res = serializeToString(value, effectiveMapper);
     if ("null".equals(res)) {
       gen.writeNull();
     } else {
@@ -53,9 +89,10 @@ abstract class ContextualStoredAsJsonSerializer<T>
     }
   }
 
-  private byte[] serializeToBytes(T value) throws IOException {
+  private byte[] serializeToBytes(T value, ObjectMapper effectiveMapper)
+    throws IOException {
     try (ByteArrayBuilder array = new ByteArrayBuilder(new BufferRecycler())) {
-      if (trySerialzieToArray(value, array)) {
+      if (trySerialzieToArray(value, array, effectiveMapper)) {
         byte[] result = array.toByteArray();
         array.release();
         return result;
@@ -63,45 +100,59 @@ abstract class ContextualStoredAsJsonSerializer<T>
     }
 
     // fallback on old behavior
-    return mapper.writeValueAsBytes(value);
+    return effectiveMapper.writeValueAsBytes(value);
   }
 
-  private String serializeToString(T value) throws IOException {
+  private String serializeToString(T value, ObjectMapper effectiveMapper)
+    throws IOException {
     try (SegmentedStringWriter sw = new SegmentedStringWriter(new BufferRecycler())) {
-      if (trySerializeToWriter(value, sw)) {
+      if (trySerializeToWriter(value, sw, effectiveMapper)) {
         return sw.getAndClear();
       }
     }
 
     // fallback on old behavior
-    JsonNode tree = mapper.valueToTree(value);
+    JsonNode tree = effectiveMapper.valueToTree(value);
     if (tree.isNull()) {
       return tree.asText();
     } else {
-      return mapper.writeValueAsString(tree);
+      return effectiveMapper.writeValueAsString(tree);
     }
   }
 
-  private boolean trySerialzieToArray(T value, ByteArrayBuilder builder)
-    throws IOException {
+  private boolean trySerialzieToArray(
+    T value,
+    ByteArrayBuilder builder,
+    ObjectMapper effectiveMapper
+  ) throws IOException {
     try (
-      JsonGenerator gen = mapper.getFactory().createGenerator(builder, JsonEncoding.UTF8)
+      JsonGenerator gen = effectiveMapper
+        .getFactory()
+        .createGenerator(builder, JsonEncoding.UTF8)
     ) {
-      return trySerializeToGenerator(value, gen);
+      return trySerializeToGenerator(value, gen, effectiveMapper);
     }
   }
 
-  private boolean trySerializeToWriter(T value, Writer writer) throws IOException {
-    try (JsonGenerator gen = mapper.getFactory().createGenerator(writer)) {
-      return trySerializeToGenerator(value, gen);
+  private boolean trySerializeToWriter(
+    T value,
+    Writer writer,
+    ObjectMapper effectiveMapper
+  ) throws IOException {
+    try (JsonGenerator gen = effectiveMapper.getFactory().createGenerator(writer)) {
+      return trySerializeToGenerator(value, gen, effectiveMapper);
     }
   }
 
-  private boolean trySerializeToGenerator(T value, JsonGenerator gen) throws IOException {
-    SerializerProvider provider = mapper.getSerializerProviderInstance();
+  private boolean trySerializeToGenerator(
+    T value,
+    JsonGenerator gen,
+    ObjectMapper effectiveMapper
+  ) throws IOException {
+    SerializerProvider provider = effectiveMapper.getSerializerProviderInstance();
 
     JsonSerializer<Object> serializer = provider.findTypedValueSerializer(
-      mapper
+      effectiveMapper
         .getTypeFactory()
         .constructSpecializedType(property.getType(), value.getClass()),
       false,
@@ -112,7 +163,7 @@ abstract class ContextualStoredAsJsonSerializer<T>
       return false;
     }
 
-    mapper.getSerializationConfig().initialize(gen);
+    effectiveMapper.getSerializationConfig().initialize(gen);
     serializer.serialize(value, gen, provider);
     return true;
   }

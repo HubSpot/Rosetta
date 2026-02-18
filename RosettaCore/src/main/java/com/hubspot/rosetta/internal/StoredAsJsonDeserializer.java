@@ -20,6 +20,9 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   private final Type type;
   private final String defaultValue;
   private final ObjectMapper objectMapper;
+  private final ObjectMapper baseMapper;
+  private volatile ObjectMapper cachedOuterMapper;
+  private volatile ObjectMapper cachedSafeMapper;
 
   public StoredAsJsonDeserializer(
     Class<T> vc,
@@ -27,24 +30,57 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     String defaultValue,
     ObjectMapper objectMapper
   ) {
+    this(vc, type, defaultValue, objectMapper, null);
+  }
+
+  public StoredAsJsonDeserializer(
+    Class<T> vc,
+    Type type,
+    String defaultValue,
+    ObjectMapper objectMapper,
+    ObjectMapper baseMapper
+  ) {
     super(vc);
     this.type = type;
     this.defaultValue = defaultValue;
     this.objectMapper = objectMapper;
+    this.baseMapper = baseMapper;
+  }
+
+  private ObjectMapper resolveMapper(JsonParser jp) {
+    if (objectMapper == null) {
+      return (ObjectMapper) jp.getCodec();
+    }
+    if (baseMapper == null) {
+      return objectMapper;
+    }
+    ObjectMapper outerMapper = (ObjectMapper) jp.getCodec();
+    if (outerMapper == baseMapper) {
+      return objectMapper;
+    }
+    ObjectMapper cached = cachedSafeMapper;
+    if (cached != null && cachedOuterMapper == outerMapper) {
+      return cached;
+    }
+    ObjectMapper safe = RosettaAnnotationIntrospector.createSafeMapper(outerMapper);
+    cachedOuterMapper = outerMapper;
+    cachedSafeMapper = safe;
+    return safe;
   }
 
   @Override
   public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
     JavaType javaType = ctxt.getTypeFactory().constructType(type);
+    ObjectMapper effectiveMapper = resolveMapper(jp);
 
     if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-      return deserialize(objectMapper, jp.getText(), javaType);
+      return deserialize(effectiveMapper, jp.getText(), javaType);
     } else if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
       String json = new String(
         jp.getBinaryValue(Base64Variants.getDefaultVariant()),
         StandardCharsets.UTF_8
       );
-      return deserialize(objectMapper, json, javaType);
+      return deserialize(effectiveMapper, json, javaType);
     } else if (
       jp.getCurrentToken() == JsonToken.START_OBJECT ||
       jp.getCurrentToken() == JsonToken.START_ARRAY
@@ -66,7 +102,6 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
     DeserializationContext ctxt,
     TypeDeserializer typeDeserializer
   ) throws IOException {
-    // we're delegating to the our parent object mapper, so the TypeDeserializer doesn't matter
     return deserialize(jp, ctxt);
   }
 

@@ -22,10 +22,28 @@ public class StoredAsJsonSerializer<T>
   private static final StringSerializer DELEGATE = new StringSerializer();
 
   private final ObjectMapper mapper;
+  private final ObjectMapper baseMapper;
+
+  /**
+   * @deprecated use {@link #StoredAsJsonSerializer(Class, ObjectMapper)} instead.
+   */
+  @Deprecated
+  public StoredAsJsonSerializer(Class<T> t) {
+    this(t, null, null);
+  }
 
   public StoredAsJsonSerializer(Class<T> t, ObjectMapper mapper) {
+    this(t, mapper, null);
+  }
+
+  public StoredAsJsonSerializer(
+    Class<T> t,
+    ObjectMapper mapper,
+    ObjectMapper baseMapper
+  ) {
     super(t);
     this.mapper = mapper;
+    this.baseMapper = baseMapper;
   }
 
   @Override
@@ -66,7 +84,12 @@ public class StoredAsJsonSerializer<T>
     if (property == null) {
       return this;
     } else {
-      return new ContextualStoredAsJsonSerializer<T>(handledType(), property, mapper) {
+      return new ContextualStoredAsJsonSerializer<T>(
+        handledType(),
+        property,
+        mapper,
+        baseMapper
+      ) {
         @Override
         public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
           throws IOException {
