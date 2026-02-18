@@ -932,4 +932,41 @@ public class StoredAsJsonTest {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public List<String> values;
   }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public static class InnerBeanWithNonNullInclusion {
+
+    public String name;
+    public String description;
+  }
+
+  public static class BeanWithNonNullInclusionStoredAsJson {
+
+    @StoredAsJson
+    public InnerBeanWithNonNullInclusion inner;
+  }
+
+  @Test
+  public void itIncludesNullFieldsInStoredAsJsonDespiteClassLevelNonNullInclusion()
+    throws JsonProcessingException {
+    BeanWithNonNullInclusionStoredAsJson bean =
+      new BeanWithNonNullInclusionStoredAsJson();
+    bean.inner = new InnerBeanWithNonNullInclusion();
+    bean.inner.name = "test";
+    bean.inner.description = null;
+
+    JsonNode node = Rosetta.getMapper().valueToTree(bean);
+    String innerJson = node.get("inner").textValue();
+    JsonNode innerNode = Rosetta.getMapper().readTree(innerJson);
+
+    assertThat(innerNode.has("name")).isTrue();
+    assertThat(innerNode.get("name").textValue()).isEqualTo("test");
+    assertThat(innerNode.has("description"))
+      .as(
+        "Null field should still be included in StoredAsJson serialization " +
+        "even when class has @JsonInclude(NON_NULL)"
+      )
+      .isTrue();
+    assertThat(innerNode.get("description").isNull()).isTrue();
+  }
 }
