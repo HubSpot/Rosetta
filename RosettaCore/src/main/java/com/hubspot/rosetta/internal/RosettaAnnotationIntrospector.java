@@ -237,9 +237,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
             @Override
             public Value findPropertyInclusion(Annotated a) {
               if (a instanceof AnnotatedClass) {
-                return objectMapper
-                  .getSerializationConfig()
-                  .getDefaultPropertyInclusion();
+                return Value.construct(Include.ALWAYS, Include.ALWAYS);
               }
               return null;
             }
