@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -968,5 +969,29 @@ public class StoredAsJsonTest {
       )
       .isTrue();
     assertThat(innerNode.get("description").isNull()).isTrue();
+  }
+
+  @Test
+  public void itRoundTripsWithSnakeCaseNamingStrategy() throws JsonProcessingException {
+    ObjectMapper mapper = Rosetta
+      .getMapper()
+      .copy()
+      .setPropertyNamingStrategy(new PropertyNamingStrategies.SnakeCaseStrategy());
+
+    StoredAsJsonBean bean = new StoredAsJsonBean();
+    InnerBean inner = new InnerBean();
+    inner.setStringProperty("value");
+    bean.setAnnotatedField(inner);
+
+    JsonNode tree = mapper.valueToTree(bean);
+
+    String innerJson = tree.get("annotated_field").textValue();
+    JsonNode innerNode = mapper.readTree(innerJson);
+    boolean usesSnakeCase = innerNode.has("string_property");
+    boolean usesCamelCase = innerNode.has("stringProperty");
+
+    StoredAsJsonBean deserialized = mapper.treeToValue(tree, StoredAsJsonBean.class);
+    assertThat(deserialized.getAnnotatedField()).isNotNull();
+    assertThat(deserialized.getAnnotatedField().getStringProperty()).isEqualTo("value");
   }
 }

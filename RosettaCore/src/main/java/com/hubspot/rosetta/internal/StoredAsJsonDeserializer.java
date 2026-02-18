@@ -36,21 +36,20 @@ public class StoredAsJsonDeserializer<T> extends StdScalarDeserializer<T> {
   @Override
   public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
     JavaType javaType = ctxt.getTypeFactory().constructType(type);
-    ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 
     if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-      return deserialize(mapper, jp.getText(), javaType);
+      return deserialize(objectMapper, jp.getText(), javaType);
     } else if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
       String json = new String(
         jp.getBinaryValue(Base64Variants.getDefaultVariant()),
         StandardCharsets.UTF_8
       );
-      return deserialize(mapper, json, javaType);
+      return deserialize(objectMapper, json, javaType);
     } else if (
       jp.getCurrentToken() == JsonToken.START_OBJECT ||
       jp.getCurrentToken() == JsonToken.START_ARRAY
     ) {
-      return mapper.readValue(jp, javaType);
+      return jp.getCodec().readValue(jp, javaType);
     } else {
       throw ctxt.wrongTokenException(
         jp,
