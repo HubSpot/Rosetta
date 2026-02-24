@@ -164,6 +164,7 @@ abstract class ContextualStoredAsJsonSerializer<T>
     }
 
     effectiveMapper.getSerializationConfig().initialize(gen);
+    gen.setCodec(effectiveMapper);
     serializer.serialize(value, gen, provider);
     return true;
   }

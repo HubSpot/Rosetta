@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
@@ -16,7 +18,12 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.hubspot.rosetta.annotations.RosettaCreator;
 import com.hubspot.rosetta.annotations.RosettaDeserializationProperty;
@@ -33,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
@@ -206,7 +214,7 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
       );
   }
 
-  private Annotated getAnnotatedTypeFromAnnotatedMethod(AnnotatedMethod a) {
+  private static Annotated getAnnotatedTypeFromAnnotatedMethod(AnnotatedMethod a) {
     if (a.getParameterCount() > 0) {
       return a.getParameter(0);
     } else if (a.hasReturnType()) {
@@ -241,6 +249,8 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
   }
 
   static ObjectMapper createSafeMapper(ObjectMapper sourceMapper) {
+    AtomicReference<ObjectMapper> safeMapperRef = new AtomicReference<>();
+
     NopAnnotationIntrospector rosettaOnly = new RosettaAnnotationIntrospector(
       sourceMapper
     ) {
@@ -265,6 +275,12 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
             );
           }
         }
+        StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
+        if (storedAsJson != null) {
+          ObjectMapper safeMapper = safeMapperRef.get();
+          Class<?> type = a.getRawType();
+          return new StoredAsJsonSerializer(type, safeMapper, safeMapper);
+        }
         return null;
       }
 
@@ -281,6 +297,24 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
             );
           }
         }
+        StoredAsJson storedAsJson = a.getAnnotation(StoredAsJson.class);
+        if (storedAsJson != null) {
+          Annotated effective = a;
+          if (a instanceof AnnotatedMethod) {
+            effective = getAnnotatedTypeFromAnnotatedMethod((AnnotatedMethod) a);
+          }
+          String empty = StoredAsJson.NULL.equals(storedAsJson.empty())
+            ? "null"
+            : storedAsJson.empty();
+          ObjectMapper safeMapper = safeMapperRef.get();
+          return new StoredAsJsonDeserializer(
+            effective.getRawType(),
+            effective.getType(),
+            empty,
+            safeMapper,
+            safeMapper
+          );
+        }
         return null;
       }
     };
@@ -293,8 +327,58 @@ public class RosettaAnnotationIntrospector extends NopAnnotationIntrospector {
     ObjectMapper mapper = sourceMapper
       .copy()
       .setAnnotationIntrospector(AnnotationIntrospector.pair(rosettaOnly, secondary));
+    mapper.setSerializerFactory(
+      rebuildFactoryWithTextOnlyNullSerializers(mapper.getSerializerFactory())
+    );
     mapper.setSerializerProvider(new DefaultSerializerProvider.Impl());
+    safeMapperRef.set(mapper);
     return mapper;
+  }
+
+  private static SerializerFactory rebuildFactoryWithTextOnlyNullSerializers(
+    SerializerFactory original
+  ) {
+    if (!(original instanceof BeanSerializerFactory)) {
+      return original;
+    }
+    BeanSerializerFactory bsf = (BeanSerializerFactory) original;
+    BeanSerializerFactory result = BeanSerializerFactory.instance;
+    for (Serializers s : bsf.getFactoryConfig().serializers()) {
+      result = (BeanSerializerFactory) result.withAdditionalSerializers(s);
+    }
+    for (BeanSerializerModifier m : bsf.getFactoryConfig().serializerModifiers()) {
+      if (m instanceof StoredAsJsonBeanSerializerModifier) {
+        result =
+          (BeanSerializerFactory) result.withSerializerModifier(
+            new BeanSerializerModifier() {
+              @Override
+              public List<BeanPropertyWriter> changeProperties(
+                SerializationConfig config,
+                BeanDescription beanDesc,
+                List<BeanPropertyWriter> beanProperties
+              ) {
+                for (BeanPropertyWriter beanProperty : beanProperties) {
+                  StoredAsJson storedAsJson = beanProperty.getAnnotation(
+                    StoredAsJson.class
+                  );
+                  if (
+                    storedAsJson != null &&
+                    !StoredAsJson.NULL.equals(storedAsJson.empty())
+                  ) {
+                    beanProperty.assignNullSerializer(
+                      new ConstantSerializer(storedAsJson.empty())
+                    );
+                  }
+                }
+                return beanProperties;
+              }
+            }
+          );
+      } else {
+        result = (BeanSerializerFactory) result.withSerializerModifier(m);
+      }
+    }
+    return result;
   }
 
   private static AnnotationIntrospector extractSecondaryIntrospector(

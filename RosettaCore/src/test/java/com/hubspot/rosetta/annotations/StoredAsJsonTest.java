@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -35,6 +36,7 @@ import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
 import com.hubspot.rosetta.internal.RosettaModule;
 import com.hubspot.rosetta.internal.StoredAsJsonSerializer;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -950,6 +952,18 @@ public class StoredAsJsonTest {
     public InnerBeanWithNonNullInclusion inner;
   }
 
+  public static class InnerBeanWithBigDecimal {
+
+    public BigDecimal amount;
+    public BigDecimal total;
+  }
+
+  public static class BeanWithBigDecimalStoredAsJson {
+
+    @StoredAsJson
+    public InnerBeanWithBigDecimal inner;
+  }
+
   @Test
   public void itIncludesNullFieldsInStoredAsJsonDespiteClassLevelNonNullInclusion()
     throws JsonProcessingException {
@@ -993,6 +1007,60 @@ public class StoredAsJsonTest {
     assertThat(result.getAnnotatedField().getStringProperty()).isEqualTo("value");
   }
 
+  @Test
+  public void itSerializesNestedStoredAsJsonFieldsAsStrings()
+    throws JsonProcessingException {
+    ObjectMapper mapper = Rosetta.getMapper();
+
+    InnerBean inner = new InnerBean();
+    inner.setStringProperty("value");
+
+    StoredAsJsonBean storedAsJsonBean = new StoredAsJsonBean();
+    storedAsJsonBean.setAnnotatedField(inner);
+
+    NestedStoredAsJsonBean top = new NestedStoredAsJsonBean();
+    top.setAnnotatedField(storedAsJsonBean);
+
+    JsonNode tree = mapper.valueToTree(top);
+    String outerJson = tree.get("annotatedField").textValue();
+    JsonNode outerParsed = mapper.readTree(outerJson);
+
+    assertThat(outerParsed.get("annotatedField").isTextual())
+      .as(
+        "Nested @StoredAsJson field should be serialized as a JSON string, " +
+        "not as a raw JSON object"
+      )
+      .isTrue();
+  }
+
+  @Test
+  public void itRoundTripsNestedStoredAsJsonViaConvertValue()
+    throws JsonProcessingException {
+    ObjectMapper mapper = Rosetta.getMapper();
+
+    InnerBean inner = new InnerBean();
+    inner.setStringProperty("value");
+
+    StoredAsJsonBean storedAsJsonBean = new StoredAsJsonBean();
+    storedAsJsonBean.setAnnotatedField(inner);
+
+    NestedStoredAsJsonBean top = new NestedStoredAsJsonBean();
+    top.setAnnotatedField(storedAsJsonBean);
+
+    JsonNode tree = mapper.valueToTree(top);
+    String outerJson = tree.get("annotatedField").textValue();
+
+    Map<String, Object> rowMap = new HashMap<>();
+    rowMap.put("annotatedField", outerJson);
+
+    NestedStoredAsJsonBean result = mapper.convertValue(
+      rowMap,
+      NestedStoredAsJsonBean.class
+    );
+    assertThat(result.getAnnotatedField().getAnnotatedField().getStringProperty())
+      .isEqualTo("value");
+  }
+
   @SuppressWarnings("deprecation")
   public static class CustomSerializer extends StoredAsJsonSerializer<InnerBean> {
 
@@ -1005,6 +1073,115 @@ public class StoredAsJsonTest {
   public void itSupportsDeprecatedSingleArgConstructor() {
     CustomSerializer serializer = new CustomSerializer(InnerBean.class);
     assertThat(serializer).isNotNull();
+  }
+
+  @Test
+  public void itPreservesBigDecimalScaleDuringStoredAsJsonRoundTrip()
+    throws JsonProcessingException {
+    ObjectMapper mapper = Rosetta.getMapper();
+
+    InnerBeanWithBigDecimal inner = new InnerBeanWithBigDecimal();
+    inner.amount = new BigDecimal("75.000000");
+    inner.total = new BigDecimal("1000.00");
+
+    BeanWithBigDecimalStoredAsJson bean = new BeanWithBigDecimalStoredAsJson();
+    bean.inner = inner;
+
+    JsonNode tree = mapper.valueToTree(bean);
+    String innerJson = tree.get("inner").textValue();
+    assertThat(innerJson).contains("75.000000");
+
+    BeanWithBigDecimalStoredAsJson result = mapper.treeToValue(
+      tree,
+      BeanWithBigDecimalStoredAsJson.class
+    );
+
+    assertThat(result.inner.amount.compareTo(new BigDecimal("75.000000"))).isEqualTo(0);
+    assertThat(result.inner.amount.scale()).isEqualTo(6);
+    assertThat(result.inner.total.scale()).isEqualTo(2);
+  }
+
+  @Test
+  public void itPreservesBigDecimalScaleViaConvertValue() throws JsonProcessingException {
+    ObjectMapper mapper = Rosetta.getMapper();
+
+    InnerBeanWithBigDecimal inner = new InnerBeanWithBigDecimal();
+    inner.amount = new BigDecimal("75.000000");
+    inner.total = new BigDecimal("1000.00");
+
+    BeanWithBigDecimalStoredAsJson bean = new BeanWithBigDecimalStoredAsJson();
+    bean.inner = inner;
+
+    JsonNode tree = mapper.valueToTree(bean);
+    String innerJson = tree.get("inner").textValue();
+
+    Map<String, Object> rowMap = new HashMap<>();
+    rowMap.put("inner", innerJson);
+
+    BeanWithBigDecimalStoredAsJson result = mapper.convertValue(
+      rowMap,
+      BeanWithBigDecimalStoredAsJson.class
+    );
+
+    assertThat(result.inner.amount.compareTo(new BigDecimal("75.000000"))).isEqualTo(0);
+    assertThat(result.inner.amount.scale()).isEqualTo(6);
+    assertThat(result.inner.total.scale()).isEqualTo(2);
+  }
+
+  @Test
+  public void itPreservesBigDecimalScaleWhenOuterMapperUsesBigDecimalForFloats()
+    throws JsonProcessingException {
+    ObjectMapper mapper = Rosetta.cloneAndCustomize(
+      new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+    );
+
+    InnerBeanWithBigDecimal inner = new InnerBeanWithBigDecimal();
+    inner.amount = new BigDecimal("75.000000");
+
+    BeanWithBigDecimalStoredAsJson bean = new BeanWithBigDecimalStoredAsJson();
+    bean.inner = inner;
+
+    JsonNode tree = mapper.valueToTree(bean);
+    BeanWithBigDecimalStoredAsJson result = mapper.treeToValue(
+      tree,
+      BeanWithBigDecimalStoredAsJson.class
+    );
+
+    assertThat(result.inner.amount.scale()).isEqualTo(6);
+  }
+
+  @Test
+  public void itSerializesNestedStoredAsJsonWithBigDecimalAsString()
+    throws JsonProcessingException {
+    ObjectMapper mapper = Rosetta.getMapper();
+
+    InnerBeanWithBigDecimal innerBigDecimal = new InnerBeanWithBigDecimal();
+    innerBigDecimal.amount = new BigDecimal("75.000000");
+    innerBigDecimal.total = new BigDecimal("1000.00");
+
+    BeanWithBigDecimalStoredAsJson innerBean = new BeanWithBigDecimalStoredAsJson();
+    innerBean.inner = innerBigDecimal;
+
+    OuterBeanWithNestedStoredAsJson outerBean = new OuterBeanWithNestedStoredAsJson();
+    outerBean.nested = innerBean;
+
+    JsonNode tree = mapper.valueToTree(outerBean);
+    String outerJson = tree.get("nested").textValue();
+    JsonNode outerParsed = mapper.readTree(outerJson);
+
+    assertThat(outerParsed.get("inner").isTextual())
+      .as(
+        "Nested @StoredAsJson BigDecimal field should be serialized as a JSON string. " +
+        "When serialized as a raw object, downstream DB round-trips lose BigDecimal scale " +
+        "(e.g., 75.000000 becomes 75.0)"
+      )
+      .isTrue();
+  }
+
+  public static class OuterBeanWithNestedStoredAsJson {
+
+    @StoredAsJson
+    public BeanWithBigDecimalStoredAsJson nested;
   }
 
   @Test
