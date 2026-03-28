@@ -1,5 +1,6 @@
 package com.hubspot.rosetta.internal;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -10,19 +11,91 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.AnnotatedElement;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 abstract class ContextualStoredAsJsonSerializer<T>
   extends NonTypedScalarSerializerBase<T> {
 
+  private static final ConcurrentHashMap<InclusionCacheKey, ObjectMapper> MAPPER_CACHE =
+    new ConcurrentHashMap<>();
+
   private final BeanProperty property;
+  private final JsonInclude.Include inclusion;
 
   ContextualStoredAsJsonSerializer(Class<T> t, BeanProperty property) {
     super(t);
     this.property = property;
+    this.inclusion = findInclusion(property);
+  }
+
+  private static JsonInclude.Include findInclusion(BeanProperty property) {
+    if (property == null) {
+      return null;
+    }
+    AnnotatedMember member = property.getMember();
+    if (member != null) {
+      AnnotatedElement annotated = member.getAnnotated();
+      if (annotated != null) {
+        JsonInclude annotation = annotated.getAnnotation(JsonInclude.class);
+        if (
+          annotation != null && annotation.value() != JsonInclude.Include.USE_DEFAULTS
+        ) {
+          return annotation.value();
+        }
+      }
+    }
+    return null;
+  }
+
+  private ObjectMapper getConfiguredMapper(ObjectMapper baseMapper) {
+    if (inclusion == null) {
+      return baseMapper;
+    }
+    return MAPPER_CACHE.computeIfAbsent(
+      new InclusionCacheKey(baseMapper, inclusion),
+      key -> {
+        ObjectMapper nestedMapper = baseMapper.copy();
+        nestedMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector());
+        nestedMapper.setSerializationInclusion(key.inclusion);
+        return nestedMapper;
+      }
+    );
+  }
+
+  private static class InclusionCacheKey {
+
+    final int mapperIdentity;
+    final JsonInclude.Include inclusion;
+
+    InclusionCacheKey(ObjectMapper mapper, JsonInclude.Include inclusion) {
+      this.mapperIdentity = System.identityHashCode(mapper);
+      this.inclusion = inclusion;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof InclusionCacheKey)) {
+        return false;
+      }
+      InclusionCacheKey that = (InclusionCacheKey) o;
+      return mapperIdentity == that.mapperIdentity && inclusion == that.inclusion;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(mapperIdentity, inclusion);
+    }
   }
 
   protected void serializeAsBytes(
@@ -56,6 +129,10 @@ abstract class ContextualStoredAsJsonSerializer<T>
     ObjectMapper mapper,
     SerializerProvider provider
   ) throws IOException {
+    if (inclusion != null) {
+      return mapper.writeValueAsBytes(value);
+    }
+
     try (ByteArrayBuilder array = new ByteArrayBuilder(new BufferRecycler())) {
       if (trySerialzieToArray(value, mapper, provider, array)) {
         byte[] result = array.toByteArray();
@@ -64,7 +141,6 @@ abstract class ContextualStoredAsJsonSerializer<T>
       }
     }
 
-    // fallback on old behavior
     return mapper.writeValueAsBytes(value);
   }
 
@@ -73,13 +149,16 @@ abstract class ContextualStoredAsJsonSerializer<T>
     ObjectMapper mapper,
     SerializerProvider provider
   ) throws IOException {
+    if (inclusion != null) {
+      return mapper.writeValueAsString(value);
+    }
+
     try (SegmentedStringWriter sw = new SegmentedStringWriter(new BufferRecycler())) {
       if (trySerializeToWriter(value, mapper, provider, sw)) {
         return sw.getAndClear();
       }
     }
 
-    // fallback on old behavior
     JsonNode tree = mapper.valueToTree(value);
     if (tree.isNull()) {
       return tree.asText();
@@ -136,6 +215,7 @@ abstract class ContextualStoredAsJsonSerializer<T>
   }
 
   private ObjectMapper getMapper(JsonGenerator generator) {
-    return (ObjectMapper) generator.getCodec();
+    ObjectMapper baseMapper = (ObjectMapper) generator.getCodec();
+    return getConfiguredMapper(baseMapper);
   }
 }
