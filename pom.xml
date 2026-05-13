@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.hubspot</groupId>
         <artifactId>basepom</artifactId>
-        <version>68.1</version>
+        <version>69.2</version>
     </parent>
 
     <groupId>com.hubspot.rosetta</groupId>
@@ -65,13 +65,10 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-core</artifactId>
-                <version>3.28.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-sqlobject</artifactId>
-                <version>3.28.0</version>
+                <artifactId>jdbi3-bom</artifactId>
+                <version>3.53.0</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
