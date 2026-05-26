@@ -49,14 +49,13 @@ public class RosettaAwareWireSafeEnumDeserializer
   ) {
     return new JsonDeserializer<WireSafeEnum<?>>() {
       @Override
-      public WireSafeEnum<T> deserialize(JsonParser p, DeserializationContext ctxt) {
+      public WireSafeEnum<T> deserialize(JsonParser p, DeserializationContext ctxt)
+        throws IOException {
+        String rawValue = p.getText();
         try {
           return WireSafeEnum.of(p.getCodec().readValue(p, enumType));
         } catch (IOException e) {
-          throw new IllegalStateException(
-            "Invalid value for enum type: " + enumType.getTypeName(),
-            e
-          );
+          return WireSafeEnum.fromJson(enumType, rawValue);
         }
       }
     };

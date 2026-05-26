@@ -218,6 +218,23 @@ public class WireSafeEnumTest {
   }
 
   @Test
+  public void itDeserializesUnknownEnumValueGracefully() {
+    WireSafeBean bean = convert(
+      objectNode(
+        ImmutableMap
+          .<String, JsonNode>builder()
+          .put("simple", new TextNode("UNKNOWN_VALUE"))
+          .put("custom", new IntNode(1))
+          .build()
+      ),
+      WireSafeBean.class
+    );
+
+    assertThat(bean.getSimple().asEnum()).isEqualTo(Optional.empty());
+    assertThat(bean.getSimple().asString()).isEqualTo("UNKNOWN_VALUE");
+  }
+
+  @Test
   public void itCanDeserializeBeanWithEmptyWireSafeField() {
     WireSafeBean bean = new WireSafeBean();
     bean.setSimple(WireSafeEnum.of(SimpleEnum.ONE));
