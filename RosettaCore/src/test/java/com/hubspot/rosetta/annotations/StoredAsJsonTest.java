@@ -2,8 +2,10 @@ package com.hubspot.rosetta.annotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,9 +33,11 @@ import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonListTypeInfoBean.ConcreteStoredAsJsonList;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean;
 import com.hubspot.rosetta.beans.StoredAsJsonTypeInfoBean.ConcreteStoredAsJsonTypeInfo;
+import com.hubspot.rosetta.internal.RosettaModule;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -784,5 +788,82 @@ public class StoredAsJsonTest {
     FieldBeanStoredAsJson res = Rosetta
       .getMapper()
       .readValue(node.toString(), FieldBeanStoredAsJson.class);
+  }
+
+  @Test
+  public void itIncludesAllFieldsByDefaultWithRosettaMapper()
+    throws JsonProcessingException {
+    // Verify that the default Rosetta.getMapper() still includes all fields
+    // including nulls and empty collections (standard DAO behavior)
+    InnerBeanWithList bean = new InnerBeanWithList();
+    bean.values = Collections.emptyList();
+    bean.name = null;
+
+    String json = Rosetta.getMapper().writeValueAsString(bean);
+
+    // Both fields should be present even though one is null and one is empty
+    assertThat(json).contains("\"name\":null");
+    assertThat(json).contains("\"values\":[]");
+  }
+
+  @Test
+  public void itIgnoresMapperLevelInclusionForStoredAsJsonFields()
+    throws JsonProcessingException {
+    ObjectMapper mapper = new ObjectMapper()
+      .registerModule(new RosettaModule())
+      .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+    BeanWithListStoredAsJsonNoAnnotation bean =
+      new BeanWithListStoredAsJsonNoAnnotation();
+    bean.inner = new InnerBeanWithList();
+    bean.inner.values = Collections.emptyList();
+    bean.inner.name = "test";
+
+    JsonNode node = mapper.valueToTree(bean);
+
+    assertThat(node.get("inner").isTextual()).isTrue();
+    String innerJson = node.get("inner").textValue();
+    assertThat(innerJson)
+      .as("Mapper-level NON_EMPTY should NOT affect @StoredAsJson without @JsonInclude")
+      .contains("\"values\":[]");
+  }
+
+  @Test
+  public void itRespectsJsonIncludeAnnotationOnStoredAsJsonField()
+    throws JsonProcessingException {
+    ObjectMapper mapper = new ObjectMapper().registerModule(new RosettaModule());
+
+    BeanWithListStoredAsJson bean = new BeanWithListStoredAsJson();
+    bean.inner = new InnerBeanWithList();
+    bean.inner.values = Collections.emptyList();
+    bean.inner.name = "test";
+
+    JsonNode node = mapper.valueToTree(bean);
+
+    assertThat(node.get("inner").isTextual()).isTrue();
+    String innerJson = node.get("inner").textValue();
+    assertThat(innerJson).contains("\"name\":\"test\"");
+    assertThat(innerJson)
+      .as("@JsonInclude(NON_EMPTY) should exclude empty list in @StoredAsJson field")
+      .doesNotContain("values");
+  }
+
+  public static class BeanWithListStoredAsJson {
+
+    @StoredAsJson
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public InnerBeanWithList inner;
+  }
+
+  public static class BeanWithListStoredAsJsonNoAnnotation {
+
+    @StoredAsJson
+    public InnerBeanWithList inner;
+  }
+
+  public static class InnerBeanWithList {
+
+    public String name;
+    public List<String> values;
   }
 }
